@@ -21,25 +21,13 @@ class UserController extends Controller
         if( !$request->nombre_usuario || !$request->email || !$request->contrasenya || !$request->telefono){
             return response()->json([ 'message'=>'Faltan campos' ], 400 );
         }
-        
-        // $HashedPassword = Hash::make($request->contrasenya);
-
-        $user = User::create([
+    
+        User::create([
             'nombre_usuario' => $request->nombre_usuario,
             'email' => $request->email,
             'contrasenya' => Hash::make($request->contrasenya),
             'telefono' => $request->telefono
         ]);
-
-        return response()->json(['message'=>'Creado'],201);
-        $user->save();
-        
-        // DB::insert('INSERT INTO usuarios (nombre_usuario, email, contrasenya, telefono) VALUES (?, ?, ?, ?)', [
-        //     $request->nombre_usuario,
-        //     $request->email,
-        //     $HashedPassword,
-        //     $request->telefono
-        // ]);
 
         return response()->json([ 'message'=>'Creado' ], 201 );
     }

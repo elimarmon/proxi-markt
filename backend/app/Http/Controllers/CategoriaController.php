@@ -9,7 +9,7 @@ class CategoriaController extends Controller
 {
     public function store(Request $request) {
         try {
-            $categoria = Categoria::create([
+            Categoria::create([
                 "nombre_categoria" => $request->nombre_categoria,
             ]);
 
