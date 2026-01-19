@@ -1,25 +1,21 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import { useRouter } from "vue-router";
 import navbar from "./nav.vue";
+// import TarjetaProducto from "@/components/TarjetaProducto.vue";
 import MostrarProductos from './MostrarProductosMain.vue'
 
-const router = useRouter();
 const productos = ref([]);
 
 const mostrarProductos = async () => {
-    try {
-        const response = await axios.get("http://localhost:8080/api/productos");
-        productos.value = response.data;
-    } catch (error) {
-        console.error("Error al cargar productos:", error);
-    }
+    const response = await axios.get("http://localhost:8080/api/productos");
+    productos.value = response.data;
+    console.log(response);
 };
 
-onMounted(() =>{
-  mostrarProductos();
-})
+onMounted(() => {
+    mostrarProductos();
+});
 </script>
 
 <template>
@@ -45,6 +41,7 @@ onMounted(() =>{
     </div>
 
     <MostrarProductos :productos="productos"></MostrarProductos>
+    
   </div>
 </template>
 

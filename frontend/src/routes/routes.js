@@ -1,13 +1,12 @@
 import login from "../views/login.vue";
 import { createRouter, createWebHistory } from "vue-router";
-
-// import Productos from "../components/Productos.vue";
 import productos from '../components/productos.vue';
 import dashboard from '../components/dashboard.vue';
 import comandas from '../components/comandas.vue';
 import miCuenta from '../components/miCuenta.vue';
 import Ubicacion from '../components/ubicacion.vue';
 import publicar from '../components/publicar.vue';
+import DetalleProducto from "@/components/DetalleProducto.vue";
 
 
 const routes = [
@@ -15,6 +14,11 @@ const routes = [
         path: "/login",
         name: "login",
         component: login,
+    },
+    {
+        path: "/productos/:id",
+        name: "detalle-productos",
+        component: DetalleProducto
     },
     {
         path: '/dashboard',
