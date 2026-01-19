@@ -29,6 +29,7 @@ const form = reactive({
 const cogerImagen = (event) => {
     form.imagen = event.target.files[0];
 }
+
 const enviar = async () => {
     let datos = new FormData();
     datos.append('nombre_producto', form.nombre_producto);
