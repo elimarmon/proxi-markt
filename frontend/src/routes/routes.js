@@ -7,6 +7,7 @@ import comandas from '../components/comandas.vue';
 import miCuenta from '../components/miCuenta.vue'
 import Ubicacion from '../components/ubicacion.vue';
 import publicar from '../components/publicar.vue'
+import { patchProp } from 'vue';
 
 const routes = [
     {
@@ -33,17 +34,18 @@ const routes = [
         path: '/comandas',
         name: 'comandas',
         component: comandas
-    }
-    // {
-    //     path: '/publicar',
-    //     name: 'publicar',
-    //     component: publicar
-    // },
-    // {
-    //     path: '/cuenta',
-    //     name: 'cuenta',
-    //     component: miCuenta
-    // }
+    },
+    {
+        path: '/publicar',
+        name: 'publicar',
+        component: publicar
+    },
+    {
+        path: '/cuenta',
+        name: 'cuenta',
+        component: miCuenta
+    },
+    
 ];
 
 const router = createRouter({
