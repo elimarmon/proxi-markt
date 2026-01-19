@@ -29,6 +29,12 @@ const routes = [
         name: 'mapa',
         component: PerfilUsuario
     },
+
+    {
+        path: '/publicar',
+        name: 'publicar',
+        component: publicar
+    }
     // {
     //     path: '/mensajes',
     //     name: 'mensajes',
