@@ -4,6 +4,7 @@ import login from '../views/login.vue';
 import PerfilUsuario from '../components/PerfilUsuario.vue';
 import productos from '../components/productos.vue';
 import dashboard from '../components/dashboard.vue';
+import comandas from '../components/comandas.vue';
 import miCuenta from '../components/miCuenta.vue'
 import Ubicacion from '../components/ubicacion.vue';
 import publicar from '../components/publicar.vue'
@@ -29,37 +30,26 @@ const routes = [
         name: 'mapa',
         component: PerfilUsuario
     },
-
-    {
-        path: '/publicar',
-        name: 'publicar',
-        component: publicar
-    }
     // {
     //     path: '/mensajes',
     //     name: 'mensajes',
     //     component: mensajes
-    // }
-    // {
-    //     path: '/comandas',
-    //     name: 'comandas',
-    //     component: comandas
-    // }
+    // },
     {
-        path: '/publicar',
-        name: 'publicar',
-        component: publicar
-    },
-    {
-        path: '/cuenta',
-        name: 'cuenta',
-        component: miCuenta
-    },
-    {
-        path: '/ubicacion',
-        name: 'ubicacion',
-        component: Ubicacion
+        path: '/comandas',
+        name: 'comandas',
+        component: comandas
     }
+    // {
+    //     path: '/publicar',
+    //     name: 'publicar',
+    //     component: publicar
+    // },
+    // {
+    //     path: '/cuenta',
+    //     name: 'cuenta',
+    //     component: miCuenta
+    // }
 ];
 
 const router = createRouter({

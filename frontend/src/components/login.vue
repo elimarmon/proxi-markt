@@ -46,8 +46,7 @@
             const token = login.data.token;
             localStorage.setItem('token', token); 
 
-            console.log("Token guardado con éxito");
-            router.push('/ubicacion');
+      router.push('/productos')
 
             form.value = { email: '', contrasenya: '' }; 
         }
