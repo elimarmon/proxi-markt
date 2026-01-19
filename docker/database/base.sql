@@ -16,7 +16,9 @@ CREATE TABLE usuarios (
 
 CREATE TABLE categorias (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_categoria VARCHAR(255) NOT NULL
+    nombre_categoria VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE puntos_entrega (
@@ -40,12 +42,13 @@ CREATE TABLE productos (
     descripcion TEXT,
     precio DECIMAL(10, 2) NOT NULL,
     stock_total INT NOT NULL DEFAULT 0,
+    stock_reserva INT NOT NULL DEFAULT 0,
+    stock_real INT AS (stock_total - stock_reserva) STORED,
     imagen VARCHAR(255),
     estado ENUM(
         'agotado',
-        'reservado',
         'disponible'
-    ),
+    ) DEFAULT 'disponible',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_categoria) REFERENCES categorias (id),

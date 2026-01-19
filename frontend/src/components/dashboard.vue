@@ -3,7 +3,7 @@
   <div class="contenedor-pagina">
     <div id="contenedor-titulo">
       <h1 class="titulo">Dashboard</h1>
-      <p class="subtitulo">Resumen de tu actividad en ProxyMarket</p>
+      <p class="subtitulo">Resumen de tu actividad en ProxiMarkt</p>
     </div>
 
     <div class="cajas-informacion-uno">

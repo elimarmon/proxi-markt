@@ -5,7 +5,8 @@
       <h1 class="titulo">Productos Frescos y Locales</h1>
       <p class="subtitulo">Conecta directamente con productores de tu zona (radio: 50 km)</p>
     </div>
-    
+     <h1>Hola desde productos</h1>
+    <TarjetaProducto v-for="producto in productos" :id="producto.id" :id_categoria="producto.id_categoria" :nombre_producto="producto.nombre_producto" :descripcion="producto.descripcion" :precio="producto.precio" :stock_real="producto.stock_real"/>
 
     <div id="contenedor-buscador">
       <div id="buscador">
@@ -24,12 +25,26 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 import navbar from "./nav.vue";
+import TarjetaProducto from "@/components/TarjetaProducto.vue";
+
 
 const router = useRouter();
+
+const productos = ref([]);
+
+const mostrarProductos = async () => {
+    const response = await axios.get("http://localhost:8080/api/productos");
+    productos.value = response.data;
+    console.log(response);
+};
+
+onMounted(() =>{
+  mostrarProductos();
+})
 </script>
 
 <style scoped>

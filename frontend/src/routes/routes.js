@@ -1,18 +1,21 @@
+import login from "../views/login.vue";
+import { createRouter, createWebHistory } from "vue-router";
 import { createRouter, createWebHistory } from 'vue-router';
 
-import login from '../views/login.vue';
+// import Productos from "../components/Productos.vue";
 import productos from '../components/productos.vue';
 import dashboard from '../components/dashboard.vue';
 import comandas from '../components/comandas.vue';
-import miCuenta from '../components/miCuenta.vue'
+import miCuenta from '../components/miCuenta.vue';
 import Ubicacion from '../components/ubicacion.vue';
-import publicar from '../components/publicar.vue'
+import publicar from '../components/publicar.vue';
+
 
 const routes = [
     {
-        path: '/login',
-        name: 'login',
-        component: login
+        path: "/login",
+        name: "login",
+        component: login,
     },
     {
         path: '/dashboard',
@@ -23,6 +26,11 @@ const routes = [
         path: '/productos',
         name: 'productos',
         component: productos
+    },
+    {
+        path: '/mapa',
+        name: 'mapa',
+        component: PerfilUsuario
     },
     // {
     //     path: '/mensajes',
@@ -49,7 +57,7 @@ const routes = [
 
 const router = createRouter({
     history: createWebHistory(),
-    routes
+    routes,
 });
 
 export default router;
