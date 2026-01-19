@@ -51,7 +51,6 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        $cookie = cookie()->forget('access_token');
 
         return response()->json(['message' => 'Sesión cerrada'], 200)->withCookie($cookie);
     }
