@@ -45,9 +45,13 @@
         if (login.status === 200) {
             const token = login.data.token;
             localStorage.setItem('token', token); 
-
             console.log("Token guardado con éxito");
-            router.push('/ubicacion');
+
+            if(login.data.user.direccion === null){
+              router.push('/ubicacion');
+            }else{
+              router.push('/cuenta')
+            }
 
             form.value = { email: '', contrasenya: '' }; 
         }

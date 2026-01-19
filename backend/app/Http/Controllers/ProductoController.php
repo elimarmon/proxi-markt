@@ -22,6 +22,17 @@ class ProductoController extends Controller
         return response()->json($productos);
     }
 
+    public function productosPorUsuario(Request $request)
+    {
+        $user = $request->user();
+
+        $productos = Producto::where('id_usuario', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return response()->json($productos);
+    }
+
     /**
      * Crear un nuevo producto (Para el agricultor)
      */

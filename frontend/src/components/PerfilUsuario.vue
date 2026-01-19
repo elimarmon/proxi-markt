@@ -14,6 +14,7 @@
   const longitud = ref(0)
   const nombrePunto = ref('')
   const PuntosEntrega = ref([])
+  const ProductosUser = ref([])
 
   console.log(PuntosEntrega)
 
@@ -102,6 +103,19 @@
 
   const EsconderMapa = () =>{
     activarMapa.value = false
+  }
+
+  const CargarProductosUser = async () => {
+    const token = localStorage.getItem('token');
+    const productos = await axios.get('http://localhost:8080/api/productosPorUsuario', {
+      headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }}
+        )
+    
+    ProductosUser.value = productos.data;
+
   }
 
   onMounted(() => {

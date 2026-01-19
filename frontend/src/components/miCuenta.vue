@@ -4,6 +4,7 @@
   import { ref, nextTick, onMounted } from 'vue'
   import axios from 'axios'
   import navbar from './nav.vue'
+  import MostrarProductos from './mostrarProductos.vue'
 
   let map;
 
@@ -15,6 +16,7 @@
   const nombrePunto = ref('')
   const PuntosEntrega = ref([])
   const DatosUser = ref([])
+  const ProductosUser = ref([])
 
   console.log(PuntosEntrega)
 
@@ -137,9 +139,23 @@
         }
     }
 
+    const CargarProductosUser = async () => {
+    const token = localStorage.getItem('token');
+    const productos = await axios.get('http://localhost:8080/api/productosuser', {
+      headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }}
+        )
+    
+    ProductosUser.value = productos.data;
+
+  }
+
   onMounted(() => {
       CargarPuntos();
       DatosUsuario();
+      CargarProductosUser();
   });
 
 </script>
@@ -195,8 +211,8 @@
     <div class="contenedor-secciones-datos">
       
       <section class="seccion-bloque">
-        <h3>Mis Productos</h3>
-        <div class="card-vacia">No tienes productos publicados.</div>
+        <h3>Mis productos</h3>
+        <MostrarProductos :productos="ProductosUser"></MostrarProductos>
       </section>
 
       <section class="seccion-bloque">
