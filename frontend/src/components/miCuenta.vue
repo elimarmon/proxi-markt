@@ -164,16 +164,16 @@
   <div class="contenedor-pagina">
     <div class="contenedor-titulo">
       <h1 class="titulo">Mi Cuenta</h1>
-      <p class="subtitulo">Gestiona tus productos y datos personales</p>
+      <p class="subtitulo">Gestiona tus productos y datos personales</p><br>
     </div>
 
     <div class="contenido-centrado">
       <div class="card-perfil">
-        <h3>Mi Perfil</h3>
+        <h3>Mi Perfil</h3><br>
         <div class="info-usuario">
-          <p><span>Nombre:</span> {{ DatosUser.nombre_usuario || 'Cargando...' }}</p>
-          <p><span>Email:</span> {{ DatosUser.email }}</p>
-          <p><span>Dirección:</span> {{ DatosUser.direccion || 'No definida' }}</p>
+          <p><span><img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-usuario" class="icono">Nombre:</span> {{ DatosUser.nombre_usuario || 'Cargando...' }}</p>
+          <p><span><img src="../assets/iconos/email.png" alt="icono-email" class="icono">Email:</span> {{ DatosUser.email }}</p>
+          <p><span><img src="../assets/iconos/ubicacion.png" alt="icono-direccion" class="icono">Dirección:</span> {{ DatosUser.direccion || 'No definida' }}</p>
           <p class="valoracion">Valoración: <span>{{ DatosUser.puntuacio || '5.0' }}</span></p>
         </div>
       </div>
@@ -275,6 +275,10 @@ body {
 .subtitulo {
   font-family: sans-serif;
   color: #666666;
+  margin-bottom: 20px;
+}
+
+.info-usuario p{
   margin-bottom: 20px;
 }
 
