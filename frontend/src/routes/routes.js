@@ -1,9 +1,13 @@
+import { createRouter, createWebHistory } from 'vue-router';
+
 import login from '../views/login.vue';
 import PerfilUsuario from '../components/PerfilUsuario.vue';
 import productos from '../components/productos.vue';
 import dashboard from '../components/dashboard.vue';
 import comandas from '../components/comandas.vue';
-import { createRouter, createWebHistory } from 'vue-router';
+import miCuenta from '../components/miCuenta.vue'
+import Ubicacion from '../components/ubicacion.vue';
+import publicar from '../components/publicar.vue'
 
 const routes = [
     {
