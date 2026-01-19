@@ -12,6 +12,7 @@ const props = defineProps({
   <div class="contenedor-seccion-productos">
     <div v-if="productos && productos.length > 0" class="grid-productos">
       <div v-for="producto in productos" :key="producto.id" class="card-producto">
+        <router-link :to="{name: 'detalle-productos', params: {id: producto.id}}">
         <div class="imagen-contenedor">
           <img 
             :src="producto.imagen ? `http://localhost:8080/storage/${producto.imagen}` : 'https://via.placeholder.com/150'" 
@@ -19,7 +20,6 @@ const props = defineProps({
           >
           <span class="badge-estado" :class="producto.estado">{{ producto.estado }}</span>
         </div>
-        
         <div class="detalles-producto">
           <h4>{{ producto.nombre_producto }}</h4>
           <p class="precio">{{ producto.precio }}€</p>
@@ -27,6 +27,7 @@ const props = defineProps({
             <span>📦 Stock: {{ producto.stock_total }}</span>
           </div>
         </div>
+      </router-link>
       </div>
     </div>
 
