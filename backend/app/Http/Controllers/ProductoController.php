@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
 use App\Models\Producto;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Storage;
 
 class ProductoController extends Controller
 {
@@ -13,7 +13,6 @@ class ProductoController extends Controller
      * Mostrar todos los productos disponibles (Para la tienda/mapa)
      */
     public function index() {
-        // Traemos solo los que tienen stock real y están marcados como disponibles
         $productos = Producto::all();
 
         return response()->json($productos);
@@ -39,7 +38,7 @@ class ProductoController extends Controller
             'message' => 'Producto publicado con éxito',
             'producto' => $validado
         ], 201);
-    }
+    } // Aquí termina la función store correctamente
 
     /**
      * Ver detalle de un producto específico
@@ -50,7 +49,7 @@ class ProductoController extends Controller
     }
 
     /**
-     * Actualizar datos del producto (Ej: el agricultor quiere cambiar el precio o añadir stock)
+     * Actualizar datos del producto
      */
     public function update(Request $request, $id) {
         $producto = Producto::findOrFail($id);

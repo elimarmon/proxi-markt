@@ -1,9 +1,9 @@
 <script setup>
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import { ref, nextTick, onMounted } from "vue";
-import axios from "axios";
-//import Navbar from "./Nav.vue";
+  import L from 'leaflet'
+  import 'leaflet/dist/leaflet.css'
+  import { ref, nextTick, onMounted } from 'vue'
+  import axios from 'axios'
+  import navbar from './nav.vue'
 
 let map;
 
@@ -17,14 +17,9 @@ const PuntosEntrega = ref([]);
 
 console.log(PuntosEntrega);
 
-const GuardarPuntoEntrega = async () => {
-    if (PuntosEntrega.value.length >= 5) {
-        activarMapa.value = false;
-        alert("Solo puedes hacer 5 puntos de entrega");
-        return;
-    } else {
+  const GuardarPuntoEntrega = async () => {
         activarMapa.value = true;
-    }
+    
 
     await nextTick();
 
@@ -68,16 +63,24 @@ const GuardarPuntoEntrega = async () => {
     map.on("click", onMapClick);
 };
 
-const CrearPunto = async () => {
+    }
+
+  const CrearPunto = async () =>{
+    const token = localStorage.getItem('token');
     const Datos = {
         latitud: latitud.value,
         longitud: longitud.value,
         nombre_punto: nombrePunto.value,
-        direccion_punto: nombreCalle.value,
-    };
-    try {
-        await axios.post("/insertarpunto", Datos, { withCredentials: true });
-        alert("creado");
+        direccion_punto: nombreCalle.value
+    }
+    try{
+        await axios.post('http://localhost:8080/api/insertarpunto', Datos, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        });
+        alert('creado')
         location.reload();
         //refrescar la pagina
     } catch (error) {
@@ -92,8 +95,14 @@ const CrearPunto = async () => {
     }
 };
 
-const CargarPuntos = async () => {
-    const resposta = await axios.get("/puntos", { withCredentials: true });
+  const CargarPuntos = async() => {
+    const token = localStorage.getItem('token');
+    const resposta = await axios.get('http://localhost:8080/api/puntosuser', {
+      headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+    })
     PuntosEntrega.value = resposta.data;
 };
 
@@ -106,51 +115,38 @@ onMounted(() => {
 });
 </script>
 <template>
-    <Navbar></Navbar>
-    <div>
-        <button @click="GuardarPuntoEntrega">Crear punto de entrega</button>
+  <navbar></navbar>
+  <div class="contenedor-pagina">
+    <button @click="GuardarPuntoEntrega">Crear punto de entrega</button>
 
-        <div
-            v-if="activarMapa"
-            id="map"
-            style="height: 400px; width: 100%; margin-top: 20px"
-        ></div>
-        <div v-if="activarMapa">
-            <label for="nombrepunto">Nombre del punto de venta</label><br />
-            <input
-                v-model="nombrePunto"
-                type="text"
-                name="nombrepunto"
-                id="nombrepunto"
-                required
-            /><br /><br />
-            <button @click="CrearPunto">Guardar</button
-            ><button @click="EsconderMapa">Cancelar</button>
-        </div>
+    <div v-if="activarMapa" id="map" style="height: 400px; width: 100%; margin-top: 20px;"></div>
+    <div v-if="activarMapa">
+        <label for="nombrepunto">Nombre del punto de venta</label><br>
+        <input v-model="nombrePunto" type="text" name="nombrepunto" id="nombrepunto" required><br><br>
+        <button @click="CrearPunto">Guardar</button><button @click="EsconderMapa">Cancelar</button>
+    </div>
 
-        <p v-if="nombreCalle">
-            Calle seleccionada: <strong>{{ nombreCalle }}</strong>
-        </p>
+    <p v-if="nombreCalle">Calle seleccionada: <strong>{{ nombreCalle }}</strong></p>
 
-        <div v-if="PuntosEntrega.length === 0">
-            <h2>Llista de Punts</h2>
-            <p>No hay Punts disponibles</p>
-        </div>
-        <div v-else>
-            <h2>Llista de Punts</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Direccio</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="punto in PuntosEntrega" :key="punto.id">
-                        <td>{{ punto.nombre_punto }}</td>
-                        <td>{{ punto.direccion_punto }}</td>
+    <div v-if="PuntosEntrega.length === 0">
+      <h2>Llista de Punts</h2>
+        <p>No hay Punts disponibles</p>
+    </div>
+    <div v-else>
+        <h2>Llista de Punts</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Direccio</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="punto in PuntosEntrega" :key="punto.id">
+              <td>{{ punto.nombre_punto }}</td>
+              <td>{{ punto.direccion_punto }}</td>
 
-                        <!-- <td>
+              <!-- <td>
                 <button @click="Eliminarproducte(producte.id)">Eliminar</button>
               </td> -->
                     </tr>
@@ -158,5 +154,29 @@ onMounted(() => {
             </table>
         </div>
     </div>
-    <SolicitarCompra />
+  </div>
 </template>
+
+<style scoped>
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 400px;
+}
+
+
+.contenedor-pagina{
+  margin-top: 80px;
+  padding: 20px 50px;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-top: 150px; 
+  }
+}
+</style>

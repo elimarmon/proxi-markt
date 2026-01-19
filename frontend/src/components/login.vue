@@ -22,7 +22,7 @@
 <script setup>
   import { ref } from 'vue';
   import axios from 'axios';
-  import { useRouter } from 'vue-router'
+  import { useRouter } from 'vue-router';
 
   const router = useRouter()
 
@@ -32,7 +32,6 @@
   })
 
   const enviarInfo = async () => {
-
     const { email, contrasenya } = form.value;
 
     if (!email || !contrasenya) {
@@ -40,28 +39,32 @@
         return;
     }
 
-    console.log("Enviando login:", form.value);
-    
-    const login = await axios.post('http://localhost:8080/api/login', form.value);
+    try {
+        const login = await axios.post('http://localhost:8080/api/login', form.value);
 
-    if(login.status === 200){
+        if (login.status === 200) {
+            const token = login.data.token;
+            localStorage.setItem('token', token); 
 
-      console.log(login.data)
+      router.push('/productos')
 
-      router.push('/mapa')
-
-      form.value = {
-        email: '',
-        contrasenya: ''
-      }; 
+            form.value = { email: '', contrasenya: '' }; 
+        }
+    } catch (error) {
+        console.error("Error en el login:", error.response?.data || error.message);
+        alert("Credenciales incorrectas");
     }
   }
 </script>
 
 <style scoped>
-  body, html {
+* {
   margin: 0;
   padding: 0;
+}
+
+body{
+  min-width: 400px;
 }
 
 .form-card {
@@ -141,5 +144,28 @@ input::placeholder {
 
 .btn-submit:hover {
   background-color: #009E47;
+}
+
+@media (min-width: 1200px) {
+  .form-card {
+    max-width: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    align-items: flex-start;
+    padding-top: 40px;
+  }
+
+  .form-card {
+    width: 100%;
+    max-width: none;
+    padding: 25px 20px;
+  }
+
+  h3 {
+    font-size: 1.2rem;
+  }
 }
 </style>
