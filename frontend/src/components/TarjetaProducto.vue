@@ -1,4 +1,7 @@
 <script setup>
+    import { useRouter } from 'vue-router';
+
+    const router = useRouter();
 defineProps({
     id: Number,
     id_categoria: Number,
@@ -9,6 +12,8 @@ defineProps({
     //imagen: String,
     //estado: Enumerator,
 });
+
+
 </script>
 
 <template>
