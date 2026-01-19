@@ -1,24 +1,20 @@
-
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import { useRouter } from "vue-router";
 import navbar from "./nav.vue";
+// import TarjetaProducto from "@/components/TarjetaProducto.vue";
 import MostrarProductos from './MostrarProductosMain.vue'
-
-const router = useRouter();
 
 const productos = ref([]);
 
 const mostrarProductos = async () => {
     const response = await axios.get("http://localhost:8080/api/productos");
     productos.value = response.data;
-    console.log(response);
 };
 
-onMounted(() =>{
-  mostrarProductos();
-})
+onMounted(() => {
+    mostrarProductos();
+});
 </script>
 
 <template>
@@ -44,11 +40,11 @@ onMounted(() =>{
     </div>
 
     <MostrarProductos :productos="productos"></MostrarProductos>
+    
   </div>
 </template>
 
 <style scoped>
-/* Estructura base idéntica a Mi Cuenta */
 .contenedor-pagina {
   max-width: 1200px;
   margin: 90px auto 0;
@@ -68,7 +64,6 @@ onMounted(() =>{
   margin-bottom: 30px; 
 }
 
-/* Card de búsqueda estilizada como .card-perfil */
 .card-busqueda {
   background: white;
   border: 1px solid #eee;
@@ -138,40 +133,6 @@ onMounted(() =>{
   font-weight: 500;
 }
 
-/* Contenedor de Secciones */
-.contenedor-secciones-datos {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
-
-.seccion-bloque h3 {
-  font-size: 1.1rem;
-  margin-bottom: 15px;
-  color: #333;
-  padding-left: 5px;
-  font-weight: bold;
-}
-
-/* Grid de productos */
-.contenedor-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 25px;
-}
-
-/* Card vacía igual que en Mi Cuenta */
-.card-vacia {
-  background: white;
-  border: 1px solid #eee;
-  border-radius: 12px;
-  padding: 60px;
-  text-align: center;
-  color: #999;
-  width: 100%;
-}
-
-/* Responsivo */
 @media (max-width: 768px) {
   .contenedor-pagina {
     padding: 0 20px 20px 20px;
