@@ -18,13 +18,8 @@
   console.log(PuntosEntrega)
 
   const GuardarPuntoEntrega = async () => {
-    if(PuntosEntrega.value.length >= 5){
-        activarMapa.value = false;
-        alert('Solo puedes hacer 5 puntos de entrega');
-        return;
-    }else{
         activarMapa.value = true;
-    }
+    
 
     await nextTick();
     
@@ -69,6 +64,7 @@
     }
 
   const CrearPunto = async () =>{
+    const token = localStorage.getItem('token');
     const Datos = {
         latitud: latitud.value,
         longitud: longitud.value,
@@ -76,7 +72,12 @@
         direccion_punto: nombreCalle.value
     }
     try{
-        await axios.post('/insertarpunto', Datos, {withCredentials: true});
+        await axios.post('http://localhost:8080/api/insertarpunto', Datos, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        });
         alert('creado')
         location.reload();
         //refrescar la pagina
@@ -89,7 +90,13 @@
   }
 
   const CargarPuntos = async() => {
-    const resposta = await axios.get('/puntos',{withCredentials: true} )
+    const token = localStorage.getItem('token');
+    const resposta = await axios.get('http://localhost:8080/api/puntosuser', {
+      headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+    })
     PuntosEntrega.value = resposta.data;
   }
 
@@ -104,7 +111,7 @@
 </script>
 <template>
   <navbar></navbar>
-  <div>
+  <div class="contenedor-pagina">
     <button @click="GuardarPuntoEntrega">Crear punto de entrega</button>
 
     <div v-if="activarMapa" id="map" style="height: 400px; width: 100%; margin-top: 20px;"></div>
@@ -145,9 +152,20 @@
 </template>
 
 <style scoped>
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
   min-width: 400px;
-  padding-top: 100px;
+}
+
+
+.contenedor-pagina{
+  margin-top: 80px;
+  padding: 20px 50px;
 }
 
 @media (max-width: 768px) {
