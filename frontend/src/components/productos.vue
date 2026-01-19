@@ -1,62 +1,9 @@
-<template>
-    <navbar></navbar>
-    <div class="contenedor-pagina">
-        <div id="contenedor-titulo">
-            <h1 class="titulo">Productos Frescos y Locales</h1>
-            <p class="subtitulo">
-                Conecta directamente con productores de tu zona (radio: 50 km)
-            </p>
-        </div>
-
-        <div id="contenedor-buscador">
-            <div id="buscador">
-                <div class="caja">
-                    <img
-                        src="../assets/iconos/buscar.png"
-                        alt="lupa"
-                        class="icono"
-                    />
-                    <input
-                        class="texto"
-                        type="text"
-                        placeholder="Buscar productos frescos..."
-                    />
-                </div>
-                <button class="boton-filtro">
-                    <img
-                        src="../assets/iconos/filtro.png"
-                        alt="filtro productos"
-                        class="icono"
-                    />
-                    Filtros
-                </button>
-            </div>
-            <p class="informacion-filtro">
-                6 productos encontrados
-                <span class="texto-verde">(en un radio de 50 km)</span>
-            </p>
-        </div>
-    </div>
-
-    <div class="seccion-productos">
-        <div class="contenedor-grid">
-            <router-link v-for="producto in productos" :key="producto.id" :to="{name: 'detalle-productos', params: {id: producto.id}}">
-                <TarjetaProducto
-                    :nombre_producto="producto.nombre_producto"
-                    :precio="producto.precio"
-                    :stock_real="producto.stock_total"
-                    :imagen="producto.imagen"
-                />
-            </router-link>
-        </div>
-    </div>
-</template>
-
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
 import navbar from "./nav.vue";
-import TarjetaProducto from "@/components/TarjetaProducto.vue";
+// import TarjetaProducto from "@/components/TarjetaProducto.vue";
+import MostrarProductos from './MostrarProductosMain.vue'
 
 const productos = ref([]);
 
@@ -69,6 +16,33 @@ onMounted(() => {
     mostrarProductos();
 });
 </script>
+
+<template>
+  <navbar></navbar>
+  <div class="contenedor-pagina">
+    <h1 class="titulo-verde">Productos Frescos y Locales</h1>
+    <p class="subtitulo">Conecta directamente con productores de tu zona (radio: 50 km)</p>
+
+    <div class="card-busqueda">
+      <div id="buscador">
+        <div class="caja-busqueda">
+          <img src="../assets/iconos/buscar.png" alt="lupa" class="icono-pequeno" />
+          <input class="input-texto" type="text" placeholder="Buscar productos frescos..."/>
+        </div>
+        <button class="btn-secundario">
+          <img src="../assets/iconos/filtro.png" alt="filtro" class="icono-pequeno"/>
+          Filtros
+        </button>
+      </div>
+      <p class="informacion-resultados"> 
+        6 productos encontrados <span class="texto-verde">(en un radio de 50 km)</span>
+      </p>
+    </div>
+
+    <router-link v-for="producto in productos" :to="{name: 'detalles-producto', params: {id: producto.id}}" ><MostrarProductos :productos="productos"></MostrarProductos>
+    </router-link>
+  </div>
+</template>
 
 <style scoped>
 * {
@@ -186,26 +160,40 @@ body {
     padding: 0; /* Quitamos el padding para que el borde sea exacto */
 }
 
+.seccion-bloque h3 {
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  color: #333;
+  padding-left: 5px;
+  font-weight: bold;
+}
+
+/* Grid de productos */
 .contenedor-grid {
-    display: grid;
-    /* Mantenemos las 3 columnas */
-    grid-template-columns: repeat(3, 1fr);
-    gap: 30px; /* Un poco más de espacio queda mejor en grids anchos */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
 }
 
-/* Responsivo para tablets y móviles */
-@media (max-width: 1024px) {
-    .contenedor-grid {
-        grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
-    }
+/* Card vacía igual que en Mi Cuenta */
+.card-vacia {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 60px;
+  text-align: center;
+  color: #999;
+  width: 100%;
 }
 
+/* Responsivo */
 @media (max-width: 768px) {
-    .seccion-productos {
-        max-width: 95%; /* Un poco más ancho en móviles */
-    }
-    .contenedor-grid {
-        grid-template-columns: 1fr; /* 1 columna en móviles */
-    }
+  .contenedor-pagina {
+    padding: 0 20px 20px 20px;
+  }
+  #buscador {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 </style>

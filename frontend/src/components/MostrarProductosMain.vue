@@ -36,7 +36,6 @@ const props = defineProps({
   </div>
 </template>
 
-
 <style scoped>
 .grid-productos {
   display: grid;

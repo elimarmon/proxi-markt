@@ -47,13 +47,14 @@ class ProductoController extends Controller
         $user = $request->user();
 
         $validado['id_usuario'] = $user->id;
+        $validado['estado'] = $validado['estado'] ?? 'disponible';
 
         if ($request->hasFile('imagen')) {
         $validado['imagen'] = $request->file('imagen')->store('productos', 'public');
         } else {
             $validado['imagen'] = 'productos/default.png';
         }
-        
+
         Producto::create($validado);
 
         return response()->json([
