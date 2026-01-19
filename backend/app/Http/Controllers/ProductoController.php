@@ -36,13 +36,24 @@ class ProductoController extends Controller
 
         $validado = $request->validate([
             'id_categoria' => 'required|exists:categorias,id',
+            'id_puntoentrega' => 'required|exists:puntos_entrega,id', 
             'nombre_producto' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'precio' => 'required|numeric|min:0',
             'stock_total' => 'required|integer|min:1',
-            'imagen' => 'nullable|string',
+            'imagen' => 'nullable|image|max:2048',
         ]);
 
+        $user = $request->user();
+
+        $validado['id_usuario'] = $user->id;
+
+        if ($request->hasFile('imagen')) {
+        $validado['imagen'] = $request->file('imagen')->store('productos', 'public');
+        } else {
+            $validado['imagen'] = 'productos/default.png';
+        }
+        
         Producto::create($validado);
 
         return response()->json([
