@@ -162,88 +162,121 @@
 <template>
   <navbar></navbar>
   <div class="contenedor-pagina">
-    <h1 class="titulo-purpura">Mi Cuenta</h1>
-    <p class="subtitulo">Gestiona tus productos y datos personales</p>
-
-    <div class="card-perfil">
-      <h3>Mi Perfil</h3>
-      <div class="info-usuario">
-        <p><span>Nombre:</span> {{ DatosUser.nombre_usuario || 'Cargando...' }}</p>
-        <p><span>Email:</span> {{ DatosUser.email }}</p>
-        <p><span>Dirección:</span> {{ DatosUser.direccion || 'No definida' }}</p>
-        <p class="valoracion">Valoración: <span>{{ DatosUser.puntuacio || '5.0' }}</span></p>
-      </div>
+    <div class="contenedor-titulo">
+      <h1 class="titulo">Mi Cuenta</h1>
+      <p class="subtitulo">Gestiona tus productos y datos personales</p>
     </div>
 
-    <div class="contenedor-accion-superior">
-      <button @click="GuardarPuntoEntrega" class="btn-crear">
-        Crear nuevo punto de entrega
-      </button>
-    </div>
-
-    <div v-if="activarMapa" class="seccion-gestion-puntos">
-      <div class="formulario-mapa">
-        <h3>Configurar ubicación</h3>
-        <div id="map"></div>
-        <div class="controles-mapa">
-          <input v-model="nombrePunto" placeholder="Nombre del punto (Ej: Casa)">
-          <div class="botones-flex">
-            <button @click="CrearPunto" class="btn-confirmar">Guardar</button>
-            <button @click="EsconderMapa" class="btn-cancelar">Cerrar</button>
-          </div>
+    <div class="contenido-centrado">
+      <div class="card-perfil">
+        <h3>Mi Perfil</h3>
+        <div class="info-usuario">
+          <p><span>Nombre:</span> {{ DatosUser.nombre_usuario || 'Cargando...' }}</p>
+          <p><span>Email:</span> {{ DatosUser.email }}</p>
+          <p><span>Dirección:</span> {{ DatosUser.direccion || 'No definida' }}</p>
+          <p class="valoracion">Valoración: <span>{{ DatosUser.puntuacio || '5.0' }}</span></p>
         </div>
       </div>
 
-      <div class="tus-puntos-existentes">
-        <h3>Tus puntos de entrega actuales</h3>
-        <div class="grid-puntos-mini">
-          <div v-for="punto in PuntosEntrega" :key="punto.id" class="card-punto-mini">
-            <div class="info-mini">
-              <strong>{{ punto.nombre_punto }}</strong>
-              <p>{{ punto.direccion_punto }}</p>
+      <div class="contenedor-accion-superior">
+        <button @click="GuardarPuntoEntrega" class="btn-crear">
+          Crear nuevo punto de entrega
+        </button>
+      </div>
+
+      <div v-if="activarMapa" class="seccion-gestion-puntos">
+        <div class="formulario-mapa">
+          <h3>Configurar ubicación</h3>
+          <div id="map"></div>
+          <div class="controles-mapa">
+            <input v-model="nombrePunto" placeholder="Nombre del punto (Ej: Casa)">
+            <div class="botones-flex">
+              <button @click="CrearPunto" class="btn-confirmar">Guardar</button>
+              <button @click="EsconderMapa" class="btn-cancelar">Cerrar</button>
             </div>
-            <button @click="EliminarPunto(punto.id)" class="btn-borrar">Borrar</button>
+          </div>
+        </div>
+
+        <div class="tus-puntos-existentes">
+          <h3>Tus puntos de entrega actuales</h3>
+          <div class="grid-puntos-mini">
+            <div v-for="punto in PuntosEntrega" :key="punto.id" class="card-punto-mini">
+              <div class="info-mini">
+                <strong>{{ punto.nombre_punto }}</strong>
+                <p>{{ punto.direccion_punto }}</p>
+              </div>
+              <button @click="EliminarPunto(punto.id)" class="btn-borrar">Borrar</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="contenedor-secciones-datos">
-      
-      <section class="seccion-bloque">
-        <h3>Mis productos</h3>
-        <MostrarProductos :productos="ProductosUser"></MostrarProductos>
-      </section>
+      <div class="contenedor-secciones-datos">
+        
+        <section class="seccion-bloque">
+          <h3>Mis productos</h3>
+          <MostrarProductos :productos="ProductosUser"></MostrarProductos>
+        </section>
 
-      <section class="seccion-bloque">
-        <h3>Mis Compras</h3>
-        <div class="card-vacia">No has realizado compras.</div>
-      </section>
+        <section class="seccion-bloque">
+          <h3>Mis Compras</h3>
+          <div class="card-vacia">No has realizado compras.</div>
+        </section>
 
-      <section class="seccion-bloque">
-        <h3>Mis Ventas</h3>
-        <div class="card-vacia">No tienes ventas registradas.</div>
-      </section>
+        <section class="seccion-bloque">
+          <h3>Mis Ventas</h3>
+          <div class="card-vacia">No tienes ventas registradas.</div>
+        </section>
 
-      <section class="seccion-bloque">
-        <h3>Mis Valoraciones</h3>
-        <div class="card-vacia">Aún no tienes valoraciones.</div>
-      </section>
+        <section class="seccion-bloque">
+          <h3>Mis Valoraciones</h3>
+          <div class="card-vacia">Aún no tienes valoraciones.</div>
+        </section>
 
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.contenedor-pagina {
-  max-width: 1200px;
-  margin: 90px auto 0;
-  padding: 0 40px 40px 40px;
-  font-family: 'Segoe UI', sans-serif;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', 'Arial';
 }
 
-.titulo-purpura { color: #9b30ff; font-size: 2rem; margin-bottom: 5px; }
-.subtitulo { color: #666; margin-bottom: 30px; }
+body {
+  min-width: 400px;
+}
+
+.contenedor-pagina {
+  margin-top: 80px;
+  padding: 20px 50px;
+}
+
+.contenido-centrado {
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+.contenedor-titulo{
+  max-width: 90%;
+  margin: 40px auto 0 auto;
+}
+
+.titulo {
+  font-family: sans-serif;
+  color: #4CA626;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.subtitulo {
+  font-family: sans-serif;
+  color: #666666;
+  margin-bottom: 20px;
+}
 
 /* CARD PERFIL */
 .card-perfil {
