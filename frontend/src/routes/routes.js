@@ -46,6 +46,11 @@ const routes = [
         name: 'cuenta',
         component: miCuenta
     },
+    {
+        path: '/ubicacion',
+        name: 'ubicacion',
+        component: Ubicacion
+    }
     
 ];
 
