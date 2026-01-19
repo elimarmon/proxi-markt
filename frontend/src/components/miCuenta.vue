@@ -5,6 +5,9 @@
   import axios from 'axios'
   import navbar from './nav.vue'
   import MostrarProductos from './mostrarProductos.vue'
+  import { useRouter } from "vue-router";
+
+  const router = useRouter();
 
   let map;
 
@@ -162,7 +165,7 @@
 <template>
   <navbar></navbar>
   <div class="contenedor-pagina">
-    <h1 class="titulo-purpura">Mi Cuenta</h1>
+    <h1 class="titulo">Mi Cuenta</h1>
     <p class="subtitulo">Gestiona tus productos y datos personales</p>
 
     <div class="card-perfil">
@@ -178,6 +181,10 @@
     <div class="contenedor-accion-superior">
       <button @click="GuardarPuntoEntrega" class="btn-crear">
         Crear nuevo punto de entrega
+      </button>
+
+      <button @click="router.push('/ubicacion')" class="btn-ubicacion">
+        Configurar mi ubicación principal
       </button>
     </div>
 
@@ -242,7 +249,7 @@
   font-family: 'Segoe UI', sans-serif;
 }
 
-.titulo-purpura { color: #9b30ff; font-size: 2rem; margin-bottom: 5px; }
+.titulo { color: #4ca626; font-size: 2rem; margin-bottom: 5px; }
 .subtitulo { color: #666; margin-bottom: 30px; }
 
 /* CARD PERFIL */
@@ -359,5 +366,29 @@
     padding: 10px 15px; 
     border-radius: 6px; 
     cursor: pointer; 
+}
+
+.contenedor-accion-superior {
+  margin-bottom: 40px; 
+  display: flex; /* Para que los botones salgan uno al lado del otro */
+  gap: 15px;    /* Espacio entre botones */
+}
+
+.btn-ubicacion {
+  background: #4CA626; /* Color púrpura a juego con el título */
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+/* Ajuste para móviles */
+@media (max-width: 600px) {
+  .contenedor-accion-superior {
+    flex-direction: column;
+  }
 }
 </style>
