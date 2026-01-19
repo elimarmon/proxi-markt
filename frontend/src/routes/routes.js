@@ -1,6 +1,5 @@
 import login from "../views/login.vue";
 import { createRouter, createWebHistory } from "vue-router";
-import { createRouter, createWebHistory } from 'vue-router';
 
 // import Productos from "../components/Productos.vue";
 import productos from '../components/productos.vue';
@@ -26,11 +25,6 @@ const routes = [
         path: '/productos',
         name: 'productos',
         component: productos
-    },
-    {
-        path: '/mapa',
-        name: 'mapa',
-        component: PerfilUsuario
     },
     // {
     //     path: '/mensajes',
