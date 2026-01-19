@@ -5,9 +5,7 @@
       <h1 class="titulo">Productos Frescos y Locales</h1>
       <p class="subtitulo">Conecta directamente con productores de tu zona (radio: 50 km)</p>
     </div>
-     <h1>Hola desde productos</h1>
-    <TarjetaProducto v-for="producto in productos" :id="producto.id" :id_categoria="producto.id_categoria" :nombre_producto="producto.nombre_producto" :descripcion="producto.descripcion" :precio="producto.precio" :stock_real="producto.stock_real"/>
-
+    
     <div id="contenedor-buscador">
       <div id="buscador">
         <div class="caja">
@@ -20,6 +18,20 @@
         </button>
       </div>
       <p class="informacion-filtro"> 6 productos encontrados <span class="texto-verde">(en un radio de 50 km)</span></p>
+    </div>
+  </div>
+
+  <div class="seccion-productos">
+    
+    <div class="contenedor-grid">
+      <TarjetaProducto 
+        v-for="producto in productos" 
+        :key="producto.id"
+        :nombre_producto="producto.nombre_producto" 
+        :precio="producto.precio" 
+        :stock_real="producto.stock_total"
+        :imagen="producto.imagen"
+      />
     </div>
   </div>
 </template>
@@ -152,5 +164,35 @@ body {
 
 .texto-verde {
   color: #4ca626;
+}
+
+.seccion-productos {
+  /* Eliminamos el max-width de 1200px y usamos el mismo del buscador */
+  max-width: 90%; 
+  margin: 40px auto; /* Mismo margen que #contenedor-titulo y #contenedor-buscador */
+  padding: 0; /* Quitamos el padding para que el borde sea exacto */
+}
+
+.contenedor-grid {
+  display: grid;
+  /* Mantenemos las 3 columnas */
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 30px; /* Un poco más de espacio queda mejor en grids anchos */
+}
+
+/* Responsivo para tablets y móviles */
+@media (max-width: 1024px) {
+  .contenedor-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
+  }
+}
+
+@media (max-width: 768px) {
+  .seccion-productos {
+    max-width: 95%; /* Un poco más ancho en móviles */
+  }
+  .contenedor-grid {
+    grid-template-columns: 1fr; /* 1 columna en móviles */
+  }
 }
 </style>

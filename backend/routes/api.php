@@ -16,7 +16,7 @@ Route::put('/productos/{id}', [ProductoController::class, 'update']);
 
 // Rutas de categorías
 
-Route::get('/categorias', [CategoriasController::class, 'index']);
+Route::get('/categorias', [CategoriaController::class, 'index']);
 Route::post("/categorias", [CategoriaController::class, "store"]);
 
 // Rutas de usuarios

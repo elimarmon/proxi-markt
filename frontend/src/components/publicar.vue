@@ -1,249 +1,260 @@
 <script setup>
-import { reactive } from 'vue';
-import { ref } from 'vue';
-import axios from "axios";
-import { useRouter } from "vue-router";
-import navbar from "./nav.vue";
+    import { ref, onMounted } from 'vue';
+    import axios from 'axios';
+    import Navbar from './nav.vue'
+    import { useRouter } from 'vue-router';
 
-const router = useRouter();
+    const router = useRouter()
 
-const listaCategorias = [
-    {id: 1, nombre: "Frutas"},
-    {id: 2, nombre: "Verduras"},
-    {id: 3, nombre: "Hortalizas"},
-    {id: 4, nombre: "Legumbres"},
-    {id: 5, nombre: "Hieerbas Aromaticas"},
-    {id: 6, nombre: "Otros"}
-];
+    const PuntosEntrega = ref([])
+    const Categorias = ref([])
 
-const form = reactive({
-    nombre_producto: '',
-    descripcion:'',
-    precio:'',
-    stock_total:'',
-    id_categoria:'',
-    delivery_point: '',
-    imagen: null
-});
 
-const cogerImagen = (event) => {
-    form.imagen = event.target.files[0];
+    const nombre_producto = ref('');
+    const descripcion = ref('');
+    const precio = ref(0);
+    const stock = ref(0);
+    const puntoentrega = ref(''); 
+    const categoria = ref('');     
+    const imagen = ref(null);
+
+    const GuardarImagen = (event) => {
+        imagen.value = event.target.files[0];
+    }
+
+    const InsertarProducto = async () => {
+    const token = localStorage.getItem('token');
+    try {
+        const datos = new FormData();
+        datos.append('nombre_producto', nombre_producto.value);
+        datos.append('descripcion', descripcion.value);
+        datos.append('precio', precio.value);
+        datos.append('stock_total', stock.value); 
+        datos.append('id_categoria', categoria.value);
+        datos.append('id_puntoentrega', puntoentrega.value);
+
+        if (imagen.value) {
+            datos.append('imagen', imagen.value);
+        }
+
+        const respuesta = await axios.post('http://localhost:8080/api/publicarproducto', datos, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+                'Accept': 'application/json'
+            }
+        });
+    
+        if (respuesta.status === 201 || respuesta.status === 200) {
+            alert('¡Producto creado correctamente!');
+            router.push('/cuenta');
+        }
+    } catch (error) {
+        console.error("Error:", error.response?.data);
+        alert('Error: ' + (error.response?.data?.message || 'No se pudo crear'));
+    }
 }
 
-const enviar = async () => {
-    let datos = new FormData();
-    datos.append('nombre_producto', form.nombre_producto);
-    datos.append('descripcion', form.descripcion);
-    datos.append('precio', form.precio);
-    datos.append('stock_total', form.stock_total);
-    datos.append('id_categoria', form.id_categoria);
-    datos.append('delivery_point', form.delivery_point)
-
-    if (form.imagen) {
-        datos.append('image', form.imagen);
-    }
-
-    try {
-        await fetch('http://127.0.0.1:8000/api/products', {
-            method: 'POST',
-            body: datos,
-            headers: {
-                'Accept': 'application/json'
-            }  
+    const CargarPuntos = async() => {
+        const token = localStorage.getItem('token');
+        const resposta = await axios.get('http://localhost:8080/api/puntosuser', {
+            headers: { 'Authorization': `Bearer ${token}` }
         });
-        alert("¡Producto publicado!");
-    } catch (e) {
-        console.error(e);
-        alert("Error al conectar");
+        PuntosEntrega.value = resposta.data;
     }
-};
 
+    const CargarCategorias = async() => {
+        const resposta = await axios.get('http://localhost:8080/api/categorias');
+        Categorias.value = resposta.data;
+    }
+
+    onMounted(() => {
+      CargarPuntos();
+      CargarCategorias();
+    });
 </script>
 
 <template>
-    <navbar></navbar>
-
-    <div class="contenedor-pagina">
-        <div id="contenedor-titulo">
-            <h1 class="titulo">Publicar Producto</h1>
-            <p class="subtitulo">Comparte tus frutas y verduras frescas con la comunidad</p>
-        </div>
-
-        <div class="contenedor-formulario">
-            <form @submit.prevent="enviar">
-                
-                <label for="nom">Nombre del producto</label>
-                <input type="text" id="nom" v-model="form.nombre_producto" placeholder="Ej: Tomates orgánicos" required>
-
-                <label for="descr">Descripción</label>
-                <textarea id="descr" v-model="form.descripcion" placeholder="Describe tu producto en detalle..." required></textarea>
-
-                <div class="dos-columnas">
-                    <div class="columna">
-                        <label for="precio">Precio (€)</label>
-                        <input type="number" step="0.01" id="precio" v-model="form.precio" placeholder="0.00" required>
-                    </div>
-                    <div class="columna">
-                        <label for="stock">Stock disponible</label>
-                        <input type="number" id="stock" v-model="form.stock_total" placeholder="Cantidad" required>
-                    </div>
-                </div>
-
-                <label for="cat">Categoría</label>
-                <select id="cat" v-model="form.id_categoria" required>
-                    <option value="" disabled>Selecciona una categoría</option>
-                    <option v-for="cat in listaCategorias" :key="cat.id" :value="cat.id">
-                        {{ cat.nombre }}
-                    </option>
-                </select>
-
-                <label for="punto">Punto de entrega </label>
-                <input type="text" id="punto" v-model="form.delivery_point" placeholder="Ej: Mercado de Santa Caterina" required>
-                <p class="nota-campo">Indica dónde el comprador podrá recoger el producto</p>
-
-                <label>Imagen del producto (opcional)</label>
-                <div class="imagen-caja">
-                    <input type="file" id="imagen" accept="image/*" @change="cogerImagen">
-                    <div class="imagen-contenido">
-                        <span class="icono-imagen">↑</span>
-                        <p>Haz clic para subir o arrastra una imagen</p>
-                        <span class="info-imagen">PNG, JPG o WEBP (máx. 5MB)</span>
-                    </div>
-                </div>
-
-                <div class="nota-azul">
-                    <strong>Nota:</strong> Una vez publicado, los compradores podrán ver tu producto y enviarte solicitudes de compra.
-                </div>
-
-                <div class="grupo-botones">
-                    <button type="button" class="btn-cancelar" onclick="history.back()">Cancelar</button>
-                    <button type="submit" class="btn-publicar">Publicar producto</button>
-                </div>
-            </form>
-        </div>
+  <Navbar></Navbar>
+  <div class="contenedor-pagina">
+    <div class="encabezado-seccion">
+      <h1 class="titulo-principal">Publicar Producto</h1>
+      <p class="subtitulo">Comparte tus frutas y verduras frescas con la comunidad</p>
     </div>
+
+    <div class="tarjeta-formulario">
+      <h3 class="header-interno">Publicar nuevo producto</h3>
+      
+      <form @submit.prevent="InsertarProducto">
+        <div class="campo">
+          <label>Nombre del producto *</label>
+          <input v-model="nombre_producto" type="text" placeholder="Ej: Tomates orgánicos" required>
+        </div>
+
+        <div class="campo">
+          <label>Descripción *</label>
+          <textarea v-model="descripcion" placeholder="Describe tu producto en detalle..." required></textarea>
+        </div>
+
+        <div class="fila-doble">
+          <div class="columna">
+            <label>Precio (€) *</label>
+            <input v-model="precio" type="number" step="0.01" placeholder="0.00" required>
+          </div>
+          <div class="columna">
+            <label>Stock disponible *</label>
+            <input v-model="stock" type="number" placeholder="Cantidad" required>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label>Categoría *</label>
+          <select v-model="categoria" required>
+            <option value="" disabled>Selecciona una categoría</option>
+            <option v-for="cat in Categorias" :key="cat.id" :value="cat.id">
+                {{ cat.nombre_categoria }}
+            </option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>Punto de entrega *</label>
+          <select v-if="PuntosEntrega.length > 0" v-model="puntoentrega" required>
+            <option value="" disabled>Ej: Mercado de Santa Caterina</option>
+            <option v-for="punto in PuntosEntrega" :key="punto.id" :value="punto.id">
+                {{ punto.nombre_punto }}
+            </option>
+          </select>
+          <p class="ayuda-texto" v-if="PuntosEntrega.length > 0">Indica dónde el comprador podrá recoger el producto</p>
+          <p v-else class="error-texto">* Debes crear al menos un punto de entrega en tu perfil.</p>
+        </div>
+
+        <div class="campo">
+          <label>Imagen del producto (opcional)</label>
+          <div class="zona-upload">
+            <input type="file" @change="GuardarImagen" accept="image/*" class="input-file-oculto">
+            <div class="diseno-upload">
+              <span class="icono-nube">↑</span>
+              <p>Haz clic para subir o arrastra una imagen</p>
+              <small>PNG, JPG o WEBP (máx. 5MB)</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="banner-informativo">
+          <p><strong>Nota:</strong> Una vez publicado, los compradores podrán ver tu producto y enviarte solicitudes de compra.</p>
+        </div>
+
+        <div class="acciones">
+          <button type="button" class="btn-cancelar" @click="$router.go(-1)">Cancelar</button>
+          <button type="submit" class="btn-publicar" :disabled="PuntosEntrega.length === 0">Publicar producto</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  min-width: 400px;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
 .contenedor-pagina {
-  margin-top: 80px;
-  padding: 20px 50px;
+  background-color: #fcfcfc;
+  min-height: 100vh;
+  padding: 100px 20px 60px;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-#contenedor-titulo{
-  max-width: 90%;
-  margin: 40px auto 0 auto;
+.encabezado-seccion {
+  width: 100%;
+  max-width: 650px;
+  margin-bottom: 25px;
 }
 
-.titulo {
-  font-family: sans-serif;
-  color: #4ca626;
-  margin-bottom: 10px;
-  font-weight: bold;
+.titulo-principal {
+  color: #00a859;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 5px;
 }
 
 .subtitulo {
-  font-family: sans-serif;
-  color: #666666;
-  margin-bottom: 20px;
+  color: #6b7280;
+  font-size: 14px;
 }
 
-.contenedor-formulario {
-  background-color: #ffffff;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 40px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.tarjeta-formulario {
+  background: white;
+  width: 100%;
+  max-width: 650px;
+  padding: 35px;
+  border-radius: 12px;
+  border: 1px solid #edf2f7;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
+.header-interno {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 25px;
+  color: #1a202c;
+}
 
 label {
   display: block;
-  font-weight: 700;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #4a5568;
   margin-bottom: 8px;
-  color: #111827;
-  font-size: 14px;
 }
 
-input[type="text"],
-input[type="number"],
-select,
-textarea {
+input[type="text"], input[type="number"], select, textarea {
   width: 100%;
-  padding: 12px 16px;
-  background-color: #f3f4f6;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
+  padding: 11px 14px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
   font-size: 14px;
-  color: #1f2937;
-  margin-bottom: 20px;
-  transition: all 0.2s;
-  font-family: inherit; 
+  margin-bottom: 18px;
+  transition: all 0.2s ease;
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  background-color: #ffffff;
-  border-color: #00b050;
-  box-shadow: 0 0 0 3px rgba(0, 176, 80, 0.1);
+  border-color: #00a859;
+  box-shadow: 0 0 0 3px rgba(0, 168, 89, 0.1);
+  background-color: #fff;
 }
 
-textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-
-.nota-campo {
-  font-size: 12px;
-  color: #9ca3af;
-  margin-top: -15px;
-  margin-bottom: 20px;
-}
-
-
-.dos-columnas {
+.fila-doble {
   display: flex;
-  gap: 20px;
-}
-.columna {
-  flex: 1;
+  gap: 15px;
 }
 
-.imagen-caja {
+.columna { flex: 1; }
+
+.ayuda-texto {
+  font-size: 12px;
+  color: #a0aec0;
+  margin-top: -12px;
+  margin-bottom: 15px;
+}
+
+.zona-upload {
   position: relative;
-  border: 2px dashed #d1d5db;
-  border-radius: 8px;
-  background-color: #ffffff;
-  height: 180px;
+  border: 2px dashed #e2e8f0;
+  border-radius: 10px;
+  height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
   cursor: pointer;
-  margin-bottom: 30px;
-  transition: background-color 0.2s;
+  margin-bottom: 25px;
 }
 
-.imagen-contenido:hover {
-  background-color: #f9fafb;
-  border-color: #00b050;
-}
-
-.imagen-caja input[type="file"] {
+.input-file-oculto {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -251,82 +262,58 @@ textarea {
   cursor: pointer;
 }
 
-.icono-imagen {
-  font-size: 32px;
-  color: #9ca3af;
-  display: block;
-  margin-bottom: 10px;
+.diseno-upload {
+  text-align: center;
+  color: #718096;
 }
 
-.upload-content p {
-  font-weight: 600;
-  color: #4b5563;
-  margin-bottom: 5px;
-}
+.icono-nube { font-size: 24px; display: block; margin-bottom: 8px; }
 
-.info-imagen {
-  font-size: 12px;
-  color: #9ca3af;
-}
+.diseno-upload p { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
 
-.nota-azul {
-  background-color: #eff6ff;
-  border: 1px solid #dbeafe;
-  color: #1e40af; 
-  padding: 16px;
-  border-radius: 6px;
-  font-size: 13px;
+.diseno-upload small { font-size: 11px; color: #a0aec0; }
+
+.banner-informativo {
+  background-color: #f5f3ff;
+  border-radius: 8px;
+  padding: 12px 16px;
   margin-bottom: 30px;
+}
+
+.banner-informativo p {
+  color: #5b21b6;
+  font-size: 12.5px;
   line-height: 1.5;
 }
 
-
-.grupo-botones {
+.acciones {
   display: flex;
-  gap: 15px; 
-  border-top: 1px solid #f3f4f6;
-  padding-top: 25px;
-  width: 100%; 
+  gap: 12px;
 }
 
 button {
-  flex: 1; 
-  padding: 14px 24px; 
+  flex: 1;
+  padding: 12px;
   border-radius: 8px;
-  font-weight: 700;
-  font-size: 15px;
+  font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.2s;
-}
-
-
-button:active {
-  transform: scale(0.98);
+  transition: 0.2s;
 }
 
 .btn-cancelar {
-  background-color: #ffffff;
-  border: 1px solid #d1d5db;
-  color: #4b5563;
-}
-
-.btn-cancelar:hover {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #4a5568;
 }
 
 .btn-publicar {
-  
-  background: linear-gradient(135deg, #00b050 0%, #00d660 100%);
+  background-color: #00c853;
   border: none;
   color: white;
-  box-shadow: 0 4px 6px rgba(0, 176, 80, 0.2);
 }
 
-.btn-publicar:hover {
-  
-  background: linear-gradient(135deg, #009945 0%, #00c256 100%);
-  box-shadow: 0 6px 8px rgba(0, 176, 80, 0.3);
-}
+.btn-publicar:hover { background-color: #00a844; }
 
+.btn-publicar:disabled { background-color: #cbd5e0; cursor: not-allowed; }
 </style>
