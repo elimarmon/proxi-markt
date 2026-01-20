@@ -13,7 +13,7 @@
           <div class="comanda">
             <img src="../assets/fotos-prueba/tomate.webp" alt="foto-producto" class="foto-producto">
             <h3>Tomates ecológicos</h3>
-            <p>Pendiente de Aprobación</p>
+            <p id="estado">Pendiente de Aprobación</p>
             <div id="precio-total">
               <p>17.50€</p>
               <p>Total</p>
@@ -151,6 +151,20 @@ body {
   grid-column: 1;
   grid-row: 1 / span 3;
   align-self: start;
+}
+
+#estado {
+  grid-column: 2;
+  grid-row: 2;
+  display: inline-block;
+  width: fit-content;
+  font-size: 15px;
+  background: #fff4e6;
+  color: #ff9f43;
+  padding: 2px 6px;
+  border-radius: 4px;
+  align-self: start;
+  margin-top: 5px;
 }
 
 .comanda > p:nth-of-type(2) {
