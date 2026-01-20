@@ -5,6 +5,9 @@
   import axios from 'axios'
   import navbar from './nav.vue'
   import MostrarProductos from './mostrarProductos.vue'
+  import { useRouter } from "vue-router";
+
+  const router = useRouter();
 
   let map;
 
@@ -433,5 +436,29 @@ hr {
     padding: 10px 15px; 
     border-radius: 6px; 
     cursor: pointer; 
+}
+
+.contenedor-accion-superior {
+  margin-bottom: 40px; 
+  display: flex; /* Para que los botones salgan uno al lado del otro */
+  gap: 15px;    /* Espacio entre botones */
+}
+
+.btn-ubicacion {
+  background: #4CA626; /* Color púrpura a juego con el título */
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+/* Ajuste para móviles */
+@media (max-width: 600px) {
+  .contenedor-accion-superior {
+    flex-direction: column;
+  }
 }
 </style>

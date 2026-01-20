@@ -12,6 +12,7 @@ const props = defineProps({
   <div class="contenedor-seccion-productos">
     <div v-if="productos && productos.length > 0" class="grid-productos">
       <div v-for="producto in productos" :key="producto.id" class="card-producto">
+        <router-link :to="{name: 'detalle-productos', params: {id: producto.id}}">
         <div class="imagen-contenedor">
           <img 
             :src="producto.imagen ? `http://localhost:8080/storage/${producto.imagen}` : 'https://via.placeholder.com/150'" 
@@ -19,14 +20,14 @@ const props = defineProps({
           >
           <span class="badge-estado" :class="producto.estado">{{ producto.estado }}</span>
         </div>
-        
         <div class="detalles-producto">
           <h4>{{ producto.nombre_producto }}</h4>
           <p class="precio">{{ producto.precio }}€</p>
           <div class="meta-info">
-            <span><img src="../assets/iconos/stock.png" alt="caja-icono" class="icono"> Stock: {{ producto.stock_total }}</span>
+            <span>📦 Stock: {{ producto.stock_total }}</span>
           </div>
         </div>
+      </router-link>
       </div>
     </div>
 
@@ -36,19 +37,7 @@ const props = defineProps({
   </div>
 </template>
 
-
 <style scoped>
-.meta-info span {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.icono {
-    width: 25px;
-    height: 25px;
-}
-
 .grid-productos {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
