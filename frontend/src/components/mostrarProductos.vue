@@ -24,7 +24,7 @@ const props = defineProps({
           <h4>{{ producto.nombre_producto }}</h4>
           <p class="precio">{{ producto.precio }}€</p>
           <div class="meta-info">
-            <span>📦 Stock: {{ producto.stock_total }}</span>
+            <span><img src="../assets/iconos/stock.png" alt="caja-icono" class="icono"> Stock: {{ producto.stock_total }}</span>
           </div>
         </div>
       </div>
@@ -38,6 +38,17 @@ const props = defineProps({
 
 
 <style scoped>
+.meta-info span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.icono {
+    width: 25px;
+    height: 25px;
+}
+
 .grid-productos {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
