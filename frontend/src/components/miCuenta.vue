@@ -83,7 +83,6 @@
         });
         alert('creado')
         location.reload();
-        //refrescar la pagina
     }catch (error){
         console.error("Error del servidor:", error.response ? error.response.data : error.message);
         
@@ -172,9 +171,10 @@
         <h3>Mi Perfil</h3><br>
         <div class="info-usuario">
           <p><span><img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-usuario" class="icono">Nombre:</span> {{ DatosUser.nombre_usuario || 'Cargando...' }}</p>
-          <p><span><img src="../assets/iconos/email.png" alt="icono-email" class="icono">Email:</span> {{ DatosUser.email }}</p>
+          <p><span><img src="../assets/iconos/correo.png" alt="icono-email" class="icono">Email:</span> {{ DatosUser.email }}</p>
           <p><span><img src="../assets/iconos/ubicacion.png" alt="icono-direccion" class="icono">Dirección:</span> {{ DatosUser.direccion || 'No definida' }}</p>
-          <p class="valoracion">Valoración: <span>{{ DatosUser.puntuacio || '5.0' }}</span></p>
+          <hr>
+          <p class="valoracion"><span><img src="../assets/iconos/valoraciones-icono.png" alt="icono-valoracion" class="icono">Valoración:</span> <span class="puntuacion">{{ DatosUser.puntuacio || '5.0' }}</span></p>
         </div>
       </div>
 
@@ -278,11 +278,48 @@ body {
   margin-bottom: 20px;
 }
 
+hr {
+  border: none;
+  height: 2px;
+  background-color: #EEEEEE;
+  margin-bottom: 10px;
+}
+
+.info-usuario p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.info-usuario p span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #4CA626;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.icono {
+  width: 25px;
+  height: 25px;
+}
+
+.info-usuario .valoracion {
+  margin-bottom: 0;
+}
+
+.info-usuario p span.puntuacion {
+  color: black;
+  font-weight: normal;
+  font-size: 1.2rem;
+}
+
 .info-usuario p{
   margin-bottom: 20px;
 }
 
-/* CARD PERFIL */
 .card-perfil {
   background: white;
   border: 1px solid #eee;
@@ -291,7 +328,6 @@ body {
   margin-bottom: 30px;
 }
 
-/* MARGEN ENTRE BOTÓN Y SECCIONES */
 .contenedor-accion-superior {
   margin-bottom: 40px; 
 }
@@ -306,7 +342,6 @@ body {
   font-weight: bold;
 }
 
-/* GESTIÓN DE PUNTOS */
 .seccion-gestion-puntos {
   margin-bottom: 40px;
   padding: 20px;
@@ -381,6 +416,7 @@ body {
     display: flex; 
     gap: 10px;
 }
+
 .btn-confirmar { 
     background: #4CA626; 
     color: white; 
@@ -389,6 +425,7 @@ body {
     border-radius: 6px; 
     cursor: pointer; 
 }
+
 .btn-cancelar { 
     background: #ccc; 
     color: white; 
