@@ -10,30 +10,38 @@
       <div class="caja">
         <h3>Mis productos</h3>
         <p>2</p>
-        <img src="../assets/iconos/brote.png" alt="Mis productos" class="icono">
+        <img
+          src="../assets/iconos/brote.png"
+          alt="Mis productos"
+          class="icono"
+        />
       </div>
 
       <div class="caja">
         <h3>Stock total</h3>
         <p>55</p>
-        <img src="../assets/iconos/ingresos.png" alt="Stock total">
+        <img src="../assets/iconos/ingresos.png" alt="Stock total" />
       </div>
 
       <div class="caja">
         <h3>Ventas pendientes</h3>
         <p>3</p>
-        <img src="../assets/iconos/info.png" alt="Ventas pendientes">
+        <img src="../assets/iconos/info.png" alt="Ventas pendientes" />
       </div>
 
       <div class="caja">
         <h3>Ingresos</h3>
         <p>5.40€</p>
-        <img src="../assets/iconos/euro.png" alt="Ingresos">
+        <img src="../assets/iconos/euro.png" alt="Ingresos" />
       </div>
     </div>
     <div class="cajas-informacion-dos">
       <div class="ventas">
-        <img src="../assets/iconos/carrito.png" alt="Ventas recientes" class="icono">
+        <img
+          src="../assets/iconos/carrito.png"
+          alt="Ventas recientes"
+          class="icono"
+        />
         <h3>Ventas Recientes</h3>
         <div class="producto-ventas">
           <p id="nombre-producto">Lechuga Fresca</p>
@@ -44,20 +52,32 @@
       </div>
 
       <div class="productos">
-        <img src="../assets/iconos/disponibles.png" alt="Productos disponibles" class="icono">
+        <img
+          src="../assets/iconos/disponibles.png"
+          alt="Productos disponibles"
+          class="icono"
+        />
         <h3>Productos disponibles</h3>
-        <div class="producto-disponible">
-          <p id="nombre-producto">Lechuga Fresca</p>
-          <p id="precio-producto">1.40€</p>
-          <p id="info">Ana</p>
-          <p id="stock-disponible">18 disponibles</p>
+        <div v-if="ProductosUser.length > 0">
+          <div class="producto-disponible" v-for="producto in ProductosUser" :key="producto.id">
+            <img :src="producto.imagen ? `http://localhost:8080/storage/${producto.imagen}` : 'https://via.placeholder.com/150'"
+            alt="Imagen producto" class="imagen-producto">
+            <p id="nombre-producto">{{ producto.nombre_producto }}</p>
+            <p id="precio-producto">{{ producto.precio }}€</p>
+            <p id="stock-disponible">{{ producto.stock_total }} disponibles</p>
+          </div>
         </div>
+        
       </div>
     </div>
 
     <div class="cajas-informacion-tres">
       <div class="productos">
-        <img src="../assets/iconos/stock.png" alt="Mis compras recientes" class="icono">
+        <img
+          src="../assets/iconos/stock.png"
+          alt="Mis compras recientes"
+          class="icono"
+        />
         <h3>Mis Compras Recientes</h3>
         <div class="compras-producto">
           <p id="nombre-producto">Lechuga Fresca</p>
@@ -68,16 +88,35 @@
       </div>
     </div>
   </div>
-
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 import navbar from "./nav.vue";
 
 const router = useRouter();
+
+const ProductosUser = ref([]);
+const datosUsuario = ref ({});
+
+const CargarProductosUser = async () => {
+  const token = localStorage.getItem('token');
+
+  const productos = await axios.get('http://localhost:8080/api/productosuser', {
+    headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }}
+  );
+
+  ProductosUser.value = productos.data;
+}
+
+onMounted(() => {
+      CargarProductosUser();
+  });
 </script>
 
 <style scoped>
@@ -85,7 +124,7 @@ const router = useRouter();
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Segoe UI', 'Arial';
+  font-family: "Segoe UI", "Arial";
 }
 
 body {
@@ -97,14 +136,14 @@ body {
   padding: 20px 50px;
 }
 
-#contenedor-titulo{
+#contenedor-titulo {
   max-width: 90%;
   margin: 40px auto 0 auto;
 }
 
 .titulo {
   font-family: sans-serif;
-  color: #4ca626;
+  color: #4CA626;
   margin-bottom: 10px;
   font-weight: bold;
 }
@@ -115,7 +154,9 @@ body {
   margin-bottom: 20px;
 }
 
-.cajas-informacion-uno, .cajas-informacion-dos, .cajas-informacion-tres {
+.cajas-informacion-uno,
+.cajas-informacion-dos,
+.cajas-informacion-tres {
   max-width: 90%;
   margin-left: auto;
   margin-right: auto;
@@ -140,7 +181,7 @@ body {
   flex-direction: column;
   justify-content: center;
   position: relative;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
@@ -170,46 +211,50 @@ body {
 }
 
 .cajas-informacion-uno .caja:nth-child(1) {
-  background-image: linear-gradient(to left, #009e5b, #20c97e);
+  background-image: linear-gradient(to left, #009E5B, #20c97e);
 }
 
-.cajas-informacion-uno .caja:nth-child(2) { 
-  background-image: linear-gradient(to left, #1060c4, #4facfe);
-}
-  
-.cajas-informacion-uno .caja:nth-child(3) { 
-  background-image: linear-gradient(to left, #d95000, #ff8c42);
-}
-  
-.cajas-informacion-uno .caja:nth-child(4) { 
-  background-image: linear-gradient(to left, #801ac0, #b845fc);
+.cajas-informacion-uno .caja:nth-child(2) {
+  background-image: linear-gradient(to left, #1060C4, #4facfe);
 }
 
-.cajas-informacion-dos, .cajas-informacion-tres {
+.cajas-informacion-uno .caja:nth-child(3) {
+  background-image: linear-gradient(to left, #D95000, #ff8c42);
+}
+
+.cajas-informacion-uno .caja:nth-child(4) {
+  background-image: linear-gradient(to left, #801AC0, #b845fc);
+}
+
+.cajas-informacion-dos,
+.cajas-informacion-tres {
   display: flex;
   gap: 20px;
   margin-bottom: 20px;
 }
 
-.ventas, .productos {
+.ventas,
+.productos {
   background: white;
   border-radius: 12px;
   padding: 20px;
   flex: 1;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  border: 1px solid #eee;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #EEEEEE;
 }
 
-.ventas h3, .productos h3 {
+.ventas h3,
+.productos h3 {
   display: inline-block;
   vertical-align: middle;
   margin: 0;
   margin-bottom: 20px;
   font-size: 18px;
-  color: #333;
+  color: #333333;
 }
 
-.ventas .icono, .productos .icono {
+.ventas .icono,
+.productos .icono {
   display: inline-block;
   vertical-align: middle;
   width: 30px;
@@ -217,120 +262,94 @@ body {
   margin-bottom: 20px;
 }
 
-.producto-ventas, .producto-disponible, .compras-producto {
+.producto-disponible, 
+.compras-producto,
+.producto-ventas {
   display: grid;
-  grid-template-columns: 1fr auto; 
-  gap: 5px;
-  padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
-  background-color: #f9fafb;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 0px 15px;
   padding: 15px;
-  border-radius: 8px;
+  background-color: #F9FAFB;
+  border-radius: 12px;
   margin-bottom: 10px;
-  border-bottom: none;
+  align-items: center;
 }
 
-.producto-ventas #nombre-producto {
+.producto-disponible .imagen-producto,
+.compras-producto .imagen-producto,
+.producto-ventas .imagen-producto {
   grid-column: 1;
+  grid-row: 1 / 3;
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.producto-disponible #nombre-producto,
+.compras-producto #nombre-producto,
+.producto-ventas #nombre-producto {
+  grid-column: 2;
   grid-row: 1;
   font-weight: bold;
-  color: #333;
+  color: #333333;
   font-size: 15px;
+  margin-bottom: 2px;
+  align-self: end;
 }
 
+.producto-disponible #info,
+.compras-producto #info,
 .producto-ventas #info {
-  grid-column: 1;
+  grid-column: 2;
   grid-row: 2;
   font-size: 13px;
-  color: #888;
+  color: #64748B;
+  align-self: start;
 }
 
+.producto-disponible #precio-producto,
+.compras-producto #precio,
 .producto-ventas #precio {
-  grid-column: 2;
+  grid-column: 3;
   grid-row: 1;
   text-align: right;
-  color: #4ca626;
+  font-weight: bold;
+  color: #333333;
+  font-size: 15px;
+  align-self: end;
 }
 
+.producto-disponible #stock-disponible,
+.compras-producto #estado,
 .producto-ventas #estado {
-  grid-column: 2;
+  grid-column: 3;
   grid-row: 2;
   text-align: right;
   font-size: 12px;
-  font-weight: bold;
-  color: #00b86b;
-  background: #e0f8e9;
-  padding: 2px 8px;
-  border-radius: 4px;
-  justify-self: end;
-}
-
-.producto-disponible #nombre-producto {
-  grid-column: 1;
-  grid-row: 1;
-  font-weight: bold;
-  color: #333;
-}
-
-.producto-disponible #info {
-  grid-column: 1;
-  grid-row: 2;
-  font-size: 13px;
-  color: #888;
-}
-
-.producto-disponible #precio-producto {
-  grid-column: 2;
-  grid-row: 1;
-  text-align: right;
+  align-self: start;
 }
 
 .producto-disponible #stock-disponible {
-  grid-column: 2;
-  grid-row: 2;
-  text-align: right;
-  font-size: 12px;
-  color: #888;
+    color: #64748B;
 }
 
-.cajas-informacion-tres .productos {
-  flex: 1;
+.compras-producto #estado {
+    background: #FFF4E6;
+    color: #FF9F43;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    margin-top: 2px;
 }
 
-.compras-producto {
-  grid-template-columns: 1fr auto;
-}
-
-.compras-producto #nombre-producto {
-  grid-column: 1;
-  grid-row: 1;
-  font-weight: bold;
-}
-
-.compras-producto #info {
-  grid-column: 1;
-  grid-row: 2;
-  font-size: 13px;
-  color: #888;
-}
-
-.compras-producto #estado { 
-  grid-column: 1;
-  grid-row: 3;
-  display: inline-block;
-  width: fit-content;
-  font-size: 11px;
-  background: #fff4e6;
-  color: #ff9f43;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-top: 5px;
-}
-
-.compras-producto #precio { 
-  grid-column: 2;
-  grid-row: 1 / span 3;
-  align-self: center;
-  font-size: 16px;
+.producto-ventas #estado {
+    background: #E0F8E9;
+    color: #00B86B;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    margin-top: 2px;
 }
 </style>
