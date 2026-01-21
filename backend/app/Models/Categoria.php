@@ -8,8 +8,15 @@ class Categoria extends Model
 {
     protected $table = 'categorias'; 
 
-    protected $primaryKey = 'id';
+    protected $fillable = [
+        'nombre_categoria'
+    ];
+    
+    protected $hidden = ["updated_at", "created_at"];
 
-    public $timestamps = false;
-
+   
+    public function productos()
+    {
+        return $this->hasMany(Producto::class, 'id_categoria');
+    }
 }

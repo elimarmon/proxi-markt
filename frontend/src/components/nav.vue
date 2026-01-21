@@ -1,3 +1,21 @@
+<script setup>
+import { ref } from 'vue';
+import ModalRadio from './ModalRadio.vue';
+
+
+const isModalOpen = ref(false);
+
+
+const radioActual = ref(10);
+
+
+const confirmarNuevoRadio = (valor) => {
+  radioActual.value = valor;
+  isModalOpen.value = false;
+  console.log("Filtrando productos a:", valor, "km");
+};
+</script>
+
 <template>
   <header>
     <div id="nav-contenedor">
@@ -50,17 +68,25 @@
           </li>
         </ul>
       </nav>
-      <div id="radio_busqueda">
+
+      <div id="radio_busqueda" @click="isModalOpen = true" style="cursor: pointer;">
         <p>
             <img src="../assets/iconos/tuerca_verde.png" alt="logo_tuerca">
-            10km
+            {{ radioActual }}km
         </p>
       </div>
+
       <div id="usuario">
         <img src="../assets/iconos/cuenta.png" alt="icono_perfil">
         {{ DatosUser.nombre_usuario }}
       </div>
     </div>
+
+    <ModalRadio 
+      :mostrar="isModalOpen" 
+      @cerrar="isModalOpen = false" 
+      @confirmar="confirmarNuevoRadio"
+    />
   </header>
 </template>
 
