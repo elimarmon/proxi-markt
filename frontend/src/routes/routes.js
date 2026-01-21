@@ -22,6 +22,11 @@ const routes = [
         component: dashboard
     },
     {
+        path: '/ubicacion',
+        name: 'ubicacion',
+        component: Ubicacion
+    },
+    {
         path: '/productos',
         name: 'productos',
         component: productos

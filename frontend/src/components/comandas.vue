@@ -25,7 +25,7 @@
             </div>
 
             <div id="horario">
-              <img src="../assets/iconos/calendario" alt="icono-calendario" class="icono">
+              <img src="../assets/iconos/calendario.png" alt="icono-calendario" class="icono">
               <p>19/1/2026</p>
             </div>
 
