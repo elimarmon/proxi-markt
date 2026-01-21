@@ -1,141 +1,146 @@
+<script setup>
+import { ref, onMounted } from "vue";
+import axios from "axios";
+import navbar from "./nav.vue";
+// import TarjetaProducto from "@/components/TarjetaProducto.vue";
+import MostrarProductos from './MostrarProductosMain.vue'
+
+const productos = ref([]);
+
+const mostrarProductos = async () => {
+    const response = await axios.get("http://localhost:8080/api/productos");
+    productos.value = response.data;
+    console.log(response);
+};
+
+onMounted(() => {
+    mostrarProductos();
+});
+</script>
+
 <template>
   <navbar></navbar>
   <div class="contenedor-pagina">
-    <div id="contenedor-titulo">
-      <h1 class="titulo">Productos Frescos y Locales</h1>
-      <p class="subtitulo">Conecta directamente con productores de tu zona (radio: 50 km)</p>
-    </div>
-    
+    <h1 class="titulo-verde">Productos Frescos y Locales</h1>
+    <p class="subtitulo">Conecta directamente con productores de tu zona (radio: 50 km)</p>
 
-    <div id="contenedor-buscador">
+    <div class="card-busqueda">
       <div id="buscador">
-        <div class="caja">
-          <img src="../assets/iconos/buscar.png" alt="lupa" class="icono" />
-          <input class="texto" type="text" placeholder="Buscar productos frescos..."/>
+        <div class="caja-busqueda">
+          <img src="../assets/iconos/buscar.png" alt="lupa" class="icono-pequeno" />
+          <input class="input-texto" type="text" placeholder="Buscar productos frescos..."/>
         </div>
-        <button class="boton-filtro">
-          <img src="../assets/iconos/filtro.png" alt="filtro productos" class="icono"/>
+        <button class="btn-secundario">
+          <img src="../assets/iconos/filtro.png" alt="filtro" class="icono-pequeno"/>
           Filtros
         </button>
       </div>
-      <p class="informacion-filtro"> 6 productos encontrados <span class="texto-verde">(en un radio de 50 km)</span></p>
+      <p class="informacion-resultados"> 
+        {{ productos.length }} productos encontrados <span class="texto-verde">(en un radio de 50 km)</span>
+      </p>
     </div>
+
+    <MostrarProductos :productos="productos"></MostrarProductos>
+    
   </div>
 </template>
 
-<script setup>
-import { ref } from "vue";
-import axios from "axios";
-import { useRouter } from "vue-router";
-import navbar from "./nav.vue";
-
-const router = useRouter();
-</script>
-
 <style scoped>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  min-width: 400px;
-}
-
 .contenedor-pagina {
-  margin-top: 80px;
-  padding: 20px 50px;
+  max-width: 1200px;
+  margin: 90px auto 0;
+  padding: 0 40px 40px 40px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-#contenedor-titulo{
-  max-width: 90%;
-  margin: 40px auto 0 auto;
-}
-
-.titulo {
-  font-family: sans-serif;
-  color: #4ca626;
-  margin-bottom: 10px;
+.titulo-verde { 
+  color: #4ca626; 
+  font-size: 2rem; 
+  margin-bottom: 5px; 
   font-weight: bold;
 }
 
-.subtitulo {
-  font-family: sans-serif;
-  color: #666666;
-  margin-bottom: 20px;
+.subtitulo { 
+  color: #666; 
+  margin-bottom: 30px; 
 }
 
-#contenedor-buscador {
-  background-color: white;
+.card-busqueda {
+  background: white;
+  border: 1px solid #eee;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1), 0 -4px 10px rgba(0, 0, 0, 0.1);
-  font-family: sans-serif;
-  max-width: 90%;
-  margin: 40px auto 0 auto;
+  margin-bottom: 40px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 #buscador {
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
-.caja {
-  background-color: #F3F4F6;
+.caja-busqueda {
+  background-color: #f9f9f9;
   border-radius: 8px;
-  padding: 15px 15px;
+  padding: 12px 15px;
   display: flex;
   align-items: center;
   flex-grow: 1;
-  border: 1px solid #E5E7EB;
+  border: 1px solid #ddd;
 }
 
-.texto {
+.input-texto {
   border: none;
   background: transparent;
   width: 100%;
   margin-left: 10px;
   outline: none;
   font-size: 16px;
-  color: #333333;
+  color: #333;
 }
 
-.caja:focus-within {
-  background-color: #F3F4F6;
-  border-color: #D1D5DB;
-  box-shadow: 0 0 0 3px rgba(0, 176, 80, 0.1);
-}
-
-.boton-filtro {
+.btn-secundario {
   background-color: white;
-  border: 1px solid #E5E7EB;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 15px 20px;
-  height: 100%;
+  padding: 12px 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
   font-weight: bold;
-  font-size: 18px;
-  color: #333333;
-  white-space: nowrap;
+  color: #333;
 }
 
-.icono {
-  width: 30px;
-  height: 30px;
+.btn-secundario:hover {
+  background-color: #f5f5f5;
 }
 
-.informacion-filtro {
-  color: #666666;
-  align-items: center;
+.icono-pequeno {
+  width: 20px;
+  height: 20px;
+}
+
+.informacion-resultados {
+  font-size: 0.9rem;
+  color: #666;
+  padding-left: 5px;
 }
 
 .texto-verde {
   color: #4ca626;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .contenedor-pagina {
+    padding: 0 20px 20px 20px;
+  }
+  #buscador {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 </style>

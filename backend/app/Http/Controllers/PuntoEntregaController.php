@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PuntoEntrega;
+use App\Http\Requests\PuntosEntregaRequest;
 
 class PuntoEntregaController extends Controller
 {
@@ -14,36 +15,69 @@ class PuntoEntregaController extends Controller
         return response()->json($puntos);
     }
 
+<<<<<<< HEAD
     
     public function puntosPorVendedor($userId)
+=======
+    /**
+     * Listar puntos de entrega de un vendedor específico
+     */
+    public function puntosPorVendedor(Request $request)
+>>>>>>> d364153867141342655ad70ab2c27cf1d9d6a264
     {
-        $puntos = PuntoEntrega::where('id_usuario', $userId)->get();
+        $user = $request->user();
+        $puntos = PuntoEntrega::where('id_usuario', $user->id)->get();
         return response()->json($puntos);
     }
 
+<<<<<<< HEAD
     
     public function store(Request $request)
+=======
+    /**
+     * Crear un nuevo punto de entrega (Para el agricultor)
+     */
+    public function store(PuntosEntregaRequest $request) 
+>>>>>>> d364153867141342655ad70ab2c27cf1d9d6a264
     {
-        $request->validate([
-            'id_usuario'      => 'required|exists:usuarios,id',
-            'nombre_punto'    => 'required|string|max:255',
-            'direccion_punto' => 'nullable|string|max:255',
-            'longitud'        => 'required|numeric',
-            'latitud'         => 'required|numeric',
+        // 1. Los datos ya vienen validados gracias al Request
+        // 2. Extraemos el usuario del token de Sanctum
+        $user = $request->user();
+
+        // 3. Creamos el punto asociándolo al ID del usuario autenticado
+        $punto = PuntoEntrega::create([
+            'id_usuario'      => $user->id, 
+            'nombre_punto'    => $request->nombre_punto,
+            'direccion_punto' => $request->direccion_punto,
+            'longitud'        => $request->longitud,
+            'latitud'         => $request->latitud,
         ]);
 
-        $punto = PuntoEntrega::create($request->all());
-
         return response()->json([
+            'status'  => true,
             'message' => 'Punto de entrega creado correctamente',
             'data'    => $punto
         ], 201);
     }
 
+<<<<<<< HEAD
     
     public function destroy($id)
+=======
+    /**
+     * Eliminar un punto de entrega
+     */
+    public function destroy(Request $request, $id)
+>>>>>>> d364153867141342655ad70ab2c27cf1d9d6a264
     {
-        $punto = PuntoEntrega::findOrFail($id);
+        $user = $request->user();
+        // Buscamos el punto que coincida con el ID Y que pertenezca al usuario autenticado
+        $punto = PuntoEntrega::where('id', $id)->where('id_usuario', $user->id) ->first();
+
+        if (!$punto) {
+            return response()->json(['message' => 'No se encontró el punto o no tienes permiso'], 404);
+        }
+
         $punto->delete();
 
         return response()->json(['message' => 'Punto de entrega eliminado']);
