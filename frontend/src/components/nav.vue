@@ -58,11 +58,40 @@
       </div>
       <div id="usuario">
         <img src="../assets/iconos/cuenta.png" alt="icono_perfil">
-        Inés Álvarez Calle
+        {{ DatosUser.nombre_usuario }}
       </div>
     </div>
   </header>
 </template>
+
+<script setup>
+  import { ref, onMounted } from 'vue';
+  import axios from 'axios';
+
+  const DatosUser = ref({});
+
+  const nombreUsuario = async () => {
+    const token = localStorage.getItem('token');
+    
+    try {
+      const respuesta = await axios.get('http://localhost:8080/api/datosuser', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+      
+      DatosUser.value = respuesta.data;
+
+    } catch (error) {
+      console.error("Error al obtener el nombre de usuario:", error);
+    }
+  }
+
+  onMounted(() => {
+    nombreUsuario();
+  })
+</script>
 
 <style scoped>
 * {

@@ -5,6 +5,9 @@
   import axios from 'axios'
   import navbar from './nav.vue'
   import MostrarProductos from './mostrarProductos.vue'
+  import { useRouter } from "vue-router";
+
+  const router = useRouter();
 
   let map;
 
@@ -83,7 +86,6 @@
         });
         alert('creado')
         location.reload();
-        //refrescar la pagina
     }catch (error){
         console.error("Error del servidor:", error.response ? error.response.data : error.message);
         
@@ -162,90 +164,165 @@
 <template>
   <navbar></navbar>
   <div class="contenedor-pagina">
-    <h1 class="titulo-purpura">Mi Cuenta</h1>
-    <p class="subtitulo">Gestiona tus productos y datos personales</p>
-
-    <div class="card-perfil">
-      <h3>Mi Perfil</h3>
-      <div class="info-usuario">
-        <p><span>Nombre:</span> {{ DatosUser.nombre_usuario || 'Cargando...' }}</p>
-        <p><span>Email:</span> {{ DatosUser.email }}</p>
-        <p><span>Dirección:</span> {{ DatosUser.direccion || 'No definida' }}</p>
-        <p class="valoracion">Valoración: <span>{{ DatosUser.puntuacio || '5.0' }}</span></p>
-      </div>
+    <div class="contenedor-titulo">
+      <h1 class="titulo">Mi Cuenta</h1>
+      <p class="subtitulo">Gestiona tus productos y datos personales</p><br>
     </div>
 
-    <div class="contenedor-accion-superior">
-      <button @click="GuardarPuntoEntrega" class="btn-crear">
-        Crear nuevo punto de entrega
-      </button>
-    </div>
-
-    <div v-if="activarMapa" class="seccion-gestion-puntos">
-      <div class="formulario-mapa">
-        <h3>Configurar ubicación</h3>
-        <div id="map"></div>
-        <div class="controles-mapa">
-          <input v-model="nombrePunto" placeholder="Nombre del punto (Ej: Casa)">
-          <div class="botones-flex">
-            <button @click="CrearPunto" class="btn-confirmar">Guardar</button>
-            <button @click="EsconderMapa" class="btn-cancelar">Cerrar</button>
-          </div>
+    <div class="contenido-centrado">
+      <div class="card-perfil">
+        <h3>Mi Perfil</h3><br>
+        <div class="info-usuario">
+          <p><span><img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-usuario" class="icono">Nombre:</span> {{ DatosUser.nombre_usuario || 'Cargando...' }}</p>
+          <p><span><img src="../assets/iconos/correo.png" alt="icono-email" class="icono">Email:</span> {{ DatosUser.email }}</p>
+          <p><span><img src="../assets/iconos/ubicacion.png" alt="icono-direccion" class="icono">Dirección:</span> {{ DatosUser.direccion || 'No definida' }}</p>
+          <hr>
+          <p class="valoracion"><span><img src="../assets/iconos/valoraciones-icono.png" alt="icono-valoracion" class="icono">Valoración:</span> <span class="puntuacion">{{ DatosUser.puntuacio || '5.0' }}</span></p>
         </div>
       </div>
 
-      <div class="tus-puntos-existentes">
-        <h3>Tus puntos de entrega actuales</h3>
-        <div class="grid-puntos-mini">
-          <div v-for="punto in PuntosEntrega" :key="punto.id" class="card-punto-mini">
-            <div class="info-mini">
-              <strong>{{ punto.nombre_punto }}</strong>
-              <p>{{ punto.direccion_punto }}</p>
+      <div class="contenedor-accion-superior">
+        <button @click="GuardarPuntoEntrega" class="btn-crear">
+          Crear nuevo punto de entrega
+        </button>
+      </div>
+
+      <div v-if="activarMapa" class="seccion-gestion-puntos">
+        <div class="formulario-mapa">
+          <h3>Configurar ubicación</h3>
+          <div id="map"></div>
+          <div class="controles-mapa">
+            <input v-model="nombrePunto" placeholder="Nombre del punto (Ej: Casa)">
+            <div class="botones-flex">
+              <button @click="CrearPunto" class="btn-confirmar">Guardar</button>
+              <button @click="EsconderMapa" class="btn-cancelar">Cerrar</button>
             </div>
-            <button @click="EliminarPunto(punto.id)" class="btn-borrar">Borrar</button>
+          </div>
+        </div>
+
+        <div class="tus-puntos-existentes">
+          <h3>Tus puntos de entrega actuales</h3>
+          <div class="grid-puntos-mini">
+            <div v-for="punto in PuntosEntrega" :key="punto.id" class="card-punto-mini">
+              <div class="info-mini">
+                <strong>{{ punto.nombre_punto }}</strong>
+                <p>{{ punto.direccion_punto }}</p>
+              </div>
+              <button @click="EliminarPunto(punto.id)" class="btn-borrar">Borrar</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="contenedor-secciones-datos">
-      
-      <section class="seccion-bloque">
-        <h3>Mis productos</h3>
-        <MostrarProductos :productos="ProductosUser"></MostrarProductos>
-      </section>
+      <div class="contenedor-secciones-datos">
+        
+        <section class="seccion-bloque">
+          <h3>Mis productos</h3>
+          <MostrarProductos :productos="ProductosUser"></MostrarProductos>
+        </section>
 
-      <section class="seccion-bloque">
-        <h3>Mis Compras</h3>
-        <div class="card-vacia">No has realizado compras.</div>
-      </section>
+        <section class="seccion-bloque">
+          <h3>Mis Compras</h3>
+          <div class="card-vacia">No has realizado compras.</div>
+        </section>
 
-      <section class="seccion-bloque">
-        <h3>Mis Ventas</h3>
-        <div class="card-vacia">No tienes ventas registradas.</div>
-      </section>
+        <section class="seccion-bloque">
+          <h3>Mis Ventas</h3>
+          <div class="card-vacia">No tienes ventas registradas.</div>
+        </section>
 
-      <section class="seccion-bloque">
-        <h3>Mis Valoraciones</h3>
-        <div class="card-vacia">Aún no tienes valoraciones.</div>
-      </section>
+        <section class="seccion-bloque">
+          <h3>Mis Valoraciones</h3>
+          <div class="card-vacia">Aún no tienes valoraciones.</div>
+        </section>
 
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.contenedor-pagina {
-  max-width: 1200px;
-  margin: 90px auto 0;
-  padding: 0 40px 40px 40px;
-  font-family: 'Segoe UI', sans-serif;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', 'Arial';
 }
 
-.titulo-purpura { color: #9b30ff; font-size: 2rem; margin-bottom: 5px; }
-.subtitulo { color: #666; margin-bottom: 30px; }
+body {
+  min-width: 400px;
+}
 
-/* CARD PERFIL */
+.contenedor-pagina {
+  margin-top: 80px;
+  padding: 20px 50px;
+}
+
+.contenido-centrado {
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+.contenedor-titulo{
+  max-width: 90%;
+  margin: 40px auto 0 auto;
+}
+
+.titulo {
+  font-family: sans-serif;
+  color: #4CA626;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.subtitulo {
+  font-family: sans-serif;
+  color: #666666;
+  margin-bottom: 20px;
+}
+
+hr {
+  border: none;
+  height: 2px;
+  background-color: #EEEEEE;
+  margin-bottom: 10px;
+}
+
+.info-usuario p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.info-usuario p span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #4CA626;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.icono {
+  width: 25px;
+  height: 25px;
+}
+
+.info-usuario .valoracion {
+  margin-bottom: 0;
+}
+
+.info-usuario p span.puntuacion {
+  color: black;
+  font-weight: normal;
+  font-size: 1.2rem;
+}
+
+.info-usuario p{
+  margin-bottom: 20px;
+}
+
 .card-perfil {
   background: white;
   border: 1px solid #eee;
@@ -254,7 +331,6 @@
   margin-bottom: 30px;
 }
 
-/* MARGEN ENTRE BOTÓN Y SECCIONES */
 .contenedor-accion-superior {
   margin-bottom: 40px; 
 }
@@ -269,7 +345,6 @@
   font-weight: bold;
 }
 
-/* GESTIÓN DE PUNTOS */
 .seccion-gestion-puntos {
   margin-bottom: 40px;
   padding: 20px;
@@ -344,6 +419,7 @@
     display: flex; 
     gap: 10px;
 }
+
 .btn-confirmar { 
     background: #4CA626; 
     color: white; 
@@ -352,6 +428,7 @@
     border-radius: 6px; 
     cursor: pointer; 
 }
+
 .btn-cancelar { 
     background: #ccc; 
     color: white; 
@@ -359,5 +436,29 @@
     padding: 10px 15px; 
     border-radius: 6px; 
     cursor: pointer; 
+}
+
+.contenedor-accion-superior {
+  margin-bottom: 40px; 
+  display: flex; /* Para que los botones salgan uno al lado del otro */
+  gap: 15px;    /* Espacio entre botones */
+}
+
+.btn-ubicacion {
+  background: #4CA626; /* Color púrpura a juego con el título */
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+/* Ajuste para móviles */
+@media (max-width: 600px) {
+  .contenedor-accion-superior {
+    flex-direction: column;
+  }
 }
 </style>
