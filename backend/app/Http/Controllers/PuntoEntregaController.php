@@ -15,30 +15,20 @@ class PuntoEntregaController extends Controller
         return response()->json($puntos);
     }
 
-<<<<<<< HEAD
-    
-    public function puntosPorVendedor($userId)
-=======
     /**
      * Listar puntos de entrega de un vendedor específico
      */
     public function puntosPorVendedor(Request $request)
->>>>>>> d364153867141342655ad70ab2c27cf1d9d6a264
     {
         $user = $request->user();
         $puntos = PuntoEntrega::where('id_usuario', $user->id)->get();
         return response()->json($puntos);
     }
 
-<<<<<<< HEAD
-    
-    public function store(Request $request)
-=======
     /**
      * Crear un nuevo punto de entrega (Para el agricultor)
      */
     public function store(PuntosEntregaRequest $request) 
->>>>>>> d364153867141342655ad70ab2c27cf1d9d6a264
     {
         // 1. Los datos ya vienen validados gracias al Request
         // 2. Extraemos el usuario del token de Sanctum
@@ -60,15 +50,10 @@ class PuntoEntregaController extends Controller
         ], 201);
     }
 
-<<<<<<< HEAD
-    
-    public function destroy($id)
-=======
     /**
      * Eliminar un punto de entrega
      */
     public function destroy(Request $request, $id)
->>>>>>> d364153867141342655ad70ab2c27cf1d9d6a264
     {
         $user = $request->user();
         // Buscamos el punto que coincida con el ID Y que pertenezca al usuario autenticado
