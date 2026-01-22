@@ -156,8 +156,8 @@
         </div>
 
         <div class="acciones">
-          <button type="button" class="btn-cancelar" @click="$router.go(-1)">Cancelar</button>
-          <button type="submit" class="btn-publicar" :disabled="FormularioIncompleto">Publicar producto</button> 
+          <button type="button" class="boton-cancelar" @click="$router.go(-1)">Cancelar</button>
+          <button type="submit" class="boton-publicar" :disabled="FormularioIncompleto">Publicar producto</button> 
         </div>
       </form>
     </div>
@@ -331,29 +331,29 @@ button {
   transition: 0.2s;
 }
 
-.btn-cancelar {
+.boton-cancelar {
   background: white;
   border: 1px solid #E2E8f0;
   color: #4A5568;
 }
 
-.btn-publicar {
+.boton-publicar {
   background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
   border: none;
   color: white;
   transition: all 0.3s ease;
 }
 
-.btn-cancelar:hover {
+.boton-cancelar:hover {
   background: linear-gradient(90deg, #FF6F6F 0%, #FF2C2C 100%);
   color: white;
 }
 
-.btn-publicar:hover:not(:disabled) {
+.boton-publicar:hover:not(:disabled) {
   background: linear-gradient(to right, #00A650, #008F44);
 }
 
-.btn-publicar:disabled {
+.boton-publicar:disabled {
   background: #CBD5E0;
   background-image: none;
   cursor: not-allowed;
