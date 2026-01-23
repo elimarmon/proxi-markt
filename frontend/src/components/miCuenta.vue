@@ -142,17 +142,32 @@
     }
 
     const CargarProductosUser = async () => {
-    const token = localStorage.getItem('token');
-    const productos = await axios.get('http://localhost:8080/api/productosuser', {
-      headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }}
-        )
-    
-    ProductosUser.value = productos.data;
+      const token = localStorage.getItem('token');
+      const productos = await axios.get('http://localhost:8080/api/productosuser', {
+        headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            }}
+          )
+      
+      ProductosUser.value = productos.data;
 
   }
+
+    const EliminarProducto = async (id) => {
+      const token = localStorage.getItem('token');
+      
+      const eliminar = await axios.delete('http://localhost:8080/api/productos/'+ id, {
+        headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            }}
+          )
+      if(eliminar.status === 200){
+        alert('producto eliminado correctamente')
+        location.reload();
+      }
+    }
 
   onMounted(() => {
       CargarPuntos();
@@ -182,9 +197,14 @@
       </div>
 
       <div class="contenedor-accion-superior">
-        <button @click="GuardarPuntoEntrega" class="btn-crear">
+        <button @click="GuardarPuntoEntrega" class="botones-perfil">
           Crear nuevo punto de entrega
         </button>
+        <router-link to="/ubicacion" class="botones-perfil">
+          Cambiar mi ubicación
+        </router-link>
+
+
       </div>
 
       <div v-if="activarMapa" class="seccion-gestion-puntos">
@@ -194,8 +214,8 @@
           <div class="controles-mapa">
             <input v-model="nombrePunto" placeholder="Nombre del punto (Ej: Casa)">
             <div class="botones-flex">
-              <button @click="CrearPunto" class="btn-confirmar">Guardar</button>
-              <button @click="EsconderMapa" class="btn-cancelar">Cerrar</button>
+              <button @click="CrearPunto" class="boton-confirmar">Guardar</button>
+              <button @click="EsconderMapa" class="boton-cancelar">Cerrar</button>
             </div>
           </div>
         </div>
@@ -208,18 +228,18 @@
                 <strong>{{ punto.nombre_punto }}</strong>
                 <p>{{ punto.direccion_punto }}</p>
               </div>
-              <button @click="EliminarPunto(punto.id)" class="btn-borrar">Borrar</button>
+              <button @click="EliminarPunto(punto.id)" class="boton-borrar">Borrar</button>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="contenedor-secciones-datos">
-        
-        <section class="seccion-bloque">
-          <h3>Mis productos</h3>
-          <MostrarProductos :productos="ProductosUser"></MostrarProductos>
-        </section>
+    <div class="contenedor-secciones-datos">
+      
+      <section class="seccion-bloque">
+        <h3>Mis productos</h3>
+        <MostrarProductos :productos="ProductosUser" @borrar="EliminarProducto"></MostrarProductos>
+      </section>
 
         <section class="seccion-bloque">
           <h3>Mis Compras</h3>
@@ -335,7 +355,7 @@ hr {
   margin-bottom: 40px; 
 }
 
-.btn-crear {
+.botones-perfil {
   background: #4CA626;
   color: white;
   border: none;
@@ -343,6 +363,7 @@ hr {
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
+  text-decoration: none;
 }
 
 .seccion-gestion-puntos {
@@ -378,7 +399,7 @@ hr {
   align-items: center;
 }
 
-.btn-borrar {
+.boton-borrar {
   background: #fee2e2;
   color: #ef4444;
   border: none;
@@ -387,7 +408,7 @@ hr {
   cursor: pointer;
 }
 
-.btn-borrar:hover { 
+.boton-borrar:hover { 
     background: #ef4444; 
     color: white; 
 }
@@ -420,7 +441,7 @@ hr {
     gap: 10px;
 }
 
-.btn-confirmar { 
+.boton-confirmar { 
     background: #4CA626; 
     color: white; 
     border: none; 
@@ -429,7 +450,7 @@ hr {
     cursor: pointer; 
 }
 
-.btn-cancelar { 
+.boton-cancelar { 
     background: #ccc; 
     color: white; 
     border: none; 
@@ -440,12 +461,12 @@ hr {
 
 .contenedor-accion-superior {
   margin-bottom: 40px; 
-  display: flex; /* Para que los botones salgan uno al lado del otro */
-  gap: 15px;    /* Espacio entre botones */
+  display: flex;
+  gap: 15px;
 }
 
-.btn-ubicacion {
-  background: #4CA626; /* Color púrpura a juego con el título */
+.boton-ubicacion {
+  background: #4CA626;
   color: white;
   border: none;
   padding: 12px 25px;
@@ -455,7 +476,6 @@ hr {
   transition: background 0.3s ease;
 }
 
-/* Ajuste para móviles */
 @media (max-width: 600px) {
   .contenedor-accion-superior {
     flex-direction: column;

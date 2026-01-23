@@ -8,8 +8,9 @@ import Ubicacion from '../components/ubicacion.vue';
 import publicar from '../components/publicar.vue';
 import mensaje from '../components/mensaje.vue';
 import mapa from '../components/mapa.vue';
-import DetalleProducto from "@/components/DetalleProducto.vue";
+import DetalleProducto from "../components/DetalleProducto.vue";
 import principal from '../components/principal.vue';
+import EditarProducto from "../components/EditarProducto.vue";
 
 const routes = [
     {
@@ -43,15 +44,16 @@ const routes = [
         component: productos
     },
     {
-        path: '/mapa',
-        name: 'mapa',
-        component: mapa
+        path: '/productos/:id/editar',
+        name: 'editar_producto',
+        component: EditarProducto,
+        props: true
     },
-    {
-        path: '/mensajes',
-        name: 'mensajes',
-        component: mensaje
-    },
+    // {
+    //     path: '/mensajes',
+    //     name: 'mensajes',
+    //     component: mensajes
+    // },
     {
         path: '/comandas',
         name: 'comandas',

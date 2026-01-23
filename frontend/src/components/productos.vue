@@ -1,11 +1,16 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import axios from "axios";
 import navbar from "./nav.vue";
 // import TarjetaProducto from "@/components/TarjetaProducto.vue";
 import MostrarProductos from './MostrarProductosMain.vue'
 
 const productos = ref([]);
+const radioActual = ref(10);
+
+const manejarCambioRadio = (nuevoRadio) => {
+    radioActual.value = nuevoRadio;
+};
 
 const mostrarProductos = async () => {
     const response = await axios.get("http://localhost:8080/api/productos");
@@ -19,10 +24,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <navbar></navbar>
+  <navbar @cambiar-radio="manejarCambioRadio"></navbar>
+  
   <div class="contenedor-pagina">
     <h1 class="titulo-verde">Productos Frescos y Locales</h1>
-    <p class="subtitulo">Conecta directamente con productores de tu zona (radio: 50 km)</p>
+    <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual }} km)</p>
 
     <div class="card-busqueda">
       <div id="buscador">
@@ -30,13 +36,13 @@ onMounted(() => {
           <img src="../assets/iconos/buscar.png" alt="lupa" class="icono-pequeno" />
           <input class="input-texto" type="text" placeholder="Buscar productos frescos..."/>
         </div>
-        <button class="btn-secundario">
+        <button class="boton-secundario">
           <img src="../assets/iconos/filtro.png" alt="filtro" class="icono-pequeno"/>
           Filtros
         </button>
       </div>
       <p class="informacion-resultados"> 
-        {{ productos.length }} productos encontrados <span class="texto-verde">(en un radio de 50 km)</span>
+        {{ productos.length }} productos encontrados <span class="texto-verde">(en un radio de {{ radioActual }} km)</span>
       </p>
     </div>
 
@@ -101,7 +107,7 @@ onMounted(() => {
   color: #333;
 }
 
-.btn-secundario {
+.boton-secundario {
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -114,7 +120,7 @@ onMounted(() => {
   color: #333;
 }
 
-.btn-secundario:hover {
+.boton-secundario:hover {
   background-color: #f5f5f5;
 }
 
@@ -131,7 +137,6 @@ onMounted(() => {
 
 .texto-verde {
   color: #4ca626;
-  font-weight: 500;
 }
 
 @media (max-width: 768px) {
