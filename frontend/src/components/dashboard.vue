@@ -112,6 +112,7 @@ const CargarProductosUser = async () => {
   );
 
   ProductosUser.value = productos.data;
+  console.log(productos.data);
 }
 
 onMounted(() => {
@@ -211,19 +212,19 @@ body {
 }
 
 .cajas-informacion-uno .caja:nth-child(1) {
-  background-image: linear-gradient(to left, #009E5B, #20c97e);
+  background: linear-gradient(to left, #009E5B, #20c97e);
 }
 
 .cajas-informacion-uno .caja:nth-child(2) {
-  background-image: linear-gradient(to left, #1060C4, #4facfe);
+  background: linear-gradient(to left, #1060C4, #4facfe);
 }
 
 .cajas-informacion-uno .caja:nth-child(3) {
-  background-image: linear-gradient(to left, #D95000, #ff8c42);
+  background: linear-gradient(to left, #D95000, #ff8c42);
 }
 
 .cajas-informacion-uno .caja:nth-child(4) {
-  background-image: linear-gradient(to left, #801AC0, #b845fc);
+  background: linear-gradient(to left, #801AC0, #b845fc);
 }
 
 .cajas-informacion-dos,

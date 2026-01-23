@@ -182,7 +182,7 @@
       </div>
 
       <div class="contenedor-accion-superior">
-        <button @click="GuardarPuntoEntrega" class="btn-crear">
+        <button @click="GuardarPuntoEntrega" class="boton-crear">
           Crear nuevo punto de entrega
         </button>
       </div>
@@ -194,8 +194,8 @@
           <div class="controles-mapa">
             <input v-model="nombrePunto" placeholder="Nombre del punto (Ej: Casa)">
             <div class="botones-flex">
-              <button @click="CrearPunto" class="btn-confirmar">Guardar</button>
-              <button @click="EsconderMapa" class="btn-cancelar">Cerrar</button>
+              <button @click="CrearPunto" class="boton-confirmar">Guardar</button>
+              <button @click="EsconderMapa" class="boton-cancelar">Cerrar</button>
             </div>
           </div>
         </div>
@@ -208,7 +208,7 @@
                 <strong>{{ punto.nombre_punto }}</strong>
                 <p>{{ punto.direccion_punto }}</p>
               </div>
-              <button @click="EliminarPunto(punto.id)" class="btn-borrar">Borrar</button>
+              <button @click="EliminarPunto(punto.id)" class="boton-borrar">Borrar</button>
             </div>
           </div>
         </div>
@@ -335,7 +335,7 @@ hr {
   margin-bottom: 40px; 
 }
 
-.btn-crear {
+.boton-crear {
   background: #4CA626;
   color: white;
   border: none;
@@ -378,7 +378,7 @@ hr {
   align-items: center;
 }
 
-.btn-borrar {
+.boton-borrar {
   background: #fee2e2;
   color: #ef4444;
   border: none;
@@ -387,7 +387,7 @@ hr {
   cursor: pointer;
 }
 
-.btn-borrar:hover { 
+.boton-borrar:hover { 
     background: #ef4444; 
     color: white; 
 }
@@ -420,7 +420,7 @@ hr {
     gap: 10px;
 }
 
-.btn-confirmar { 
+.boton-confirmar { 
     background: #4CA626; 
     color: white; 
     border: none; 
@@ -429,7 +429,7 @@ hr {
     cursor: pointer; 
 }
 
-.btn-cancelar { 
+.boton-cancelar { 
     background: #ccc; 
     color: white; 
     border: none; 
@@ -440,12 +440,12 @@ hr {
 
 .contenedor-accion-superior {
   margin-bottom: 40px; 
-  display: flex; /* Para que los botones salgan uno al lado del otro */
-  gap: 15px;    /* Espacio entre botones */
+  display: flex;
+  gap: 15px;
 }
 
-.btn-ubicacion {
-  background: #4CA626; /* Color púrpura a juego con el título */
+.boton-ubicacion {
+  background: #4CA626;
   color: white;
   border: none;
   padding: 12px 25px;
@@ -455,7 +455,6 @@ hr {
   transition: background 0.3s ease;
 }
 
-/* Ajuste para móviles */
 @media (max-width: 600px) {
   .contenedor-accion-superior {
     flex-direction: column;
