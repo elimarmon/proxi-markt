@@ -8,9 +8,7 @@ use App\Http\Requests\PuntosEntregaRequest;
 
 class PuntoEntregaController extends Controller
 {
-    /**
-     * Listar todos los puntos de entrega (Para que el comprador elija uno)
-     */
+    
     public function index()
     {
         $puntos = PuntoEntrega::with('usuario')->get();

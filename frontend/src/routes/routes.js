@@ -9,9 +9,14 @@ import publicar from '../components/publicar.vue';
 import mensaje from '../components/mensaje.vue';
 import mapa from '../components/mapa.vue';
 import DetalleProducto from "@/components/DetalleProducto.vue";
-
+import principal from '../components/principal.vue';
 
 const routes = [
+    {
+        path: "/",
+        name: "principal",
+        component: principal
+    },
     {
         path: "/login",
         name: "login",
