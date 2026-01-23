@@ -197,9 +197,14 @@
       </div>
 
       <div class="contenedor-accion-superior">
-        <button @click="GuardarPuntoEntrega" class="boton-crear">
+        <button @click="GuardarPuntoEntrega" class="botones-perfil">
           Crear nuevo punto de entrega
         </button>
+        <router-link to="/ubicacion" class="botones-perfil">
+          Cambiar mi ubicación
+        </router-link>
+
+
       </div>
 
       <div v-if="activarMapa" class="seccion-gestion-puntos">
@@ -350,7 +355,7 @@ hr {
   margin-bottom: 40px; 
 }
 
-.boton-crear {
+.botones-perfil {
   background: #4CA626;
   color: white;
   border: none;
@@ -358,6 +363,7 @@ hr {
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
+  text-decoration: none;
 }
 
 .seccion-gestion-puntos {
