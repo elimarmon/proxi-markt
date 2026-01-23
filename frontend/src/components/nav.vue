@@ -1,19 +1,40 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 import ModalRadio from './ModalRadio.vue';
 
-
 const isModalOpen = ref(false);
-
-
 const radioActual = ref(10);
-
 
 const confirmarNuevoRadio = (valor) => {
   radioActual.value = valor;
   isModalOpen.value = false;
   console.log("Filtrando productos a:", valor, "km");
 };
+  
+const DatosUser = ref({});
+
+const nombreUsuario = async () => {
+  const token = localStorage.getItem('token');
+  
+  try {
+    const respuesta = await axios.get('http://localhost:8080/api/datosuser', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+      }
+    });
+    
+    DatosUser.value = respuesta.data;
+
+  } catch (error) {
+    console.error("Error al obtener el nombre de usuario:", error);
+  }
+}
+
+onMounted(() => {
+  nombreUsuario();
+})
 </script>
 
 <template>
@@ -89,35 +110,6 @@ const confirmarNuevoRadio = (valor) => {
     />
   </header>
 </template>
-
-<script setup>
-  import { ref, onMounted } from 'vue';
-  import axios from 'axios';
-
-  const DatosUser = ref({});
-
-  const nombreUsuario = async () => {
-    const token = localStorage.getItem('token');
-    
-    try {
-      const respuesta = await axios.get('http://localhost:8080/api/datosuser', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        }
-      });
-      
-      DatosUser.value = respuesta.data;
-
-    } catch (error) {
-      console.error("Error al obtener el nombre de usuario:", error);
-    }
-  }
-
-  onMounted(() => {
-    nombreUsuario();
-  })
-</script>
 
 <style scoped>
 * {
