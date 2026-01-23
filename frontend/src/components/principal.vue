@@ -1,7 +1,19 @@
 <template>
-  <div class="contenedor-principal">
-    <navbar />
+  <header>
+    <div id="nav-contenedor">
+      <div id="logo">
+        <img src="../assets/logos/logo_peq.png" alt="Logo ProxiMarkt"/>
+        <p class="titulo">ProxiMarkt</p>
+        <p class="subtitulo">Frutas y verduras frescas</p>
+      </div>
+      
+            <router-link to="/login" class="boton-iniciosesion">
+                Iniciar Sesion
+            </router-link>
+        
 
+  </div>
+  </header>  
     <section class="seccion-portada">
       <div class="contenido-portada">
         <h1>Conectamos Productores Locales <br> <span class="texto-verde">con Consumidores Conscientes</span></h1>
@@ -96,12 +108,10 @@
       </div>
     </footer>
 
-  </div>
 </template>
 
 <script setup>
 import { useRouter } from "vue-router";
-import navbar from "./nav.vue"; 
 
 const router = useRouter();
 
@@ -123,10 +133,62 @@ body {
   min-width: 400px;
 }
 
-.contenedor-principal {
+
+
+/* .contenedor-principal {
   margin-top: 80px; 
+} */
+
+#nav-contenedor {
+  width: 100%;
+  padding: 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
+#logo {
+  display: grid;
+  grid-template-columns: min-content max-content;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  align-items: center;
+  margin-right: 40px;
+}
+
+#logo img {
+  grid-row: 1 / 3; 
+  height: 50px;
+  width: auto;
+  border-radius: 12px;
+}
+
+.titulo {
+  grid-column: 2;
+  font-size: 25px;
+  font-weight: 600;
+  color: #4CA626;
+  line-height: 1.2;
+}
+
+.subtitulo {
+  grid-column: 2;
+  font-size: 15px;
+  color: #757575;
+  line-height: 1.2;
+}
+
+.boton-iniciosesion{
+  background-color: #4CA626;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+  text-decoration: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 12px;
+}
 
 .texto-verde {
   color: #00A859;
