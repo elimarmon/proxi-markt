@@ -13,7 +13,7 @@ class ProductoController extends Controller
      * Mostrar todos los productos disponibles (Para la tienda/mapa)
      */
     public function index() {
-        $productos = Producto::all();
+        $productos = Producto::with('categoria')->get();
 
         return response()->json($productos);
     }
@@ -22,7 +22,8 @@ class ProductoController extends Controller
     {
         $user = $request->user();
 
-        $productos = Producto::where('id_usuario', $user->id)
+        $productos = Producto::with('categoria')
+        ->where('id_usuario', $user->id)
         ->orderBy('created_at', 'desc')
         ->get();
 

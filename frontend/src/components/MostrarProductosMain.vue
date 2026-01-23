@@ -5,6 +5,7 @@ const props = defineProps({
     required: true,
     default: () => []
   }
+
 });
 </script>
 
@@ -17,7 +18,7 @@ const props = defineProps({
           <div class="imagen-contenedor">
             <img :src="producto.imagen ? `http://localhost:8080/storage/${producto.imagen}` : 'https://via.placeholder.com/400x300'" 
               alt="Imagen producto" class="imagen-producto"            >
-            <span class="estado">{{ producto.estado || 'Verduras' }}</span>
+            <span class="categoria">{{ producto.categoria.nombre_categoria || 'Sin categoría' }}</span>
           </div>
 
           <div class="detalles-producto">
@@ -28,15 +29,15 @@ const props = defineProps({
             
             <div class="informacion">
               <div class="objeto">
-                <img class="icono" src="" alt=""> <span class="texto-gris">Mercado de Santa Caterina</span>
+                <img class="icono" src="../assets/iconos/casa.png" alt="granja"> <span class="texto-gris">Mercado de Santa Caterina</span>
               </div>
 
-              <div class="meta-item">
-                <img class="icono" src="" alt=""> <span class="texto-azul">A 7.8 km de ti</span>
+              <div class="objeto">
+                <img class="icono" src="../assets/iconos/ubicacion.png" alt="direccion"> <span class="texto-azul">A 7.8 km de ti</span>
               </div>
               
-              <div class="meta-item">
-                <img class="icono" src="" alt="">
+              <div class="objeto">
+                <img class="icono" src="../assets/iconos/stock.png" alt="stock">
                 <span class="texto-verde">{{ producto.stock_total }} disponibles</span>
               </div>
             </div>
@@ -53,9 +54,8 @@ const props = defineProps({
 
 <style scoped>
 .contenedor-seccion-productos {
-  font-family: 'Segoe UI', Arial;
+  font-family: 'Segoe UI', 'Arial';
   padding: 20px 0;
-  background-color: transparent;
 }
 
 .grid-productos {
@@ -68,10 +68,10 @@ const props = defineProps({
 
 .carta-producto {
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #E5E7EB;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s, box-shadow 0.2s;
   display: flex;
   flex-direction: column;
@@ -79,12 +79,11 @@ const props = defineProps({
 
 .carta-producto:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
 }
 
 .carta-link {
   text-decoration: none;
-  color: inherit;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -94,29 +93,35 @@ const props = defineProps({
   position: relative;
   height: 240px; 
   width: 100%;
-  background-color: #f3f4f6;
+  background-color: #F3F4F6;
+  overflow: hidden;
 }
 
 .imagen-producto {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.5s ease;
 }
 
-.estado {
+.carta-producto:hover .imagen-producto {
+  transform: scale(1.1);
+}
+
+.categoria {
   position: absolute;
   top: 12px;
   right: 12px;
-  background-color: #10b981;
+  background: linear-gradient(to right, #00cf64, #009b4b);
   color: white;
-  padding: 4px 10px;
+  padding: 8px 15px;
   border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.8rem;
+  font-weight: bold;
 }
 
 .detalles-producto {
-  padding: 20px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -125,33 +130,30 @@ const props = defineProps({
 .nombre {
   margin: 0 0 5px 0;
   font-size: 1.15rem;
-  font-weight: 600;
+  font-weight: bold;
   color: #111827;
 }
 
 .precio {
   font-size: 1.5rem;
-  font-weight: 600;
-  color: #10b981;
+  font-weight: bold;
+  color: #4CA626;
   margin: 0 0 10px 0;
 }
 
 .descripcion {
   font-size: 0.9rem;
-  color: #6b7280;
+  color: #6B7280;
   line-height: 1.5;
   margin-bottom: 20px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
 .informacion {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 5px;
+  margin-bottom: 25px;
 }
 
 .objeto {
@@ -168,13 +170,21 @@ const props = defineProps({
   background-color: transparent; 
 }
 
-.texto-gris { color: #6b7280; }
-.texto-azul { color: #2563eb; }
-.texto-verde { color: #059669; font-weight: 500; }
+.texto-gris {
+  color: #6B7280;
+}
+
+.texto-azul {
+  color: #2563EB;
+}
+
+.texto-verde {
+  color: #4CA626;
+}
 
 .boton-verde {
   margin-top: auto;
-  background-color: #00b050;
+  background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
   color: white;
   text-align: center;
   padding: 10px 0;
@@ -185,15 +195,15 @@ const props = defineProps({
 }
 
 .carta-producto:hover .boton-verde {
-  background-color: #009142;
+  background: linear-gradient(to right, #00A650, #008F44);
 }
 
 .carta-vacia {
   text-align: center;
   padding: 50px;
-  color: #9ca3af;
+  color: #9CA3AF;
   background: white;
-  border: 1px dashed #e5e7eb;
+  border: 1px dashed #E5E7EB;
   border-radius: 12px;
 }
 </style>

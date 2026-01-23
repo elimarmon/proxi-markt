@@ -131,7 +131,6 @@ onMounted(() => {
 
 .texto-verde {
   color: #4ca626;
-  font-weight: 500;
 }
 
 @media (max-width: 768px) {
