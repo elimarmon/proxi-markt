@@ -1,9 +1,20 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import ModalRadio from './ModalRadio.vue';
 import axios from 'axios';
 
+const router = useRouter();
+const mostrarMenu = ref(false);
+
+const cerrarSesion = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('datos_usuario');
+  router.push('/login');
+};
+
 const isModalOpen = ref(false);
+const emit = defineEmits(['cambiar-radio']);
 
 const DatosUser = ref({});
 const radioActual = ref(10);
@@ -11,6 +22,7 @@ const radioActual = ref(10);
 const confirmarNuevoRadio = (valor) => {
   radioActual.value = valor;
   isModalOpen.value = false;
+  emit('cambiar-radio', valor);
   console.log("Filtrando productos a:", valor, "km");
 };
 
@@ -97,13 +109,22 @@ onMounted(() => {
         </p>
       </div>
 
-      <div id="usuario">
-        <img src="../assets/iconos/cuenta.png" alt="icono_perfil">
-        {{ DatosUser.nombre_usuario }}
-      </div>
-    </div>
+      <div class="contenedor-perfil">
+        
+        <div id="usuario" @click="mostrarMenu = !mostrarMenu">
+          <img src="../assets/iconos/cuenta.png" alt="icono_perfil">
+          {{ DatosUser.nombre_usuario }}
+          <span class="triangulo"> ▼ </span>
+        </div>
 
-    <ModalRadio 
+        <div v-if="mostrarMenu" class="menu-desplegable">
+          <ul>
+            <li @click="cerrarSesion">
+              <img src="../assets/iconos/rechazar.png" alt="cerrar sesión" class="icono-salir"> Cerrar sesión
+            </li>
+          </ul>
+        </div>
+      </div> </div>  <ModalRadio 
       :mostrar="isModalOpen" 
       @cerrar="isModalOpen = false" 
       @confirmar="confirmarNuevoRadio"
@@ -122,7 +143,7 @@ onMounted(() => {
 header {
   width: 100%;
   background-color: #ffffff;
-  box-shadow: 0px 4px 15px -5px #cfcfcf;
+  box-shadow: 0px 4px 15px -5px #CFCFCF;
   height: 80px;
   display: flex;
   align-items: center;
@@ -160,7 +181,7 @@ header {
   grid-column: 2;
   font-size: 25px;
   font-weight: 600;
-  color: #4ca626;
+  color: #4CA626;
   line-height: 1.2;
 }
 
@@ -190,7 +211,7 @@ nav li a {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: #5f6368;
+  color: #5F6368;
   font-size: 18px;
   font-weight: 500;
   padding: 10px 16px;
@@ -204,8 +225,8 @@ nav li a .logos-nav {
 }
 
 nav li a:hover {
-  background-color: #4ca6264a;
-  color: #4ca626;
+  background-color: #4CA6264A;
+  color: #4CA626;
 }
 
 nav li a:hover .logos-nav {
@@ -215,8 +236,8 @@ nav li a:hover .logos-nav {
 
 .router-link-active,
 .router-link-exact-active {
-  background-color: #4ca6264a;
-  color: #4ca626;
+  background-color: #4CA6264A;
+  color: #4CA626;
 }
 
 #radio_busqueda {
@@ -226,7 +247,7 @@ nav li a:hover .logos-nav {
 #radio_busqueda p {
   display: flex;
   align-items: center;
-  color: #5f6368;
+  color: #5F6368;
   font-size: 14px;
   font-weight: 600;
   gap: 8px;
@@ -241,7 +262,7 @@ nav li a:hover .logos-nav {
 #usuario {
   display: flex;
   align-items: center;
-  background-color: #4ca6264a;
+  background-color: #4CA6264A;
   color: #757575;
   padding: 6px 20px 6px 6px;
   border-radius: 50px;
@@ -255,6 +276,60 @@ nav li a:hover .logos-nav {
   border-radius: 50%;
   margin-right: 10px;
   object-fit: cover;
+}
+
+.contenedor-perfil {
+  position: relative; 
+  cursor: pointer;
+}
+
+.menu-desplegable {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 180px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+  margin-top: 10px;
+  padding: 10px 0;
+  z-index: 2000;
+  overflow: hidden;
+  border: 1px solid #EEEEEE;
+}
+
+.menu-desplegable ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-desplegable li {
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #5F6368;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 14px;
+}
+
+.menu-desplegable li:hover {
+  background-color: #FFECEC;
+  color: #D32F2F;
+}
+
+.icono-salir {
+  width: 18px;
+  height: 18px;
+  opacity: 0.6;
+}
+
+.triangulo {
+  font-size: 10px;
+  margin-left: 5px;
 }
 
 @media (max-width: 1200px) {
@@ -302,7 +377,7 @@ nav li a:hover .logos-nav {
 
   #usuario {
     font-size: 16px;
-    background-color: #4ca6264a;
+    background-color: #4CA6264A;
     color: #757575;
     padding: 6px 20px 6px 6px;
     border-radius: 50px;
@@ -338,7 +413,7 @@ nav li a:hover .logos-nav {
   }
 
   nav li a {
-    background-color: #f5f5f5;
+    background-color: #F5F5F5;
   }
 }
 </style>

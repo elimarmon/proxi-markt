@@ -1,11 +1,16 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import axios from "axios";
 import navbar from "./nav.vue";
 // import TarjetaProducto from "@/components/TarjetaProducto.vue";
 import MostrarProductos from './MostrarProductosMain.vue'
 
 const productos = ref([]);
+const radioActual = ref(10);
+
+const manejarCambioRadio = (nuevoRadio) => {
+    radioActual.value = nuevoRadio;
+};
 
 const mostrarProductos = async () => {
     const response = await axios.get("http://localhost:8080/api/productos");
@@ -19,7 +24,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <navbar></navbar>
+  <navbar @cambiar-radio="manejarCambioRadio"></navbar>
+  
   <div class="contenedor-pagina">
     <h1 class="titulo-verde">Productos Frescos y Locales</h1>
     <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual }} km)</p>
@@ -36,7 +42,7 @@ onMounted(() => {
         </button>
       </div>
       <p class="informacion-resultados"> 
-        {{ productos.length }} productos encontrados <span class="texto-verde">(en un radio de 50 km)</span>
+        {{ productos.length }} productos encontrados <span class="texto-verde">(en un radio de {{ radioActual }} km)</span>
       </p>
     </div>
 
