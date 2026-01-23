@@ -6,12 +6,17 @@ import comandas from '../components/comandas.vue';
 import miCuenta from '../components/miCuenta.vue';
 import Ubicacion from '../components/ubicacion.vue';
 import publicar from '../components/publicar.vue';
-import DetalleProducto from "@/components/DetalleProducto.vue";
-import EditarProducto from "../components/EditarProducto.vue";
-import { mergeProps } from "vue";
-
+import mensaje from '../components/mensaje.vue';
+import mapa from '../components/mapa.vue';
+import DetalleProducto from "../components/DetalleProducto.vue";
+import principal from '../components/principal.vue';
 
 const routes = [
+    {
+        path: "/",
+        name: "principal",
+        component: principal
+    },
     {
         path: "/login",
         name: "login",
