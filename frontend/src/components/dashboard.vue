@@ -99,7 +99,7 @@ import navbar from "./nav.vue";
 const router = useRouter();
 
 const ProductosUser = ref([]);
-const datosUsuario = ref ({});
+// const datosUsuario = ref ({});
 
 const CargarProductosUser = async () => {
   const token = localStorage.getItem('token');

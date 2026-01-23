@@ -176,6 +176,17 @@ body {
   min-width: 400px;
 }
 
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 400px;
+}
+
 .contenedor-pagina {
   margin-top: 80px;
   padding: 20px 50px;
@@ -198,6 +209,7 @@ body {
   color: #666666;
   margin-bottom: 20px;
 }
+
 
 .tarjeta-formulario {
   background: #FFFFFF;
@@ -225,6 +237,7 @@ label {
   margin-bottom: 8px;
 }
 
+
 input[type="text"], input[type="number"], select, textarea {
   width: 100%;
   padding: 11px 14px;
@@ -234,6 +247,8 @@ input[type="text"], input[type="number"], select, textarea {
   font-size: 14px;
   margin-bottom: 18px;
   transition: all 0.2s ease;
+  font-family: inherit;
+  box-sizing: border-box;
 }
 
 input:focus, select:focus, textarea:focus {
@@ -243,9 +258,11 @@ input:focus, select:focus, textarea:focus {
   background-color: #FFFFFF;
 }
 
+
 .fila-doble {
   display: flex;
-  gap: 15px;
+  gap: 60px; 
+  width: 100%;
 }
 
 .columna {
@@ -276,6 +293,13 @@ input:focus, select:focus, textarea:focus {
   justify-content: center;
   cursor: pointer;
   margin-bottom: 25px;
+  background-color: #fff;
+  transition: all 0.2s;
+}
+
+.zona-upload:hover {
+    background-color: #f9fafb;
+    border-color: #00a859;
 }
 
 .input-file-oculto {
@@ -303,10 +327,11 @@ input:focus, select:focus, textarea:focus {
   font-size: 11px; color: #A0AEC0;
 }
 
+/* NOTA AZUL */
 .banner-informativo {
   background-color: #F0F7FF;
   border-radius: 8px;
-  padding: 12px 16px;
+  padding: 16px;
   margin-bottom: 30px;
 }
 
@@ -316,19 +341,24 @@ input:focus, select:focus, textarea:focus {
   line-height: 1.5;
 }
 
+.banner-informativo strong {
+    color: #1e3a8a;
+}
+
 .acciones {
   display: flex;
-  gap: 12px;
+  gap: 20px;
+  width: 100%;
 }
 
 button {
   flex: 1;
-  padding: 12px;
+  padding: 14px;
   border-radius: 8px;
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.2s;
 }
 
 .boton-cancelar {
