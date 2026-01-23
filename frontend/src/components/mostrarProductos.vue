@@ -1,4 +1,5 @@
 <script setup>
+import EditarProducto from './EditarProducto.vue';
 const props = defineProps({
   productos: {
     type: Array,
@@ -6,6 +7,13 @@ const props = defineProps({
     default: () => []
   }
 });
+
+const emit = defineEmits(['borrar']);
+
+const eliminarproducto = (id) => {
+  emit('borrar', id)
+}
+
 </script>
 
 <template>
@@ -27,8 +35,12 @@ const props = defineProps({
             <span>📦 Stock: {{ producto.stock_total }}</span>
           </div>
         </div>
+        <router-link :to="{name: 'editar_producto', params:{id:producto.id}, state:{producto:producto}}">📝</router-link>
+        <button @click="eliminarproducto(producto.id)">🗑️</button>
+          
       </div>
     </div>
+
 
     <div v-else class="card-vacia">
       No hay productos para mostrar en este momento.

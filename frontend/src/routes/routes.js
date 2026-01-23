@@ -7,6 +7,8 @@ import miCuenta from '../components/miCuenta.vue';
 import Ubicacion from '../components/ubicacion.vue';
 import publicar from '../components/publicar.vue';
 import DetalleProducto from "@/components/DetalleProducto.vue";
+import EditarProducto from "../components/EditarProducto.vue";
+import { mergeProps } from "vue";
 
 
 const routes = [
@@ -29,6 +31,12 @@ const routes = [
         path: '/productos',
         name: 'productos',
         component: productos
+    },
+    {
+        path: '/productos/:id/editar',
+        name: 'editar_producto',
+        component: EditarProducto,
+        props: true
     },
     // {
     //     path: '/mensajes',

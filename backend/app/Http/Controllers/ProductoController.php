@@ -78,6 +78,8 @@ class ProductoController extends Controller
         $producto = Producto::findOrFail($id);
 
         $request->validate([
+            'nombre_producto' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
             'precio' => 'numeric|min:0',
             'stock_total' => 'integer|min:0',
         ]);
@@ -87,6 +89,17 @@ class ProductoController extends Controller
         return response()->json([
             'message' => 'Producto actualizado',
             'producto' => $producto
-        ]);
+        ], 200);
+    }
+
+    public function destroy($id)
+    {
+       
+        $producto = Producto::findOrFail($id);
+
+        $producto->delete();
+
+        return response()->json(['message' => 'Producto eliminado correctamente'], 200);
+       
     }
 }

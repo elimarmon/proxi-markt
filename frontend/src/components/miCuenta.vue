@@ -143,17 +143,32 @@
     }
 
     const CargarProductosUser = async () => {
-    const token = localStorage.getItem('token');
-    const productos = await axios.get('http://localhost:8080/api/productosuser', {
-      headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }}
-        )
-    
-    ProductosUser.value = productos.data;
+      const token = localStorage.getItem('token');
+      const productos = await axios.get('http://localhost:8080/api/productosuser', {
+        headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            }}
+          )
+      
+      ProductosUser.value = productos.data;
 
   }
+
+    const EliminarProducto = async (id) => {
+      const token = localStorage.getItem('token');
+      
+      const eliminar = await axios.delete('http://localhost:8080/api/productos/'+ id, {
+        headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            }}
+          )
+      if(eliminar.status === 200){
+        alert('producto eliminado correctamente')
+        location.reload();
+      }
+    }
 
   onMounted(() => {
       CargarPuntos();
@@ -219,7 +234,7 @@
       
       <section class="seccion-bloque">
         <h3>Mis productos</h3>
-        <MostrarProductos :productos="ProductosUser"></MostrarProductos>
+        <MostrarProductos :productos="ProductosUser" @borrar="EliminarProducto"></MostrarProductos>
       </section>
 
       <section class="seccion-bloque">
