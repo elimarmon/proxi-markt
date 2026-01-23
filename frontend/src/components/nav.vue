@@ -1,9 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
 import ModalRadio from './ModalRadio.vue';
+import axios from 'axios';
 
 const isModalOpen = ref(false);
+
+const DatosUser = ref({});
 const radioActual = ref(10);
 
 const confirmarNuevoRadio = (valor) => {
@@ -11,8 +13,6 @@ const confirmarNuevoRadio = (valor) => {
   isModalOpen.value = false;
   console.log("Filtrando productos a:", valor, "km");
 };
-  
-const DatosUser = ref({});
 
 const nombreUsuario = async () => {
   const token = localStorage.getItem('token');

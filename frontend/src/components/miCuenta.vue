@@ -142,17 +142,32 @@
     }
 
     const CargarProductosUser = async () => {
-    const token = localStorage.getItem('token');
-    const productos = await axios.get('http://localhost:8080/api/productosuser', {
-      headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }}
-        )
-    
-    ProductosUser.value = productos.data;
+      const token = localStorage.getItem('token');
+      const productos = await axios.get('http://localhost:8080/api/productosuser', {
+        headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            }}
+          )
+      
+      ProductosUser.value = productos.data;
 
   }
+
+    const EliminarProducto = async (id) => {
+      const token = localStorage.getItem('token');
+      
+      const eliminar = await axios.delete('http://localhost:8080/api/productos/'+ id, {
+        headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            }}
+          )
+      if(eliminar.status === 200){
+        alert('producto eliminado correctamente')
+        location.reload();
+      }
+    }
 
   onMounted(() => {
       CargarPuntos();
@@ -182,9 +197,14 @@
       </div>
 
       <div class="contenedor-accion-superior">
-        <button @click="GuardarPuntoEntrega" class="boton-crear">
+        <button @click="GuardarPuntoEntrega" class="botones-perfil">
           Crear nuevo punto de entrega
         </button>
+        <router-link to="/ubicacion" class="botones-perfil">
+          Cambiar mi ubicación
+        </router-link>
+
+
       </div>
 
       <div v-if="activarMapa" class="seccion-gestion-puntos">
@@ -214,12 +234,12 @@
         </div>
       </div>
 
-      <div class="contenedor-secciones-datos">
-        
-        <section class="seccion-bloque">
-          <h3>Mis productos</h3>
-          <MostrarProductos :productos="ProductosUser"></MostrarProductos>
-        </section>
+    <div class="contenedor-secciones-datos">
+      
+      <section class="seccion-bloque">
+        <h3>Mis productos</h3>
+        <MostrarProductos :productos="ProductosUser" @borrar="EliminarProducto"></MostrarProductos>
+      </section>
 
         <section class="seccion-bloque">
           <h3>Mis Compras</h3>
@@ -335,7 +355,7 @@ hr {
   margin-bottom: 40px; 
 }
 
-.boton-crear {
+.botones-perfil {
   background: #4CA626;
   color: white;
   border: none;
@@ -343,6 +363,7 @@ hr {
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
+  text-decoration: none;
 }
 
 .seccion-gestion-puntos {
