@@ -9,7 +9,7 @@
     <div class="cajas-informacion-uno">
       <div class="caja">
         <h3>Mis productos</h3>
-        <p>2</p>
+        <p>{{ ProductosUser.length }}</p>
         <img
           src="../assets/iconos/brote.png"
           alt="Mis productos"
