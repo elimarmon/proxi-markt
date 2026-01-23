@@ -22,7 +22,7 @@ onMounted(() => {
   <navbar></navbar>
   <div class="contenedor-pagina">
     <h1 class="titulo-verde">Productos Frescos y Locales</h1>
-    <p class="subtitulo">Conecta directamente con productores de tu zona (radio: 50 km)</p>
+    <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual }} km)</p>
 
     <div class="card-busqueda">
       <div id="buscador">
