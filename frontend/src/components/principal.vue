@@ -1,73 +1,73 @@
 <template>
-  <div class="main-wrapper">
+  <div class="contenedor-principal">
     <navbar />
 
-    <section class="hero-section">
-      <div class="hero-content">
-        <h1>Conectamos Productores Locales <br> <span class="text-green">con Consumidores Conscientes</span></h1>
-        <p class="hero-text">
+    <section class="seccion-portada">
+      <div class="contenido-portada">
+        <h1>Conectamos Productores Locales <br> <span class="texto-verde">con Consumidores Conscientes</span></h1>
+        <p class="texto-portada">
           ProxyMarket es el marketplace líder en productos frescos de proximidad. Una solución profesional para la compra-venta de frutas y verduras de kilómetro cero, con sistema de geolocalización avanzado y gestión integral de pedidos.
         </p>
-        <button class="btn-primary" @click="irARegistro">Comenzar Ahora</button>
+        <button class="boton-primario" @click="irARegistro">Comenzar Ahora</button>
       </div>
     </section>
 
-    <section class="features-section">
-      <h2>¿Por qué elegir <span class="text-green">ProxyMarket?</span></h2>
-      <p class="section-subtitle">Tecnología avanzada al servicio del comercio local de productos frescos</p>
+    <section class="seccion-caracteristicas">
+      <h2>¿Por qué elegir <span class="texto-verde">ProxyMarket?</span></h2>
+      <p class="subtitulo-seccion">Tecnología avanzada al servicio del comercio local de productos frescos</p>
 
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="icon-box green-icon">📍</div>
+      <div class="grid-caracteristicas">
+        <div class="tarjeta-caracteristica">
+          <div class="caja-icono icono-verde">📍</div>
           <h3>Sistema de Proximidad</h3>
           <p>Algoritmo de geolocalización que permite búsquedas personalizadas con radio configurable de 1 a 50 kilómetros. Optimiza tus compras encontrando productos en tu zona.</p>
         </div>
 
-        <div class="feature-card">
-          <div class="icon-box blue-icon">🍎</div>
+        <div class="tarjeta-caracteristica">
+          <div class="caja-icono icono-azul">🍎</div>
           <h3>Trazabilidad Completa</h3>
           <p>Productos verificados de origen local con información detallada del productor. Garantía de frescura, calidad y sostenibilidad en cada transacción.</p>
         </div>
 
-        <div class="feature-card">
-          <div class="icon-box purple-icon">👥</div>
+        <div class="tarjeta-caracteristica">
+          <div class="caja-icono icono-morado">👥</div>
           <h3>Gestión Profesional</h3>
           <p>Plataforma integral con sistema de mensajería, gestión de pedidos, valoraciones y panel de control para vendedores y compradores.</p>
         </div>
       </div>
     </section>
 
-    <section class="how-it-works-section">
+    <section class="seccion-como-funciona">
       <h2>Cómo Funciona</h2>
-      <p class="section-subtitle">Simple, rápido y directo. Así de fácil es usar ProxyMarket</p>
+      <p class="subtitulo-seccion">Simple, rápido y directo. Así de fácil es usar ProxyMarket</p>
 
-      <div class="steps-grid">
-        <div class="step">
-          <div class="step-circle green-circle">1</div>
+      <div class="grid-pasos">
+        <div class="paso">
+          <div class="circulo-paso circulo-verde">1</div>
           <h3>Regístrate Gratis</h3>
           <p>Crea tu cuenta en segundos y configura tu radio de búsqueda preferido.</p>
         </div>
-        <div class="step">
-          <div class="step-circle blue-circle">2</div>
+        <div class="paso">
+          <div class="circulo-paso circulo-azul">2</div>
           <h3>Explora Productos</h3>
           <p>Navega por el catálogo de productos frescos disponibles cerca de ti.</p>
         </div>
-        <div class="step">
-          <div class="step-circle orange-circle">3</div>
+        <div class="paso">
+          <div class="circulo-paso circulo-naranja">3</div>
           <h3>Conecta y Compra</h3>
           <p>Chatea con el vendedor, acuerda la entrega y disfruta de productos frescos.</p>
         </div>
       </div>
     </section>
 
-    <section class="support-local-section">
-      <div class="support-content">
-        <div class="badge">🌱 Sostenibilidad</div>
-        <h2>Apoya el <span class="text-green">Comercio Local</span></h2>
+    <section class="seccion-apoyo-local">
+      <div class="contenido-apoyo">
+        <div class="insignia">🌱 Sostenibilidad</div>
+        <h2>Apoya el <span class="texto-verde">Comercio Local</span></h2>
         <p>Al comprar en ProxyMarket, estás apoyando directamente a productores locales, reduciendo la huella de carbono y asegurando que tu dinero se quede en tu comunidad.</p>
         
-        <div class="check-item">
-          <span class="check-icon">✓</span>
+        <div class="elemento-check">
+          <span class="icono-check">✓</span>
           <div>
             <strong>Productos Frescos</strong>
             <p>Directamente del huerto a tu mesa, máxima frescura garantizada.</p>
@@ -75,24 +75,24 @@
         </div>
       </div>
       
-      <div class="support-image">
-        <img src="../assets/iconos/Mercado.jpeg" alt="Verduras frescassss">
+      <div class="imagen-apoyo">
+        <img src="../assets/iconos/Mercado.jpeg" alt="Verduras frescas">
       </div>
     </section>
 
-    <section class="cta-section">
+    <section class="seccion-llamada">
       <h2>¿Listo para Comenzar?</h2>
       <p>Únete a ProxyMarket hoy y descubre la mejor manera de comprar y vender productos frescos locales</p>
-      <button class="btn-white" @click="irARegistro">Crear Cuenta Gratis</button>
+      <button class="boton-blanco" @click="irARegistro">Crear Cuenta Gratis</button>
     </section>
 
-    <footer class="main-footer">
-      <div class="footer-bottom">
-        <div class="brand">
-          <span class="leaf-icon">🍃</span> ProxyMarket
+    <footer class="pie-pagina-principal">
+      <div class="fondo-pie">
+        <div class="marca">
+          <span class="icono-hoja">🍃</span> ProxyMarket
         </div>
-        <p class="copyright">Frutas y Verduras Frescas de tu Vecindario</p>
-        <p class="copyright small">© 2026 ProxyMarket. Todos los derechos reservados.</p>
+        <p class="derechos">Frutas y Verduras Frescas de tu Vecindario</p>
+        <p class="derechos pequeno">© 2026 ProxyMarket. Todos los derechos reservados.</p>
       </div>
     </footer>
 
@@ -111,95 +111,87 @@ const irARegistro = () => {
 </script>
 
 <style scoped>
-/* =========================================
-   RESET Y FUENTES
-   ========================================= */
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: 'Segoe UI', 'Arial';
 }
 
 body {
   min-width: 400px;
 }
 
-.main-wrapper {
+.contenedor-principal {
   margin-top: 80px; 
 }
 
-/* Colores de texto */
-.text-green {
-  color: #00a859;
+
+.texto-verde {
+  color: #00A859;
 }
 
-.section-subtitle {
-  color: #666;
+.subtitulo-seccion {
+  color: #666666;
   margin-bottom: 40px;
   font-size: 16px;
 }
 
-/* =========================================
-   1. HERO SECTION
-   ========================================= */
-.hero-section {
+.seccion-portada {
   text-align: center;
   padding: 80px 20px;
-  background-color: #f8fbfa;
+  background-color: #F8FBFA;
 }
 
-.hero-content {
+.contenido-portada {
   max-width: 800px;
   margin: 0 auto;
 }
 
-.hero-section h1 {
+.seccion-portada h1 {
   font-size: 42px;
-  font-weight: 700;
-  color: #1a202c;
+  font-weight: bold;
+  color: #1A202C;
   line-height: 1.2;
   margin-bottom: 20px;
 }
 
-.hero-text {
+.texto-portada {
   font-size: 18px;
-  color: #4a5568;
+  color: #4A5568;
   margin-bottom: 30px;
   line-height: 1.6;
 }
 
-.btn-primary {
-  background-color: #00a859;
+.boton-primario {
+  background-color: #00A859;
   color: white;
   border: none;
   padding: 12px 30px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: bold;
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.3s;
 }
 
-.btn-primary:hover {
-  background-color: #008f4c;
+.boton-primario:hover {
+  background-color: #008F4C;
 }
 
-/* =========================================
-   2. FEATURES SECTION
-   ========================================= */
-.features-section {
+.seccion-caracteristicas {
   padding: 60px 20px;
   text-align: center;
   background: white;
 }
 
-.features-section h2 {
+.seccion-caracteristicas h2 {
   font-size: 32px;
   margin-bottom: 10px;
 }
 
-.features-grid {
+.grid-caracteristicas {
   display: flex;
   justify-content: center;
   gap: 30px;
@@ -208,22 +200,22 @@ body {
   margin: 0 auto;
 }
 
-.feature-card {
+.tarjeta-caracteristica {
   flex: 1;
   min-width: 300px;
   padding: 30px;
   border-radius: 12px;
-  border: 1px solid #eee;
+  border: 1px solid #EEEEEE;
   text-align: left;
   transition: transform 0.2s;
 }
 
-.feature-card:hover {
+.tarjeta-caracteristica:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 20px rgba(0,0,0,0.05);
 }
 
-.icon-box {
+.caja-icono {
   width: 50px;
   height: 50px;
   display: flex;
@@ -234,38 +226,47 @@ body {
   margin-bottom: 20px;
 }
 
-.green-icon { background-color: #e6f7ef; color: #00a859; }
-.blue-icon { background-color: #e6f0ff; color: #0066ff; }
-.purple-icon { background-color: #f3e6ff; color: #8000ff; }
-
-.feature-card h3 {
-  font-size: 18px;
-  margin-bottom: 10px;
-  color: #2d3748;
+.icono-verde {
+  background-color: #E6F7EF; 
+  color: #00A859;
 }
 
-.feature-card p {
+.icono-azul {
+  background-color: #E6F0FF; 
+  color: #0066FF;
+}
+
+.icono-morado {
+  background-color: #F3E6FF; 
+  color: #8000FF;
+}
+
+
+.tarjeta-caracteristica h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #2D3748;
+}
+
+.tarjeta-caracteristica p {
   font-size: 14px;
   color: #718096;
   line-height: 1.5;
 }
 
-/* =========================================
-   3. HOW IT WORKS
-   ========================================= */
-.how-it-works-section {
+.seccion-como-funciona {
   padding: 60px 20px;
   text-align: center;
-  background-color: #fff;
+  background-color: #FFFFFF;
 }
 
-.how-it-works-section h2 {
+.seccion-como-funciona h2 {
   font-size: 32px;
-  color: #1a202c;
+  color: #1A202C;
   margin-bottom: 10px;
 }
 
-.steps-grid {
+.grid-pasos {
   display: flex;
   justify-content: center;
   gap: 50px;
@@ -274,7 +275,7 @@ body {
   margin: 40px auto 0;
 }
 
-.step {
+.paso {
   flex: 1;
   min-width: 250px;
   display: flex;
@@ -282,7 +283,7 @@ body {
   align-items: center;
 }
 
-.step-circle {
+.circulo-paso {
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -294,25 +295,33 @@ body {
   margin-bottom: 20px;
 }
 
-.green-circle { background-color: #e6f7ef; color: #00a859; }
-.blue-circle { background-color: #e6f0ff; color: #0066ff; }
-.orange-circle { background-color: #fff4e6; color: #ff9900; }
+.circulo-verde {
+  background-color: #E6F7EF;
+  color: #00A859;
+}
 
-.step h3 {
+.circulo-azul {
+  background-color: #E6F0FF;
+  color: #0066FF;
+}
+
+.circulo-naranja { 
+  background-color: #FFF4E6; 
+  color: #FF9900;
+}
+
+.paso h3 {
   font-size: 18px;
   margin-bottom: 10px;
 }
 
-.step p {
+.paso p {
   font-size: 14px;
   color: #718096;
   max-width: 250px;
 }
 
-/* =========================================
-   4. SUPPORT LOCAL
-   ========================================= */
-.support-local-section {
+.seccion-apoyo-local {
   display: flex;
   flex-wrap: wrap;
   max-width: 1100px;
@@ -322,26 +331,26 @@ body {
   align-items: center;
 }
 
-.support-content {
+.contenido-apoyo {
   flex: 1;
   min-width: 300px;
 }
 
-.support-image {
+.imagen-apoyo {
   flex: 1;
   min-width: 300px;
 }
 
-.support-image img {
+.imagen-apoyo img {
   width: 100%;
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
-.badge {
+.insignia {
   display: inline-block;
-  background-color: #e6f7ef;
-  color: #00a859;
+  background-color: #E6F7EF;
+  color: #00A859;
   padding: 5px 12px;
   border-radius: 20px;
   font-size: 12px;
@@ -349,29 +358,29 @@ body {
   margin-bottom: 15px;
 }
 
-.support-content h2 {
+.contenido-apoyo h2 {
   font-size: 32px;
   margin-bottom: 20px;
   line-height: 1.2;
 }
 
-.support-content p {
+.contenido-apoyo p {
   color: #718096;
   line-height: 1.6;
   margin-bottom: 20px;
 }
 
-.check-item {
+.elemento-check {
   display: flex;
   gap: 15px;
   margin-top: 20px;
 }
 
-.check-icon {
+.icono-check {
   width: 24px;
   height: 24px;
-  background-color: #e6f7ef;
-  color: #00a859;
+  background-color: #E6F7EF;
+  color: #00A859;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -380,41 +389,38 @@ body {
   flex-shrink: 0;
 }
 
-.check-item strong {
+.elemento-check strong {
   display: block;
-  color: #2d3748;
+  color: #2D3748;
   margin-bottom: 2px;
 }
 
-.check-item p {
+.elemento-check p {
   font-size: 13px;
   margin: 0;
 }
 
-/* =========================================
-   5. CTA SECTION (SOLO ESTO VERDE)
-   ========================================= */
-.cta-section {
-  background-color: #00a859; /* Fondo Verde */
-  color: white;              /* Texto Blanco */
+.seccion-llamada {
+  background-color: #00A859; 
+  color: white;              
   text-align: center;
   padding: 80px 20px;
 }
 
-.cta-section h2 {
+.seccion-llamada h2 {
   font-size: 32px;
   margin-bottom: 15px;
 }
 
-.cta-section p {
+.seccion-llamada p {
   font-size: 16px;
   opacity: 0.9;
   margin-bottom: 30px;
 }
 
-.btn-white {
+.boton-blanco {
   background-color: white;
-  color: #00a859; /* Texto verde */
+  color: #00A859; 
   border: none;
   padding: 12px 30px;
   font-size: 16px;
@@ -424,48 +430,46 @@ body {
   transition: transform 0.2s;
 }
 
-.btn-white:hover {
+.boton-blanco:hover {
   transform: scale(1.05);
 }
 
-/* =========================================
-   6. FOOTER REAL (FONDO BLANCO)
-   ========================================= */
-.main-footer {
-  background-color: #ffffff; /* Blanco */
+.pie-pagina-principal {
+  background-color: #FFFFFF; 
   padding: 40px 20px;
   text-align: center;
 }
 
-.footer-bottom {
+.fondo-pie {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-.brand {
+.marca {
   font-size: 20px;
   font-weight: bold;
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 10px;
-  color: #00a859; /* Logo en verde */
+  color: #00A859; 
 }
 
-.leaf-icon {
+.icono-hoja {
     font-size: 24px;
 }
 
-.copyright {
+.derechos {
   font-size: 14px;
-  color: #333; /* Texto oscuro */
+  color: #333333; 
   margin-bottom: 5px;
 }
 
-.copyright.small {
+.derechos.pequeno {
   font-size: 12px;
-  color: #888; /* Texto gris suave */
+  color: #888888; 
 }
+
 </style>
