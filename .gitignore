@@ -13,3 +13,8 @@ frontend/dist/
 storage/*.key
 .DS_Store
 repomix-output.*
+
+# MkDocs
+site/
+.venv/
+__pycache__/
