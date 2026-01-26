@@ -90,6 +90,12 @@ onMounted(() => {
             </router-link>
           </li>
           <li>
+            <router-link to="/compras">
+                <img class="logos-nav" src="../assets/iconos/hojas.png" alt="logo_compras">
+                Compras
+            </router-link>
+          </li>
+          <li>
             <router-link to="/publicar">
                 <img class="logos-nav" src="../assets/iconos/publicar_verde.png" alt="logo_publicar">
                 Publicar</router-link></li>
@@ -201,9 +207,9 @@ nav {
 nav ul {
   display: flex;
   list-style: none;
-  gap: 10px;
+  align-self: flex-start;
+  gap: 5px;
   margin-left: 50px;
-  justify-content: center;
   align-items: center;
 }
 
