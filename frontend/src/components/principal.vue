@@ -9,7 +9,7 @@
         </div>
         <router-link to="/login" class="boton-iniciosesion">Iniciar Sesion</router-link>
       </div>
-    </header>  
+    </header>
     <section class="seccion-portada">
       <div class="contenido-portada">
         <h1>Conectamos Productores Locales <br> <span class="texto-verde">con Consumidores Conscientes</span></h1>
