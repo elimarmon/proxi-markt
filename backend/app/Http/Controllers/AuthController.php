@@ -8,7 +8,6 @@ use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -52,6 +51,6 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Sesión cerrada'], 200)->withCookie($cookie);
+        return response()->json(['message' => 'Sesión cerrada'], 200);
     }
 }
