@@ -49,11 +49,11 @@ const routes = [
         component: EditarProducto,
         props: true
     },
-    // {
-    //     path: '/mensajes',
-    //     name: 'mensajes',
-    //     component: mensajes
-    // },
+    {
+        path: '/mensaje',
+        name: 'mensaje',
+        component: mensaje
+    },
     {
         path: '/comandas',
         name: 'comandas',
@@ -74,7 +74,6 @@ const routes = [
         name: 'ubicacion',
         component: Ubicacion
     }
-    
 ];
 
 const router = createRouter({

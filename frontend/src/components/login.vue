@@ -136,7 +136,7 @@ input::placeholder {
 .boton-submit {
   width: 100%;
   padding: 14px;
-  background-color: #4CA626;
+  background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
   color: #FFF;
   font-weight: bold;
   font-size: 1rem;
@@ -148,7 +148,7 @@ input::placeholder {
 }
 
 .boton-submit:hover {
-  background-color: #009E47;
+  background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
 }
 
 @media (min-width: 1200px) {
