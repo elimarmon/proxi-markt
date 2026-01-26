@@ -228,19 +228,19 @@ body {
 }
 
 .cajas-informacion-uno .caja:nth-child(1) {
-  background: linear-gradient(to left, #009E5B, #20c97e);
+  background: linear-gradient(to left, #009E5B, #20C97E);
 }
 
 .cajas-informacion-uno .caja:nth-child(2) {
-  background: linear-gradient(to left, #1060C4, #4facfe);
+  background: linear-gradient(to left, #1060C4, #4FACFE);
 }
 
 .cajas-informacion-uno .caja:nth-child(3) {
-  background: linear-gradient(to left, #D95000, #ff8c42);
+  background: linear-gradient(to left, #D95000, #FF8C42);
 }
 
 .cajas-informacion-uno .caja:nth-child(4) {
-  background: linear-gradient(to left, #801AC0, #b845fc);
+  background: linear-gradient(to left, #801AC0, #B845FC);
 }
 
 .cajas-informacion-dos,
@@ -386,16 +386,16 @@ body {
 }
 
 .lista-scroll::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #F1F1F1;
   border-radius: 4px;
 }
 
 .lista-scroll::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: #CCCCCC;
   border-radius: 4px;
 }
 
 .lista-scroll::-webkit-scrollbar-thumb:hover {
-  background: #aaa;
+  background: #AAAAAA;
 }
 </style>
