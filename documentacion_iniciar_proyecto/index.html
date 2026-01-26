@@ -93,21 +93,23 @@
 <ol>
 <li>Asegurar que el directorio esté así:</li>
 </ol>
-<p><code>tree
-    .
-    ├── backend
-    ├── docker
-    │   ├── database
-    │   │   ├── base.sql
-    │   │   └── .env.database.example
-    │   ├── .env.app.example
-    │   ├── nginx
-    │   │   └── default.conf
-    │   └── php
-    │       ├── conf.d
-    │       │    └── 99-xdebug.ini
-    │       └── Dockerfile
-    └── docker-compose.yaml</code></p>
+<p>```text</p>
+<pre><code>.
+├── backend
+├── docker
+│   ├── database
+│   │   ├── base.sql
+│   │   └── .env.database.example
+│   ├── .env.app.example
+│   ├── nginx
+│   │   └── default.conf
+│   └── php
+│       ├── conf.d
+│       │    └── 99-xdebug.ini
+│       └── Dockerfile
+└── docker-compose.yaml
+```
+</code></pre>
 <ol>
 <li>Renombrar y rellenar <strong><em>.env.database.example</em></strong> y <strong><em>.env.app.example</em></strong></li>
 <li>Desde la carpeta raíz ejecutar <code>docker compose up --build</code></li>
@@ -122,17 +124,19 @@
 <li>Comprobar si node está instalado: <code>node -v</code></li>
 <li>
 <p>Si no está instalado:</p>
-<p><code>bash
-    # Descarga e instala nvm:
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-    # en lugar de reiniciar la shell
-    \. "$HOME/.nvm/nvm.sh"
-    # Descarga e instala Node.js:
-    nvm install 24
-    # Verifica la versión de Node.js:
-    node -v # Debería mostrar "v24.13.0".
-    # Verifica versión de npm:
-    npm -v # Debería mostrar "11.6.2".</code></p>
+<p>```bash</p>
+<pre><code># Descarga e instala nvm:
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+# en lugar de reiniciar la shell
+\. "$HOME/.nvm/nvm.sh"
+# Descarga e instala Node.js:
+nvm install 24
+# Verifica la versión de Node.js:
+node -v # Debería mostrar "v24.13.0".
+# Verifica versión de npm:
+npm -v # Debería mostrar "11.6.2".
+</code></pre>
+<p>```</p>
 </li>
 <li>
 <p>Iniciar el proyecto Vue:</p>
@@ -157,9 +161,10 @@
 <li>Instalar plugin mermaid para MkDocs: <code>pip install mkdocs-mermaid2-plugin</code></li>
 <li>Añadir mkdocs.yaml:</li>
 </ol>
-<p><code>yaml
-   plugins:
-     - mermaid2</code></p>
+<p>```yaml</p>
+<p>plugins:
+     - mermaid2
+   ```</p>
 <ol>
 <li>Desplegar archivos de la carpeta <strong><em>docs/</em></strong> con: <code>mkdocs gh-deploy</code></li>
 </ol></div>
