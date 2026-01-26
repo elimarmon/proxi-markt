@@ -73,6 +73,11 @@ const routes = [
         path: '/ubicacion',
         name: 'ubicacion',
         component: Ubicacion
+    },
+    {
+        path: '/mapa',
+        name: 'mapa',
+        component: mapa
     }
 ];
 

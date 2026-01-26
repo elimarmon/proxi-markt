@@ -78,7 +78,7 @@ onMounted(() => {
             </router-link>
           </li>
           <li>
-            <router-link to="/mensajes">
+            <router-link to="/mensaje">
                 <img class="logos-nav" src="../assets/iconos/chat_verde.png" alt="logo_mensajes">
                 Mensajes
             </router-link>
