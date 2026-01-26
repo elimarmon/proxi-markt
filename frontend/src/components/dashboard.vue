@@ -31,13 +31,13 @@
         <img src="../assets/iconos/euro.png" />
       </div>
     </div>
-    
+
     <div class="cajas-informacion-dos">
       <div class="ventas">
         <img src="../assets/iconos/carrito.png" class="icono" />
         <h3>Mis Ventas</h3>
         
-        <div v-if="misVentas.length > 0">
+        <div v-if="misVentas.length > 0" class="lista-scroll">
           <div class="producto-ventas" v-for="venta in misVentas" :key="venta.id">
             
             <img :src="venta.producto?.imagen ? `http://localhost:8080/storage/${venta.producto.imagen}` : 'https://via.placeholder.com/150'" class="imagen-producto">
@@ -57,7 +57,7 @@
         <img src="../assets/iconos/disponibles.png" class="icono" />
         <h3>Productos disponibles</h3>
         
-        <div v-if="ProductosUser.length > 0">
+        <div v-if="ProductosUser.length > 0" class="lista-scroll">
           <div class="producto-disponible" v-for="producto in ProductosUser" :key="producto.id">
             <img :src="producto.imagen ? `http://localhost:8080/storage/${producto.imagen}` : 'https://via.placeholder.com/150'" class="imagen-producto">
             <p id="nombre-producto">{{ producto.nombre_producto }}</p>
@@ -75,7 +75,7 @@
         <img src="../assets/iconos/stock.png" class="icono" />
         <h3>Mis Compras</h3>
 
-        <div v-if="misCompras.length > 0">
+        <div v-if="misCompras.length > 0" class="lista-scroll">
           <div class="compras-producto" v-for="compra in misCompras" :key="compra.id">
             
             <img :src="compra.producto?.imagen ? `http://localhost:8080/storage/${compra.producto.imagen}` : 'https://via.placeholder.com/150'" class="imagen-producto">
@@ -373,5 +373,29 @@ body {
 .no-producto {
   padding: 15px;
   color: grey;
+}
+
+.lista-scroll {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.lista-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.lista-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.lista-scroll::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.lista-scroll::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
 }
 </style>
