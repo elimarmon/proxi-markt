@@ -16,14 +16,16 @@ Se trata de un monorepo con backend en Laravel y frontend en Vue. Para la persis
 
 Los pasos a seguir para iniciar el proyecto son:
 
-1. En la carpeta raíz `docker compose up --build`
-2. Entrar en el contenedor de php con `docker compose exec -it php bash`
-3. Una vez dentro del contenedor ejecutar los siguientes comandos:
-   1. `php artisan migrate` -> genera las tablas necesarias para el funcionamiento correcto de Laravel.
-   2. `php artisan storage:link` -> enlaza la carpeta de imagenes del backend con el frontend.
-4. Desde la raíz del proyecto, otra vez, ejecutamos `cd frontend`
-5. Se inicia el frontend con `npm run dev` (desarrollo).
+1. Clona el repositorio con `git clone https://github.com/eliseumarmon/proxi-markt.git`
+2. En la carpeta raíz y ejecuta `docker compose up --build`
+3. Entra en el contenedor de php con `docker compose exec -it php bash`
+4. Una vez dentro del contenedor ejecuta los siguientes comandos:
+   1. `composer install` -> instala todas las dependencias del proyecto
+   2. `php artisan migrate` -> genera las tablas necesarias para el funcionamiento correcto de Laravel.
+   3. `php artisan storage:link` -> enlaza la carpeta de imagenes del backend con el frontend.
+   4. (Opcional) si quieres datos de prueba para testear el funcionamiento usar `php artisan db:seed`
+5. Desde la raíz del proyecto, otra vez, ejecuta `cd frontend`
+6. Instala dependencias de Vue con: `npm install`
+7. Inicia el frontend con `npm run dev` (desarrollo).
 
-## Información adicional
-
-En progreso...
+[Detalles para iniciar el proyecto desde 0](documentacion_iniciar_proyecto.md)
