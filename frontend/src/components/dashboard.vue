@@ -10,81 +10,83 @@
       <div class="caja">
         <h3>Mis productos</h3>
         <p>{{ ProductosUser.length }}</p>
-        <img
-          src="../assets/iconos/brote.png"
-          alt="Mis productos"
-          class="icono"
-        />
+        <img src="../assets/iconos/brote.png" class="icono" />
       </div>
 
       <div class="caja">
         <h3>Stock total</h3>
-        <p>55</p>
-        <img src="../assets/iconos/ingresos.png" alt="Stock total" />
+        <p>{{ ProductosUser.reduce((total, producto) => total + (producto.stock_total || 0), 0) }}</p>
+        <img src="../assets/iconos/ingresos.png" />
       </div>
 
       <div class="caja">
-        <h3>Ventas pendientes</h3>
-        <p>3</p>
-        <img src="../assets/iconos/info.png" alt="Ventas pendientes" />
+        <h3>Mis Ventas</h3>
+        <p>{{ misVentas.filter(venta => venta.estado === 'completado').length }}</p>
+        <img src="../assets/iconos/info.png" />
       </div>
 
       <div class="caja">
         <h3>Ingresos</h3>
-        <p>5.40€</p>
-        <img src="../assets/iconos/euro.png" alt="Ingresos" />
+        <p>{{ misVentas.filter(venta => venta.estado === 'completado').reduce((total, venta) => total + (venta.cantidad_total * (venta.producto?.precio || 0)), 0).toFixed(2) }}€</p>
+        <img src="../assets/iconos/euro.png" />
       </div>
     </div>
+
     <div class="cajas-informacion-dos">
       <div class="ventas">
-        <img
-          src="../assets/iconos/carrito.png"
-          alt="Ventas recientes"
-          class="icono"
-        />
-        <h3>Ventas Recientes</h3>
-        <div class="producto-ventas">
-          <p id="nombre-producto">Lechuga Fresca</p>
-          <p id="precio">5.40€</p>
-          <p id="info">Ana</p>
-          <p id="estado">Completada</p>
+        <img src="../assets/iconos/carrito.png" class="icono" />
+        <h3>Mis Ventas</h3>
+        
+        <div v-if="misVentas.length > 0" class="lista-scroll">
+          <div class="producto-ventas" v-for="venta in misVentas" :key="venta.id">
+            
+            <img :src="venta.producto?.imagen ? `http://localhost:8080/storage/${venta.producto.imagen}` : 'https://via.placeholder.com/150'" class="imagen-producto">
+            
+            <p id="nombre-producto">{{ venta.producto?.nombre_producto || 'Producto no disponible' }}</p>
+            
+            <p id="precio">{{ (venta.cantidad_total * (venta.producto?.precio || 0)).toFixed(2) }}€</p>
+            
+            <p id="info">Comprador #{{ venta.id_comprador }}</p>
+            <p id="estado">{{ venta.estado }}</p>
+          </div>
         </div>
+        <p class="no-producto" v-else>No tienes ventas aún.</p>
       </div>
 
       <div class="productos">
-        <img
-          src="../assets/iconos/disponibles.png"
-          alt="Productos disponibles"
-          class="icono"
-        />
+        <img src="../assets/iconos/disponibles.png" class="icono" />
         <h3>Productos disponibles</h3>
-        <div v-if="ProductosUser.length > 0">
+        
+        <div v-if="ProductosUser.length > 0" class="lista-scroll">
           <div class="producto-disponible" v-for="producto in ProductosUser" :key="producto.id">
-            <img :src="producto.imagen ? `http://localhost:8080/storage/${producto.imagen}` : 'https://via.placeholder.com/150'"
-            alt="Imagen producto" class="imagen-producto">
+            <img :src="producto.imagen ? `http://localhost:8080/storage/${producto.imagen}` : 'https://via.placeholder.com/150'" class="imagen-producto">
             <p id="nombre-producto">{{ producto.nombre_producto }}</p>
             <p id="precio-producto">{{ producto.precio }}€</p>
             <p id="stock-disponible">{{ producto.stock_total }} disponibles</p>
           </div>
         </div>
-        
+        <p class="no-producto" v-else>No has publicado productos.</p>
       </div>
     </div>
 
     <div class="cajas-informacion-tres">
+      
       <div class="productos">
-        <img
-          src="../assets/iconos/stock.png"
-          alt="Mis compras recientes"
-          class="icono"
-        />
-        <h3>Mis Compras Recientes</h3>
-        <div class="compras-producto">
-          <p id="nombre-producto">Lechuga Fresca</p>
-          <p id="info">Vendedor: Juan</p>
-          <p id="estado">Pendiente</p>
-          <p id="precio">5.00€</p>
+        <img src="../assets/iconos/stock.png" class="icono" />
+        <h3>Mis Compras</h3>
+
+        <div v-if="misCompras.length > 0" class="lista-scroll">
+          <div class="compras-producto" v-for="compra in misCompras" :key="compra.id">
+            
+            <img :src="compra.producto?.imagen ? `http://localhost:8080/storage/${compra.producto.imagen}` : 'https://via.placeholder.com/150'" class="imagen-producto">
+            
+            <p id="nombre-producto">{{ compra.producto?.nombre_producto || 'Producto no disponible' }}</p>
+            <p id="info">Vendedor #{{ compra.id_vendedor }}</p>
+            <p id="estado">{{ compra.estado }}</p>
+            <p id="precio">{{ (compra.cantidad_total * (compra.producto?.precio || 0)).toFixed(2) }}€</p>
+          </div>
         </div>
+        <p class="no-producto" v-else>No has comprado nada aún.</p>
       </div>
     </div>
   </div>
@@ -99,38 +101,39 @@ import navbar from "./nav.vue";
 const router = useRouter();
 
 const ProductosUser = ref([]);
-const compras = ref([]);
-const ventas = ref([]);
+const misCompras = ref([]); 
+const misVentas = ref([]);
+
+const getConfig = () => {
+  const token = localStorage.getItem('token');
+  return {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json'
+    }
+  };
+};
 
 const CargarProductosUser = async () => {
-  const token = localStorage.getItem('token');
-
-  const productos = await axios.get('http://localhost:8080/api/productosuser', {
-    headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        }}
-  );
-
-  ProductosUser.value = productos.data;
-  console.log(productos.data);
-}
+  const response = await axios.get('http://localhost:8080/api/productosuser', getConfig());
+  ProductosUser.value = response.data;
+};
 
 const obtenerCompras = async () => {
-  const response = await axios.get('http://localhost:8080/api/miscompras');
-  compras.value = response.data;
+  const response = await axios.get('http://localhost:8080/api/mis-compras', getConfig());
+  misCompras.value = response.data;
 };
 
 const obtenerVentas = async () => {
-  const response = await axios.get('http://localhost:8080/api/misventas');
-  ventas.value = response.data;
+  const response = await axios.get('http://localhost:8080/api/mis-ventas', getConfig());
+  misVentas.value = response.data;
 };
 
 onMounted(() => {
-      CargarProductosUser();
-      obtenerCompras();
-      obtenerVentas();
-  });
+  CargarProductosUser();
+  obtenerCompras();
+  obtenerVentas();
+});
 </script>
 
 <style scoped>
@@ -365,5 +368,34 @@ body {
     border-radius: 4px;
     font-weight: bold;
     margin-top: 2px;
+}
+
+.no-producto {
+  padding: 15px;
+  color: grey;
+}
+
+.lista-scroll {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.lista-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.lista-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.lista-scroll::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.lista-scroll::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
 }
 </style>
