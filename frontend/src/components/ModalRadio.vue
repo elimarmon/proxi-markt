@@ -22,7 +22,7 @@ const radioTemporal = ref(10);
       
       <div class="botones">
         <button @click="$emit('cerrar')">Cerrar</button>
-        <button class="btn-verde" @click="$emit('confirmar', radioTemporal)">Aplicar</button>
+        <button class="boton-verde" @click="$emit('confirmar', radioTemporal)">Aplicar</button>
       </div>
     </div>
   </div>
@@ -36,11 +36,32 @@ const radioTemporal = ref(10);
   display: flex; justify-content: center; align-items: center;
   z-index: 9999;
 }
+
 .modal-caja {
   background: white; padding: 30px; border-radius: 15px;
   width: 300px; text-align: center; color: #333;
 }
-input[type="range"] { width: 100%; margin: 20px 0; }
-.botones { display: flex; justify-content: space-around; }
-.btn-verde { background: #4CAF50; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+
+input[type="range"] {
+  width: 100%;
+  margin: 20px 0;
+}
+
+.botones {
+  display: flex;
+  justify-content: space-around;
+}
+
+.boton-verde {
+  background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.boton-verde:hover {
+  background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
+}
 </style>

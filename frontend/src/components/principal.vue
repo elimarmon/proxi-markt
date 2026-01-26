@@ -1,48 +1,44 @@
 <template>
-  <header>
-    <div id="nav-contenedor">
-      <div id="logo">
-        <img src="../assets/logos/logo_peq.png" alt="Logo ProxiMarkt"/>
-        <p class="titulo">ProxiMarkt</p>
-        <p class="subtitulo">Frutas y verduras frescas</p>
+  <div class="contenedor-principal">
+    <header>
+      <div id="nav-contenedor">
+        <div id="logo">
+          <img src="../assets/logos/logo_peq.png" alt="Logo ProxiMarkt"/>
+          <p class="titulo">ProxiMarkt</p>
+          <p class="subtitulo">Frutas y verduras frescas</p>
+        </div>
+        <router-link to="/login" class="boton-iniciosesion">Iniciar Sesion</router-link>
       </div>
-      
-            <router-link to="/login" class="boton-iniciosesion">
-                Iniciar Sesion
-            </router-link>
-        
-
-  </div>
-  </header>  
+    </header>  
     <section class="seccion-portada">
       <div class="contenido-portada">
         <h1>Conectamos Productores Locales <br> <span class="texto-verde">con Consumidores Conscientes</span></h1>
         <p class="texto-portada">
-          ProxyMarket es el marketplace líder en productos frescos de proximidad. Una solución profesional para la compra-venta de frutas y verduras de kilómetro cero, con sistema de geolocalización avanzado y gestión integral de pedidos.
+          ProxiMarkt es el marketplace líder en productos frescos de proximidad. Una solución profesional para la compra-venta de frutas y verduras de kilómetro cero, con sistema de geolocalización avanzado y gestión integral de pedidos.
         </p>
-        <button class="boton-primario" @click="irARegistro">Comenzar Ahora</button>
+        <button class="boton-primario" @click="irRegistro">Comenzar Ahora</button>
       </div>
     </section>
 
     <section class="seccion-caracteristicas">
-      <h2>¿Por qué elegir <span class="texto-verde">ProxyMarket?</span></h2>
+      <h2>¿Por qué elegir <span class="texto-verde">ProxiMarkt?</span></h2>
       <p class="subtitulo-seccion">Tecnología avanzada al servicio del comercio local de productos frescos</p>
 
       <div class="grid-caracteristicas">
         <div class="tarjeta-caracteristica">
-          <div class="caja-icono icono-verde">📍</div>
+          <div class="caja-icono icono-verde"><img src="../assets/iconos/ubicacion.png" alt="ubicacion"></div>
           <h3>Sistema de Proximidad</h3>
-          <p>Algoritmo de geolocalización que permite búsquedas personalizadas con radio configurable de 1 a 50 kilómetros. Optimiza tus compras encontrando productos en tu zona.</p>
+          <p>Algoritmo de geolocalización que permite búsquedas personalizadas con radio configurable de 1 a 100 kilómetros. Optimiza tus compras encontrando productos en tu zona.</p>
         </div>
 
         <div class="tarjeta-caracteristica">
-          <div class="caja-icono icono-azul">🍎</div>
+          <div class="caja-icono icono-azul"><img src="../assets/iconos/manzana.png" alt="manzana"></div>
           <h3>Trazabilidad Completa</h3>
           <p>Productos verificados de origen local con información detallada del productor. Garantía de frescura, calidad y sostenibilidad en cada transacción.</p>
         </div>
 
         <div class="tarjeta-caracteristica">
-          <div class="caja-icono icono-morado">👥</div>
+          <div class="caja-icono icono-naranja"><img src="../assets/iconos/social.png" alt="personas"></div>
           <h3>Gestión Profesional</h3>
           <p>Plataforma integral con sistema de mensajería, gestión de pedidos, valoraciones y panel de control para vendedores y compradores.</p>
         </div>
@@ -51,7 +47,7 @@
 
     <section class="seccion-como-funciona">
       <h2>Cómo Funciona</h2>
-      <p class="subtitulo-seccion">Simple, rápido y directo. Así de fácil es usar ProxyMarket</p>
+      <p class="subtitulo-seccion">Simple, rápido y directo. Así de fácil es usar ProxiMarkt</p>
 
       <div class="grid-pasos">
         <div class="paso">
@@ -74,19 +70,35 @@
 
     <section class="seccion-apoyo-local">
       <div class="contenido-apoyo">
-        <div class="insignia">🌱 Sostenibilidad</div>
+        <div class="sostenible"><img src="../assets/iconos/brote_verde.png" alt="brote"> Sostenibilidad</div>
         <h2>Apoya el <span class="texto-verde">Comercio Local</span></h2>
-        <p>Al comprar en ProxyMarket, estás apoyando directamente a productores locales, reduciendo la huella de carbono y asegurando que tu dinero se quede en tu comunidad.</p>
+        <p>Al comprar en ProxiMarkt, estás apoyando directamente a productores locales, reduciendo la huella de carbono y asegurando que tu dinero se quede en tu comunidad.</p>
         
         <div class="elemento-check">
-          <span class="icono-check">✓</span>
+          <span class="icono-check"><img src="../assets/iconos/aceptar.png" alt="icono check"></span>
           <div>
             <strong>Productos Frescos</strong>
             <p>Directamente del huerto a tu mesa, máxima frescura garantizada.</p>
           </div>
         </div>
+
+        <div class="elemento-check">
+          <span class="icono-check"><img src="../assets/iconos/aceptar.png" alt="icono check"></span>
+          <div>
+            <strong>Sin Intermediarios</strong>
+            <p>Precios justos tanto para compradores como para vendedores</p>
+          </div>
+        </div>
+
+        <div class="elemento-check">
+          <span class="icono-check"><img src="../assets/iconos/aceptar.png" alt="icono check"></span>
+          <div>
+            <strong>Economía Circular</strong>
+            <p>Fortalece la economía de tu vecindario</p>
+          </div>
+        </div>
       </div>
-      
+
       <div class="imagen-apoyo">
         <img src="../assets/iconos/Mercado.jpeg" alt="Verduras frescas">
       </div>
@@ -94,20 +106,20 @@
 
     <section class="seccion-llamada">
       <h2>¿Listo para Comenzar?</h2>
-      <p>Únete a ProxyMarket hoy y descubre la mejor manera de comprar y vender productos frescos locales</p>
-      <button class="boton-blanco" @click="irARegistro">Crear Cuenta Gratis</button>
+      <p>Únete a ProxiMarkt hoy y descubre la mejor manera de comprar y vender productos frescos locales</p>
+      <button class="boton-blanco" @click="irRegistro">Crear Cuenta Gratis</button>
     </section>
 
     <footer class="pie-pagina-principal">
       <div class="fondo-pie">
         <div class="marca">
-          <span class="icono-hoja">🍃</span> ProxyMarket
+          <img src="../assets/logos/logo_peq.png" alt="logo pequeño"> ProxiMarkt
         </div>
-        <p class="derechos">Frutas y Verduras Frescas de tu Vecindario</p>
-        <p class="derechos pequeno">© 2026 ProxyMarket. Todos los derechos reservados.</p>
+        <p class="derechos">Frutas y Verduras Frescas de tu vecindario</p>
+        <p class="derechos pequeno">© 2026 ProxiMarkt. Todos los derechos reservados.</p>
       </div>
     </footer>
-
+  </div>
 </template>
 
 <script setup>
@@ -115,7 +127,7 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
-const irARegistro = () => {
+const irRegistro = () => {
   router.push('/login'); 
 };
 </script>
@@ -133,18 +145,33 @@ body {
   min-width: 400px;
 }
 
+header {
+  width: 100%;
+  background-color: #FFFFFF;
+  box-shadow: 0px 4px 15px -5px #CFCFCF;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
 
-
-/* .contenedor-principal {
-  margin-top: 80px; 
-} */
+.contenedor-principal {
+  width: 100%;
+  overflow-x: hidden;
+}
 
 #nav-contenedor {
+  justify-content: center;
+  align-items: center;
   width: 100%;
   padding: 0 30px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  
 }
 
 #logo {
@@ -179,19 +206,23 @@ body {
 }
 
 .boton-iniciosesion{
-  background-color: #4CA626;
+  background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
   padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
   color: white;
+  font-weight: bold;
   text-decoration: none;
   border: none;
-  padding: 10px 20px;
-  font-size: 12px;
+  font-size: 18px;
+}
+
+.boton-iniciosesion:hover {
+  background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
 }
 
 .texto-verde {
-  color: #00A859;
+  color: #4CA626;
 }
 
 .subtitulo-seccion {
@@ -201,6 +232,7 @@ body {
 }
 
 .seccion-portada {
+  margin-top: 50px;
   text-align: center;
   padding: 80px 20px;
   background-color: #F8FBFA;
@@ -227,7 +259,7 @@ body {
 }
 
 .boton-primario {
-  background-color: #00A859;
+  background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
   color: white;
   border: none;
   padding: 12px 30px;
@@ -239,7 +271,7 @@ body {
 }
 
 .boton-primario:hover {
-  background-color: #008F4C;
+  background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
 }
 
 .seccion-caracteristicas {
@@ -272,6 +304,10 @@ body {
   transition: transform 0.2s;
 }
 
+.tarjeta-caracteristica p {
+  text-align: justify;
+}
+
 .tarjeta-caracteristica:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 20px rgba(0,0,0,0.05);
@@ -288,21 +324,22 @@ body {
   margin-bottom: 20px;
 }
 
+.caja-icono img {
+  width: 40px;
+  height: 40px;
+}
+
 .icono-verde {
-  background-color: #E6F7EF; 
-  color: #00A859;
+  background-color: #E6F7EF;
 }
 
 .icono-azul {
-  background-color: #E6F0FF; 
-  color: #0066FF;
+  background-color: #E6F0FF;
 }
 
-.icono-morado {
-  background-color: #F3E6FF; 
-  color: #8000FF;
+.icono-naranja {
+  background-color: #FFF4E6;
 }
-
 
 .tarjeta-caracteristica h3 {
   font-size: 18px;
@@ -359,7 +396,7 @@ body {
 
 .circulo-verde {
   background-color: #E6F7EF;
-  color: #00A859;
+  color: #4CA626;
 }
 
 .circulo-azul {
@@ -409,15 +446,22 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
-.insignia {
-  display: inline-block;
+.sostenible {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background-color: #E6F7EF;
-  color: #00A859;
+  color: #4CA626;
   padding: 5px 12px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
   margin-bottom: 15px;
+}
+
+.sostenible img {
+  width: 20px;
+  height: 20px;
 }
 
 .contenido-apoyo h2 {
@@ -438,17 +482,11 @@ body {
   margin-top: 20px;
 }
 
-.icono-check {
-  width: 24px;
-  height: 24px;
+.elemento-check img {
+  width: 25px;
+  height: 25px;
   background-color: #E6F7EF;
-  color: #00A859;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  flex-shrink: 0;
 }
 
 .elemento-check strong {
@@ -463,10 +501,10 @@ body {
 }
 
 .seccion-llamada {
-  background-color: #00A859; 
+  padding: 80px 20px;
+  background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
   color: white;              
   text-align: center;
-  padding: 80px 20px;
 }
 
 .seccion-llamada h2 {
@@ -476,13 +514,12 @@ body {
 
 .seccion-llamada p {
   font-size: 16px;
-  opacity: 0.9;
   margin-bottom: 30px;
 }
 
 .boton-blanco {
   background-color: white;
-  color: #00A859; 
+  color: #4CA626; 
   border: none;
   padding: 12px 30px;
   font-size: 16px;
@@ -516,11 +553,13 @@ body {
   align-items: center;
   gap: 8px;
   margin-bottom: 10px;
-  color: #00A859; 
+  color: #4CA626;
 }
 
-.icono-hoja {
-    font-size: 24px;
+.marca img {
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
 }
 
 .derechos {

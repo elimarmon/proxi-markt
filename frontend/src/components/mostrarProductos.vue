@@ -83,20 +83,29 @@ const eliminarproducto = (id) => {
 }
 
 .imagen-contenedor {
-  position: relative; height: 140px;
+  position: relative;
+  height: 140px;
 }
 
 .imagen-contenedor img {
-  width: 100%; height: 100%; object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .badge-estado {
-  position: absolute; top: 10px; right: 10px; padding: 4px 8px;
-  border-radius: 6px; font-size: 0.7rem; font-weight: bold;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: bold;
 }
 
 .badge-estado.disponible {
-  background: #dcfce7; color: #166534;
+  background: #dcfce7;
+  color: #166534;
 }
 
 .detalles-producto {
@@ -104,12 +113,18 @@ const eliminarproducto = (id) => {
 }
 
 .precio {
-  font-size: 1.2rem; font-weight: bold; color: #4CA626;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #4CA626;
 }
 
 .card-vacia {
-  background: white; border: 1px solid #eee; border-radius: 12px;
-  padding: 40px; text-align: center; color: #999;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  color: #999;
 }
 
 .btn-accion {

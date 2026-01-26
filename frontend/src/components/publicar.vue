@@ -389,5 +389,4 @@ button {
   cursor: not-allowed;
   color: #FFFFFF;
 }
-  
 </style>
