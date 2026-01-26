@@ -28,7 +28,7 @@
         <div class="tarjeta-caracteristica">
           <div class="caja-icono icono-verde"><img src="../assets/iconos/ubicacion.png" alt="ubicacion"></div>
           <h3>Sistema de Proximidad</h3>
-          <p>Algoritmo de geolocalización que permite búsquedas personalizadas con radio configurable de 1 a 100 kilómetros. Optimiza tus compras encontrando productos en tu zona.</p>
+          <p>Algoritmo de geolocalización que permite búsquedas personalizadas con radio configurable de 1 a 50 kilómetros. Optimiza tus compras encontrando productos en tu zona.</p>
         </div>
 
         <div class="tarjeta-caracteristica">
