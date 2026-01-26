@@ -99,7 +99,8 @@ import navbar from "./nav.vue";
 const router = useRouter();
 
 const ProductosUser = ref([]);
-// const datosUsuario = ref ({});
+const compras = ref([]);
+const ventas = ref([]);
 
 const CargarProductosUser = async () => {
   const token = localStorage.getItem('token');
@@ -115,8 +116,20 @@ const CargarProductosUser = async () => {
   console.log(productos.data);
 }
 
+const obtenerCompras = async () => {
+  const response = await axios.get('http://localhost:8080/api/miscompras');
+  compras.value = response.data;
+};
+
+const obtenerVentas = async () => {
+  const response = await axios.get('http://localhost:8080/api/misventas');
+  ventas.value = response.data;
+};
+
 onMounted(() => {
       CargarProductosUser();
+      obtenerCompras();
+      obtenerVentas();
   });
 </script>
 

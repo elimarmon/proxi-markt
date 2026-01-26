@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\CompraVenta;
 use App\Models\Producto;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class CompraVentaController extends Controller
 {
@@ -67,5 +68,23 @@ class CompraVentaController extends Controller
             DB::rollBack();
             return response()->json(['message' => 'Error al completar la venta'], 500);
         }
+    }
+
+    public function misCompras() {
+        $compras = CompraVenta::where('id_comprador', Auth::id())
+                        ->with('producto')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+
+        return response()->json($compras);
+    }
+
+    public function misVentas() {
+        $ventas = CompraVenta::where('id_vendedor', Auth::id())
+                        ->with('producto')
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+
+        return response()->json($ventas);
     }
 }
