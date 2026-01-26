@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="img/favicon.ico">
-        <title>My Docs</title>
+        <title>Proxi Markt</title>
         <link href="css/bootstrap.min.css" rel="stylesheet">
         <link href="css/fontawesome.min.css" rel="stylesheet">
         <link href="css/brands.min.css" rel="stylesheet">
@@ -24,7 +24,7 @@
     <body class="homepage">
         <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
             <div class="container">
-                <a class="navbar-brand" href=".">My Docs</a>
+                <a class="navbar-brand" href=".">Proxi Markt</a>
                 <!-- Expander button -->
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -41,10 +41,10 @@
                                 <a href="documentacio_bd/" class="nav-link">Base de Dades: ProxiMarkt 🛒🍅</a>
                             </li>
                             <li class="nav-item">
-                                <a href="documentacion_iniciar_proyecto/" class="nav-link">Iniciar proyecto Vue 🛒🍅</a>
+                                <a href="documentacion_iniciar_proyecto/" class="nav-link">Iniciar proyecto</a>
                             </li>
                             <li class="nav-item">
-                                <a href="documentacion_prototipo/" class="nav-link">Prototipo: ProxiMarkt 🛒🍅</a>
+                                <a href="documentacion_prototipo/" class="nav-link">Prototipo</a>
                             </li>
                         </ul>
 
@@ -92,10 +92,6 @@
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#informacion-adicional" class="nav-link">Información adicional</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
               </ul>
             </li>
         </ul>
@@ -117,16 +113,19 @@
 <p>Se trata de un monorepo con backend en Laravel y frontend en Vue. Para la persistencia de datos se usa MySQL y para la documentación se usa Mkdocs con Github Pages.</p>
 <p>Los pasos a seguir para iniciar el proyecto son:</p>
 <ol>
-<li>En la carpeta raíz <code>docker compose up --build</code></li>
-<li>Entrar en el contenedor de php con <code>docker compose exec -it php bash</code></li>
-<li>Una vez dentro del contenedor ejecutar los siguientes comandos:</li>
+<li>Clona el repositorio con <code>git clone https://github.com/eliseumarmon/proxi-markt.git</code></li>
+<li>En la carpeta raíz y ejecuta <code>docker compose up --build</code></li>
+<li>Entra en el contenedor de php con <code>docker compose exec -it php bash</code></li>
+<li>Una vez dentro del contenedor ejecuta los siguientes comandos:</li>
+<li><code>composer install</code> -&gt; instala todas las dependencias del proyecto</li>
 <li><code>php artisan migrate</code> -&gt; genera las tablas necesarias para el funcionamiento correcto de Laravel.</li>
 <li><code>php artisan storage:link</code> -&gt; enlaza la carpeta de imagenes del backend con el frontend.</li>
-<li>Desde la raíz del proyecto, otra vez, ejecutamos <code>cd frontend</code></li>
-<li>Se inicia el frontend con <code>npm run dev</code> (desarrollo).</li>
+<li>(Opcional) si quieres datos de prueba para testear el funcionamiento usar <code>php artisan db:seed</code></li>
+<li>Desde la raíz del proyecto, otra vez, ejecuta <code>cd frontend</code></li>
+<li>Instala dependencias de Vue con: <code>npm install</code></li>
+<li>Inicia el frontend con <code>npm run dev</code> (desarrollo).</li>
 </ol>
-<h2 id="informacion-adicional">Información adicional</h2>
-<p>En progreso...</p></div>
+<p><a href="documentacion_iniciar_proyecto/">Detalles para iniciar el proyecto desde 0</a></p></div>
             </div>
         </div>
 
@@ -208,5 +207,5 @@
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2026-01-23 18:11:25.567512+00:00
+Build Date UTC : 2026-01-26 01:09:03.100844+00:00
 -->
