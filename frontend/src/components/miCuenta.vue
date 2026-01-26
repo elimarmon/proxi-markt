@@ -356,7 +356,7 @@ hr {
 }
 
 .botones-perfil {
-  background: #4CA626;
+  background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
   color: white;
   border: none;
   padding: 12px 25px;
@@ -364,6 +364,10 @@ hr {
   cursor: pointer;
   font-weight: bold;
   text-decoration: none;
+}
+
+.botones-perfil:hover {
+  background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
 }
 
 .seccion-gestion-puntos {
@@ -442,12 +446,16 @@ hr {
 }
 
 .boton-confirmar { 
-    background: #4CA626; 
+    background: linear-gradient(90deg, #4CA626 0%, #009B58 100%); 
     color: white; 
     border: none; 
     padding: 10px 15px; 
     border-radius: 6px; 
     cursor: pointer; 
+}
+
+.boton-confirmar:hover {
+  background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
 }
 
 .boton-cancelar { 
@@ -466,7 +474,7 @@ hr {
 }
 
 .boton-ubicacion {
-  background: #4CA626;
+  background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
   color: white;
   border: none;
   padding: 12px 25px;
@@ -474,6 +482,10 @@ hr {
   cursor: pointer;
   font-weight: bold;
   transition: background 0.3s ease;
+}
+
+.boton-ubicacion:hover {
+  background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
 }
 
 @media (max-width: 600px) {

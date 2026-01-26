@@ -49,11 +49,11 @@ const routes = [
         component: EditarProducto,
         props: true
     },
-    // {
-    //     path: '/mensajes',
-    //     name: 'mensajes',
-    //     component: mensajes
-    // },
+    {
+        path: '/mensaje',
+        name: 'mensaje',
+        component: mensaje
+    },
     {
         path: '/comandas',
         name: 'comandas',
@@ -73,8 +73,12 @@ const routes = [
         path: '/ubicacion',
         name: 'ubicacion',
         component: Ubicacion
+    },
+    {
+        path: '/mapa',
+        name: 'mapa',
+        component: mapa
     }
-    
 ];
 
 const router = createRouter({

@@ -195,7 +195,7 @@ const props = defineProps({
 }
 
 .carta-producto:hover .boton-verde {
-  background: linear-gradient(to right, #00A650, #008F44);
+  background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
 }
 
 .carta-vacia {

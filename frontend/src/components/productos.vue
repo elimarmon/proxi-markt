@@ -60,20 +60,20 @@ onMounted(() => {
 }
 
 .titulo-verde { 
-  color: #4ca626; 
+  color: #4CA626; 
   font-size: 2rem; 
   margin-bottom: 5px; 
   font-weight: bold;
 }
 
 .subtitulo { 
-  color: #666; 
+  color: #666666; 
   margin-bottom: 30px; 
 }
 
 .card-busqueda {
   background: white;
-  border: 1px solid #eee;
+  border: 1px solid #EEEEEE;
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 40px;
@@ -88,13 +88,13 @@ onMounted(() => {
 }
 
 .caja-busqueda {
-  background-color: #f9f9f9;
+  background-color: #F9F9F9;
   border-radius: 8px;
   padding: 12px 15px;
   display: flex;
   align-items: center;
   flex-grow: 1;
-  border: 1px solid #ddd;
+  border: 1px solid #DDDDDD;
 }
 
 .input-texto {
@@ -104,12 +104,12 @@ onMounted(() => {
   margin-left: 10px;
   outline: none;
   font-size: 16px;
-  color: #333;
+  color: #333333;
 }
 
 .boton-secundario {
   background-color: white;
-  border: 1px solid #ddd;
+  border: 1px solid #DDDDDD;
   border-radius: 8px;
   padding: 12px 20px;
   cursor: pointer;
@@ -117,11 +117,11 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   font-weight: bold;
-  color: #333;
+  color: #333333;
 }
 
 .boton-secundario:hover {
-  background-color: #f5f5f5;
+  background-color: #F5F5F5;
 }
 
 .icono-pequeno {
@@ -131,12 +131,12 @@ onMounted(() => {
 
 .informacion-resultados {
   font-size: 0.9rem;
-  color: #666;
+  color: #666666;
   padding-left: 5px;
 }
 
 .texto-verde {
-  color: #4ca626;
+  color: #4CA626;
 }
 
 @media (max-width: 768px) {

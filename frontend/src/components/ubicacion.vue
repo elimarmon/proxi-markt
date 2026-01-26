@@ -178,7 +178,7 @@ onMounted(() => {
 }
 
 .address-text {
-  color: #333;
+  color: #333333;
   font-weight: 500;
   margin-bottom: 15px;
 }
