@@ -35,8 +35,14 @@ const eliminarproducto = (id) => {
             <span><img src="../assets/iconos/stock.png" alt="caja-icono" class="icono"> Stock: {{ producto.stock_total }}</span>
           </div>
         </div>
-        <router-link :to="{name: 'editar_producto', params:{id:producto.id}, state:{producto:producto}}">📝</router-link>
-        <button @click="eliminarproducto(producto.id)">🗑️</button>
+        <div class="acciones-producto">
+          <router-link :to="{name: 'editar_producto', params:{id:producto.id}, state:{producto:producto}}" class="btn-accion btn-editar" title="Editar producto">
+            Editar
+          </router-link>
+          <button @click="eliminarproducto(producto.id)" class="btn-accion btn-eliminar" title="Eliminar producto">
+            Eliminar
+          </button>
+        </div>
           
       </div>
     </div>
@@ -74,10 +80,6 @@ const eliminarproducto = (id) => {
   border-radius: 12px;
   overflow: hidden;
   transition: transform 0.2s;
-}
-
-.card-producto:hover {
-  transform: translateY(-5px);
 }
 
 .imagen-contenedor {
@@ -123,5 +125,41 @@ const eliminarproducto = (id) => {
   padding: 40px;
   text-align: center;
   color: #999;
+}
+
+.btn-accion {
+  padding: 6px 12px;
+  margin: 3px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-editar {
+  background-color: #f0fdf4;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+
+.btn-editar:hover {
+  background-color: #4CA626;
+  color: white;
+}
+
+.btn-eliminar {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.btn-eliminar:hover {
+  background-color: #ef4444;
+  color: white;
 }
 </style>
