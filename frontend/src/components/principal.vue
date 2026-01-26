@@ -101,6 +101,15 @@
 
       <div class="imagen-apoyo">
         <img src="../assets/iconos/Mercado.jpeg" alt="Verduras frescas">
+        <div class="etiqueta-flotante">
+          <div class="icono-badge-verde">
+            <img src="../assets/logos/logo_blanco.png" alt="icono hoja">
+          </div>
+          <div class="texto-badge">
+            <span class="porcentaje">100%</span>
+            <span class="descripcion">Local y Fresco</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -235,7 +244,8 @@ header {
   margin-top: 50px;
   text-align: center;
   padding: 80px 20px;
-  background-color: #F8FBFA;
+  background: linear-gradient(180deg, #E8F6F0 0%, #FFFFFF 100%);
+  
 }
 
 .contenido-portada {
@@ -422,28 +432,83 @@ header {
 
 .seccion-apoyo-local {
   display: flex;
-  flex-wrap: wrap;
-  max-width: 1100px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+  max-width: 1200px;
   margin: 80px auto;
   padding: 0 20px;
-  gap: 40px;
-  align-items: center;
 }
 
 .contenido-apoyo {
   flex: 1;
-  min-width: 300px;
 }
 
 .imagen-apoyo {
   flex: 1;
-  min-width: 300px;
+  position: relative;
+  display: flex;
+  justify-content: center;
 }
 
 .imagen-apoyo img {
   width: 100%;
+  max-width: 500px;
+  height: 400px;
+  object-fit: cover;
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.etiqueta-flotante {
+  position: absolute;
+  bottom: 30px;
+  left: -30px;
+  background-color: #FFFFFF;
+  padding: 12px 20px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 10;
+  min-width: 180px;
+}
+
+.icono-badge-verde {
+  background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icono-badge-verde img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.texto-badge {
+  display: flex;
+  flex-direction: column;
+}
+
+.texto-badge .porcentaje {
+  font-size: 20px;
+  font-weight: 700;
+  color: #4CA626;
+  line-height: 1;
+}
+
+.texto-badge .descripcion {
+  font-size: 13px;
+  color: #5F6368;
+  font-weight: 600;
 }
 
 .sostenible {
