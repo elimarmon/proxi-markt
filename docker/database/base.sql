@@ -65,7 +65,7 @@ CREATE TABLE chats (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_comprador) REFERENCES usuarios (id),
     FOREIGN KEY (id_vendedor) REFERENCES usuarios (id),
-    FOREIGN KEY (id_producto) REFERENCES usuarios (id),
+    FOREIGN KEY (id_producto) REFERENCES productos (id),
     UNIQUE (
         id_comprador,
         id_vendedor,
@@ -106,7 +106,7 @@ CREATE TABLE compraventas (
 );
 
 CREATE TABLE valoraciones (
-    id_valoracion INT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     id_venta INT,
     id_resenyador INT,
     id_resenyado INT,
@@ -123,5 +123,3 @@ CREATE TABLE valoraciones (
         id_resenyado
     )
 );
-
-INSERT INTO categorias (nombre_categoria) VALUES ('Fruta'), ('Verdura'), ('Derivados de animales'), ('Bebidas artesanales');
