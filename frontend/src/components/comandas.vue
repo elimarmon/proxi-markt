@@ -160,7 +160,7 @@ body {
   width: fit-content;
   font-size: 15px;
   background: #fff4e6;
-  color: #4CA626;
+  color: #FF7519;
   padding: 2px 6px;
   border-radius: 4px;
   align-self: start;
