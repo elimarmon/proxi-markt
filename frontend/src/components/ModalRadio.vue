@@ -21,7 +21,7 @@ const tamanoFondo = computed(() => {
 
       <div class="cabecera-seccion">
         <div class="circulo-icono">
-          <img class="radio-icono" src="../assets/iconos/radio-icono.png" alt="Radio">
+          <img class="radio-icono" src="../assets/iconos/flecha-mapa.png" alt="Radio">
         </div>
         <h2>Radio de Búsqueda</h2>
       </div>
@@ -50,7 +50,7 @@ const tamanoFondo = computed(() => {
       </div>
 
       <div class="cuadro-informativo">
-        <div class="icono-ubicacion"><img src="../assets/iconos/flechamapa.jpeg" alt="Ubicacion"></div>
+        <div class="icono-ubicacion"><img src="../assets/iconos/ubicacion.png" alt="Ubicacion"></div>
         <div class="contenido-info">
           <p>Buscaremos productos en un radio de <strong>{{ radioTemporal }} km</strong> desde tu ubicación</p>
           <span>Productos en tu zona</span>

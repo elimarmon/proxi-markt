@@ -6,14 +6,19 @@ import navbar from "./nav.vue";
 import MostrarProductos from './MostrarProductosMain.vue'
 
 const productos = ref([]);
-const radioActual = ref(10);
+const radioActual = ref(Number(localStorage.getItem('distancia_guardada')) || 10);
 
 const manejarCambioRadio = (nuevoRadio) => {
     radioActual.value = nuevoRadio;
+    mostrarProductos();
 };
 
 const mostrarProductos = async () => {
-    const response = await axios.get("http://localhost:8080/api/productos");
+    const response = await axios.get("http://localhost:8080/api/productos", {
+      params: {
+        km: radioActual.value
+      }
+    });
     productos.value = response.data;
     console.log(response);
 };

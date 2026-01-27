@@ -17,10 +17,11 @@ const isModalOpen = ref(false);
 const emit = defineEmits(['cambiar-radio']);
 
 const DatosUser = ref({});
-const radioActual = ref(10);
+const radioActual = ref(Number(localStorage.getItem('distancia_guardada')) || 10);
 
 const confirmarNuevoRadio = (valor) => {
   radioActual.value = valor;
+  localStorage.setItem('distancia_guardada', valor);
   isModalOpen.value = false;
   emit('cambiar-radio', valor);
   console.log("Filtrando productos a:", valor, "km");
