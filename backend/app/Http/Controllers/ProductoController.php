@@ -13,7 +13,7 @@ class ProductoController extends Controller
      * Mostrar todos los productos disponibles (Para la tienda/mapa)
      */
     public function index() {
-        $productos = Producto::all();
+        $productos = Producto::with('categoria')->get();
 
         return response()->json($productos);
     }
@@ -22,7 +22,8 @@ class ProductoController extends Controller
     {
         $user = $request->user();
 
-        $productos = Producto::where('id_usuario', $user->id)
+        $productos = Producto::with('categoria')
+        ->where('id_usuario', $user->id)
         ->orderBy('created_at', 'desc')
         ->get();
 
@@ -78,6 +79,8 @@ class ProductoController extends Controller
         $producto = Producto::findOrFail($id);
 
         $request->validate([
+            'nombre_producto' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
             'precio' => 'numeric|min:0',
             'stock_total' => 'integer|min:0',
         ]);
@@ -87,6 +90,17 @@ class ProductoController extends Controller
         return response()->json([
             'message' => 'Producto actualizado',
             'producto' => $producto
-        ]);
+        ], 200);
+    }
+
+    public function destroy($id)
+    {
+       
+        $producto = Producto::findOrFail($id);
+
+        $producto->delete();
+
+        return response()->json(['message' => 'Producto eliminado correctamente'], 200);
+       
     }
 }

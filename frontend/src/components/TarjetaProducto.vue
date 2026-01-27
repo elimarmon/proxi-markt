@@ -2,18 +2,16 @@
     import { useRouter } from 'vue-router';
 
     const router = useRouter();
-defineProps({
-    id: Number,
-    id_categoria: Number,
-    nombre_producto: String,
-    descripcion: String,
-    precio: Number,
-    stock_real: Number,
-    //imagen: String,
-    //estado: Enumerator,
-});
-
-
+    defineProps({
+        id: Number,
+        id_categoria: Number,
+        nombre_producto: String,
+        descripcion: String,
+        precio: Number,
+        stock_real: Number,
+        //imagen: String,
+        //estado: Enumerator,
+    });
 </script>
 
 <template>

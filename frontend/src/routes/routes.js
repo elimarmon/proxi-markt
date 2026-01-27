@@ -6,10 +6,19 @@ import comandas from '../components/comandas.vue';
 import miCuenta from '../components/miCuenta.vue';
 import Ubicacion from '../components/ubicacion.vue';
 import publicar from '../components/publicar.vue';
-import DetalleProducto from "@/components/DetalleProducto.vue";
-
+import mensaje from '../components/mensaje.vue';
+import mapa from '../components/mapa.vue';
+import DetalleProducto from "../components/DetalleProducto.vue";
+import principal from '../components/principal.vue';
+import EditarProducto from "../components/EditarProducto.vue";
+import compras from '../components/compras.vue';
 
 const routes = [
+    {
+        path: "/",
+        name: "principal",
+        component: principal
+    },
     {
         path: "/login",
         name: "login",
@@ -26,19 +35,35 @@ const routes = [
         component: dashboard
     },
     {
+        path: '/ubicacion',
+        name: 'ubicacion',
+        component: Ubicacion
+    },
+    {
         path: '/productos',
         name: 'productos',
         component: productos
     },
-    // {
-    //     path: '/mensajes',
-    //     name: 'mensajes',
-    //     component: mensajes
-    // },
+    {
+        path: '/productos/:id/editar',
+        name: 'editar_producto',
+        component: EditarProducto,
+        props: true
+    },
+    {
+        path: '/mensaje',
+        name: 'mensaje',
+        component: mensaje
+    },
     {
         path: '/comandas',
         name: 'comandas',
         component: comandas
+    },
+    {
+        path: '/compras',
+        name: 'compras',
+        component: compras
     },
     {
         path: '/publicar',
@@ -54,8 +79,12 @@ const routes = [
         path: '/ubicacion',
         name: 'ubicacion',
         component: Ubicacion
+    },
+    {
+        path: '/mapa',
+        name: 'mapa',
+        component: mapa
     }
-    
 ];
 
 const router = createRouter({

@@ -18,7 +18,7 @@
       <label for="telefono">Teléfono</label>
       <input v-model="form.telefono" type="text" name="telefono" id="telefono" placeholder="123456789"/><br><br>
 
-      <button type="submit" class="btn-submit">Crear Cuenta</button>
+      <button type="submit" class="boton-submit">Crear Cuenta</button>
     </form>
   </div>
 </template>
@@ -101,7 +101,7 @@ h3 {
 }
 
 .subtitle {
-  color: #6b7280;
+  color: #6B7280;
   font-size: 0.95rem;
   margin-bottom: 25px;
 }
@@ -125,13 +125,13 @@ input {
   border: 1px solid #E5E7EB;
   border-radius: 8px;
   font-size: 0.95rem;
-  color: #333;
+  color: #333333;
   outline: none;
   transition: all 0.2s;
 }
 
 input:focus {
-  background-color: #FFF;
+  background-color: #FFFFFF;
   border-color: #D1D5DB;
   box-shadow: 0 0 0 3px rgba(0, 176, 80, 0.1);
 }
@@ -140,11 +140,11 @@ input::placeholder {
   color: #9CA3AF;
 }
 
-.btn-submit {
+.boton-submit {
   width: 100%;
   padding: 14px;
   background-color: #4CA626;
-  color: #FFF;
+  color: #FFFFFF;
   font-weight: bold;
   font-size: 1rem;
   border: none;
@@ -154,7 +154,7 @@ input::placeholder {
   transition: background-color 0.2s;
 }
 
-.btn-submit:hover {
+.boton-submit:hover {
   background-color: #009E47;
 }
 

@@ -14,7 +14,7 @@
         <input v-model="form.contrasenya" type="password" name="contrasenya" id="contrasenya" placeholder="••••••••"/>
       </div>
 
-      <button type="submit" class="btn-submit">Iniciar Sesión</button>
+      <button type="submit" class="boton-submit">Iniciar Sesión</button>
     </form>
   </div>
 </template>
@@ -133,10 +133,10 @@ input::placeholder {
   color: #9CA3AF;
 }
 
-.btn-submit {
+.boton-submit {
   width: 100%;
   padding: 14px;
-  background-color: #4CA626;
+  background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
   color: #FFF;
   font-weight: bold;
   font-size: 1rem;
@@ -147,8 +147,8 @@ input::placeholder {
   transition: background-color 0.2s;
 }
 
-.btn-submit:hover {
-  background-color: #009E47;
+.boton-submit:hover {
+  background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
 }
 
 @media (min-width: 1200px) {

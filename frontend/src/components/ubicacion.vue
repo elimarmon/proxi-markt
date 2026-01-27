@@ -125,11 +125,9 @@ onMounted(() => {
 
 
 <style scoped>
-/* Aplicando tu paleta de colores */
-
 .main-container {
   min-height: 100vh;
-  background-color: #F0F0F0; /* Gris de tu paleta */
+  background-color: #F0F0F0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -137,7 +135,7 @@ onMounted(() => {
 }
 
 .card {
-  background-color: #FFFFFF; /* Blanco de tu paleta */
+  background-color: #FFFFFF;
   width: 100%;
   max-width: 700px;
   border-radius: 16px;
@@ -147,7 +145,7 @@ onMounted(() => {
 }
 
 .title {
-  color: #4CA626; /* Verde oscuro principal */
+  color: #4CA626;
   margin-bottom: 20px;
   font-weight: 700;
   text-align: center;
@@ -165,10 +163,10 @@ onMounted(() => {
 }
 
 .info-box {
-  background-color: #B9E2A6; /* Verde muy suave de la paleta */
+  background-color: #B9E2A6;
   padding: 15px;
   border-radius: 10px;
-  border: 1px solid #8BD16A; /* Verde medio */
+  border: 1px solid #8BD16A;
 }
 
 .label {
@@ -180,13 +178,13 @@ onMounted(() => {
 }
 
 .address-text {
-  color: #333;
+  color: #333333;
   font-weight: 500;
   margin-bottom: 15px;
 }
 
-.btn-primary {
-  background-color: #4CA626; /* Verde principal */
+.boton-primary {
+  background-color: #4CA626;
   color: white;
   width: 100%;
   padding: 12px;
@@ -197,11 +195,11 @@ onMounted(() => {
   transition: background 0.3s ease;
 }
 
-.btn-primary:hover {
-  background-color: #8BD16A; /* Verde medio para el hover */
+.boton-primary:hover {
+  background-color: #8BD16A;
 }
 
-.btn-primary:disabled {
+.boton-primary:disabled {
   background-color: #B9E2A6;
   cursor: not-allowed;
 }

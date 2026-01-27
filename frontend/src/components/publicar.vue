@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, onMounted } from 'vue';
+    import { ref, onMounted, computed } from 'vue';
     import axios from 'axios';
     import Navbar from './nav.vue'
     import { useRouter } from 'vue-router';
@@ -17,6 +17,16 @@
     const puntoentrega = ref(''); 
     const categoria = ref('');     
     const imagen = ref(null);
+
+    const FormularioIncompleto = computed(() => {
+      return  nombre_producto.value.trim() === '' || 
+              descripcion.value.trim() === '' ||
+              precio.value <= 0 ||
+              stock.value <= 0 ||
+              categoria.value === '' ||
+              puntoentrega.value === '' ||
+              PuntosEntrega.value.length === 0;
+    });
 
     const GuardarImagen = (event) => {
         imagen.value = event.target.files[0];
@@ -77,8 +87,8 @@
 <template>
   <Navbar></Navbar>
   <div class="contenedor-pagina">
-    <div class="encabezado-seccion">
-      <h1 class="titulo-principal">Publicar Producto</h1>
+    <div id="contenedor-titulo">
+      <h1 class="titulo">Publicar Producto</h1>
       <p class="subtitulo">Comparte tus frutas y verduras frescas con la comunidad</p>
     </div>
 
@@ -87,28 +97,28 @@
       
       <form @submit.prevent="InsertarProducto">
         <div class="campo">
-          <label>Nombre del producto *</label>
+          <label>Nombre del producto</label>
           <input v-model="nombre_producto" type="text" placeholder="Ej: Tomates orgánicos" required>
         </div>
 
         <div class="campo">
-          <label>Descripción *</label>
+          <label>Descripción</label>
           <textarea v-model="descripcion" placeholder="Describe tu producto en detalle..." required></textarea>
         </div>
 
         <div class="fila-doble">
           <div class="columna">
-            <label>Precio (€) *</label>
+            <label>Precio (€)</label>
             <input v-model="precio" type="number" step="0.01" placeholder="0.00" required>
           </div>
           <div class="columna">
-            <label>Stock disponible *</label>
+            <label>Stock disponible</label>
             <input v-model="stock" type="number" placeholder="Cantidad" required>
           </div>
         </div>
 
         <div class="campo">
-          <label>Categoría *</label>
+          <label>Categoría</label>
           <select v-model="categoria" required>
             <option value="" disabled>Selecciona una categoría</option>
             <option v-for="cat in Categorias" :key="cat.id" :value="cat.id">
@@ -118,7 +128,7 @@
         </div>
 
         <div class="campo">
-          <label>Punto de entrega *</label>
+          <label>Punto de entrega</label>
           <select v-if="PuntosEntrega.length > 0" v-model="puntoentrega" required>
             <option value="" disabled>Ej: Mercado de Santa Caterina</option>
             <option v-for="punto in PuntosEntrega" :key="punto.id" :value="punto.id">
@@ -146,8 +156,8 @@
         </div>
 
         <div class="acciones">
-          <button type="button" class="btn-cancelar" @click="$router.go(-1)">Cancelar</button>
-          <button type="submit" class="btn-publicar" :disabled="PuntosEntrega.length === 0">Publicar producto</button>
+          <button type="button" class="boton-cancelar" @click="$router.go(-1)">Cancelar</button>
+          <button type="submit" class="boton-publicar" :disabled="FormularioIncompleto">Publicar producto</button> 
         </div>
       </form>
     </div>
@@ -155,96 +165,127 @@
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', 'Arial';
+}
+
+body {
+  min-width: 400px;
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 400px;
+}
 
 .contenedor-pagina {
-  background-color: #fcfcfc;
-  min-height: 100vh;
-  padding: 100px 20px 60px;
-  font-family: 'Inter', sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  margin-top: 80px;
+  padding: 20px 50px;
 }
 
-.encabezado-seccion {
-  width: 100%;
-  max-width: 650px;
-  margin-bottom: 25px;
+#contenedor-titulo{
+  max-width: 90%;
+  margin: 40px auto 0 auto;
 }
 
-.titulo-principal {
-  color: #00a859;
-  font-size: 28px;
-  font-weight: 600;
-  margin-bottom: 5px;
+.titulo {
+  font-family: sans-serif;
+  color: #4CA626;
+  margin-bottom: 10px;
+  font-weight: bold;
 }
 
 .subtitulo {
-  color: #6b7280;
-  font-size: 14px;
+  font-family: sans-serif;
+  color: #666666;
+  margin-bottom: 20px;
 }
 
+
 .tarjeta-formulario {
-  background: white;
+  background: #FFFFFF;
   width: 100%;
   max-width: 650px;
   padding: 35px;
   border-radius: 12px;
-  border: 1px solid #edf2f7;
+  border: 1px solid #EDF2F7;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  margin: 0 auto; 
 }
 
 .header-interno {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 25px;
-  color: #1a202c;
+  color: #1A202C;
 }
 
 label {
   display: block;
   font-size: 13.5px;
   font-weight: 500;
-  color: #4a5568;
+  color: #4A5568;
   margin-bottom: 8px;
 }
+
 
 input[type="text"], input[type="number"], select, textarea {
   width: 100%;
   padding: 11px 14px;
-  background-color: #f8fafc;
+  background-color: #F8FAFC;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   font-size: 14px;
   margin-bottom: 18px;
   transition: all 0.2s ease;
+  font-family: inherit;
+  box-sizing: border-box;
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #00a859;
+  border-color: #00A859;
   box-shadow: 0 0 0 3px rgba(0, 168, 89, 0.1);
-  background-color: #fff;
+  background-color: #FFFFFF;
 }
+
 
 .fila-doble {
   display: flex;
-  gap: 15px;
+  gap: 60px; 
+  width: 100%;
 }
 
-.columna { flex: 1; }
+.columna {
+  flex: 1;
+}
 
 .ayuda-texto {
   font-size: 12px;
-  color: #a0aec0;
+  color: #A0AEC0;
   margin-top: -12px;
+  margin-bottom: 15px;
+}
+
+.error-texto {
+  font-size: 12px;
+  color: #e53e3e;
+  margin-top: -6px;
   margin-bottom: 15px;
 }
 
 .zona-upload {
   position: relative;
-  border: 2px dashed #e2e8f0;
+  border: 2px dashed #E2E8f0;
   border-radius: 10px;
   height: 160px;
   display: flex;
@@ -252,6 +293,13 @@ input:focus, select:focus, textarea:focus {
   justify-content: center;
   cursor: pointer;
   margin-bottom: 25px;
+  background-color: #fff;
+  transition: all 0.2s;
+}
+
+.zona-upload:hover {
+    background-color: #f9fafb;
+    border-color: #00a859;
 }
 
 .input-file-oculto {
@@ -267,53 +315,78 @@ input:focus, select:focus, textarea:focus {
   color: #718096;
 }
 
-.icono-nube { font-size: 24px; display: block; margin-bottom: 8px; }
+.icono-nube {
+  font-size: 24px; display: block; margin-bottom: 8px;
+}
 
-.diseno-upload p { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.diseno-upload p {
+  font-size: 14px; font-weight: 500; margin-bottom: 4px;
+}
 
-.diseno-upload small { font-size: 11px; color: #a0aec0; }
+.diseno-upload small {
+  font-size: 11px; color: #A0AEC0;
+}
 
+/* NOTA AZUL */
 .banner-informativo {
-  background-color: #f5f3ff;
+  background-color: #F0F7FF;
   border-radius: 8px;
-  padding: 12px 16px;
+  padding: 16px;
   margin-bottom: 30px;
 }
 
 .banner-informativo p {
-  color: #5b21b6;
+  color: #007BFF;
   font-size: 12.5px;
   line-height: 1.5;
 }
 
+.banner-informativo strong {
+    color: #1e3a8a;
+}
+
 .acciones {
   display: flex;
-  gap: 12px;
+  gap: 20px;
+  width: 100%;
 }
 
 button {
   flex: 1;
-  padding: 12px;
+  padding: 14px;
   border-radius: 8px;
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.2s;
 }
 
-.btn-cancelar {
+.boton-cancelar {
   background: white;
-  border: 1px solid #e2e8f0;
-  color: #4a5568;
+  border: 1px solid #E2E8f0;
+  color: #4A5568;
 }
 
-.btn-publicar {
-  background-color: #00c853;
+.boton-publicar {
+  background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
   border: none;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.boton-cancelar:hover {
+  background: linear-gradient(90deg, #FF6F6F 0%, #FF2C2C 100%);
   color: white;
 }
 
-.btn-publicar:hover { background-color: #00a844; }
+.boton-publicar:hover:not(:disabled) {
+  background: linear-gradient(to right, #00A650, #008F44);
+}
 
-.btn-publicar:disabled { background-color: #cbd5e0; cursor: not-allowed; }
+.boton-publicar:disabled {
+  background: #CBD5E0;
+  background-image: none;
+  cursor: not-allowed;
+  color: #FFFFFF;
+}
 </style>

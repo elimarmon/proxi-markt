@@ -1,4 +1,5 @@
 <script setup>
+import EditarProducto from './EditarProducto.vue';
 const props = defineProps({
   productos: {
     type: Array,
@@ -6,6 +7,13 @@ const props = defineProps({
     default: () => []
   }
 });
+
+const emit = defineEmits(['borrar']);
+
+const eliminarproducto = (id) => {
+  emit('borrar', id)
+}
+
 </script>
 
 <template>
@@ -24,11 +32,21 @@ const props = defineProps({
           <h4>{{ producto.nombre_producto }}</h4>
           <p class="precio">{{ producto.precio }}€</p>
           <div class="meta-info">
-            <span>📦 Stock: {{ producto.stock_total }}</span>
+            <span><img src="../assets/iconos/stock.png" alt="caja-icono" class="icono"> Stock: {{ producto.stock_total }}</span>
           </div>
         </div>
+        <div class="acciones-producto">
+          <router-link :to="{name: 'editar_producto', params:{id:producto.id}, state:{producto:producto}}" class="btn-accion btn-editar" title="Editar producto">
+            Editar
+          </router-link>
+          <button @click="eliminarproducto(producto.id)" class="btn-accion btn-eliminar" title="Eliminar producto">
+            Eliminar
+          </button>
+        </div>
+          
       </div>
     </div>
+
 
     <div v-else class="card-vacia">
       No hay productos para mostrar en este momento.
@@ -38,12 +56,24 @@ const props = defineProps({
 
 
 <style scoped>
+.meta-info span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.icono {
+    width: 25px;
+    height: 25px;
+}
+
 .grid-productos {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 20px;
   width: 100%;
 }
+
 .card-producto {
   background: white;
   border: 1px solid #eee;
@@ -51,18 +81,85 @@ const props = defineProps({
   overflow: hidden;
   transition: transform 0.2s;
 }
-.card-producto:hover { transform: translateY(-5px); }
-.imagen-contenedor { position: relative; height: 140px; }
-.imagen-contenedor img { width: 100%; height: 100%; object-fit: cover; }
-.badge-estado {
-  position: absolute; top: 10px; right: 10px; padding: 4px 8px;
-  border-radius: 6px; font-size: 0.7rem; font-weight: bold;
+
+.imagen-contenedor {
+  position: relative;
+  height: 140px;
 }
-.badge-estado.disponible { background: #dcfce7; color: #166534; }
-.detalles-producto { padding: 15px; }
-.precio { font-size: 1.2rem; font-weight: bold; color: #4CA626; }
+
+.imagen-contenedor img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.badge-estado {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+.badge-estado.disponible {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.detalles-producto {
+  padding: 15px;
+}
+
+.precio {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #4CA626;
+}
+
 .card-vacia {
-  background: white; border: 1px solid #eee; border-radius: 12px;
-  padding: 40px; text-align: center; color: #999;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  color: #999;
+}
+
+.btn-accion {
+  padding: 6px 12px;
+  margin: 3px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-editar {
+  background-color: #f0fdf4;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+
+.btn-editar:hover {
+  background-color: #4CA626;
+  color: white;
+}
+
+.btn-eliminar {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.btn-eliminar:hover {
+  background-color: #ef4444;
+  color: white;
 }
 </style>
