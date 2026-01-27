@@ -83,10 +83,20 @@
 
     ```yaml
     site_name: Proxi Markt
+    theme:
+      name: material
     markdown_extensions: 
-    - pymdownx.superfences
+      - pymdownx.superfences:
+          custom_fences:
+            - name: mermaid
+              class: mermaid
+              format: !!python/name:pymdownx.superfences.fence_div_format
     plugins:
-    - mermaid2
+      - search
+      - mermaid2
+    extra:
+      mermaid:
+        theme: 'neutral'
     ```
 
 7. Desplegar archivos de la carpeta ***docs/*** con: `mkdocs gh-deploy`

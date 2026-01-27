@@ -9,7 +9,118 @@ La base de datos permite guardar y organizar toda la información que necesita l
 
 ## Diagrama Entidad - Relación con atributos
 
-![Diagrama Entitat Relació amb atributs](diagrama_mermaid/diagrama_neutral.png)
+```mermaid
+---
+config:
+  layout: elk
+  theme: neutral
+---
+erDiagram
+ direction LR
+ USUARIOS {
+  int id PK ""  
+  string nombre_usuario  "NN"  
+  string email  "NN, U"  
+  string contrasenya  "NN"  
+  string telefono  "NN, U"  
+  string direccion  ""  
+  decimal longitud  ""  
+  decimal latitud  ""  
+  double puntuacio  "default 0"  
+  timestamp created_at  "NN"  
+  timestamp updated_at  ""  
+ }
+
+ PUNTOS_ENTREGA {
+  int id PK ""  
+  int id_usuario FK ""  
+  decimal longitud  "NN"  
+  decimal latitud  "NN"  
+  string nombre_punto  "NN"  
+  string direccion_punto  ""  
+  timestamp created_at  "NN"  
+  timestamp updated_at  ""  
+ }
+
+ PRODUCTOS {
+  int id PK ""  
+  int id_categoria FK ""  
+  int id_usuario FK ""  
+  int id_puntoentrega FK ""  
+  string nombre_producto  "NN"  
+  text descripcion  ""  
+  decimal precio  "NN"  
+  int stock_total  "NN"  
+  int stock_reserva  "NN"  
+  int stock_real  "VIRTUAL"  
+  string imagen  ""  
+  enum estado  "default 'disponible'"  
+  timestamp created_at  "NN"  
+  timestamp updated_at  ""  
+ }
+
+ CHATS {
+  int id PK ""  
+  int id_comprador FK "NN, U1"  
+  int id_vendedor FK "NN, U1"  
+  int id_producto FK "NN, U1"  
+  timestamp created_at  "NN"  
+  timestamp updated_at  ""  
+ }
+
+ MENSAJES {
+  int id PK ""  
+  int id_chat FK "NN"  
+  int id_envio FK "NN"  
+  text contenido  "NN"  
+  timestamp created_at  "NN"  
+  timestamp updated_at  ""  
+ }
+
+ COMPRAVENTAS {
+  int id PK ""  
+  int id_producto FK "NN"  
+  int id_comprador FK "NN"  
+  int id_vendedor FK "NN"  
+  int id_punto FK ""  
+  int cantidad_total  "NN"  
+  enum estado  ""  
+  timestamp created_at  "NN"  
+  timestamp updated_at  ""  
+ }
+
+ VALORACIONES {
+  int id PK ""  
+  int id_venta FK "NN, U1"  
+  int id_resenyador FK "NN, U1"  
+  int id_resenyado FK "NN, U1"  
+  enum valoracion  "NN"  
+  text comentario  ""  
+  timestamp created_at  "NN"  
+  timestamp updated_at  ""  
+ }
+
+ CATEGORIAS {
+  int id PK ""  
+  string nombre_categoria  "NN"  
+  timestamp created_at  "NN"  
+  timestamp updated_at  ""  
+ }
+
+ USUARIOS||--o{PUNTOS_ENTREGA:"registra"
+ USUARIOS||--o{PRODUCTOS:"vende"
+ USUARIOS||--o{CHATS:"participa"
+ USUARIOS||--o{MENSAJES:"envía"
+ USUARIOS||--o{COMPRAVENTAS:"participa"
+ USUARIOS||--o{VALORACIONES:"evalúa"
+ CATEGORIAS||--o{PRODUCTOS:"clasifica"
+ PUNTOS_ENTREGA||--o{PRODUCTOS:"entrega_en"
+ PUNTOS_ENTREGA||--o{COMPRAVENTAS:"punto_encuentro"
+ PRODUCTOS||--o{CHATS:"referencia"
+ PRODUCTOS||--o{COMPRAVENTAS:"se_vende"
+ CHATS||--o{MENSAJES:"contiene"
+ COMPRAVENTAS||--o{VALORACIONES:"calificada_por"
+```
 
 ### Relaciones
 
@@ -331,7 +442,7 @@ CREATE TABLE compraventas (
 
 ```sql
 CREATE TABLE valoraciones (
-    id_valoracion INT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     id_venta INT,
     id_resenyador INT,
     id_resenyado INT,
