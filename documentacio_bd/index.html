@@ -6,7 +6,7 @@
 <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <link href="../img/favicon.ico" rel="shortcut icon"/>
-<title>Base de Dades: ProxiMarkt 🛒🍅 - Proxi Markt</title>
+<title>Base de Datos - Proxi Markt</title>
 <link href="../css/bootstrap.min.css" rel="stylesheet"/>
 <link href="../css/fontawesome.min.css" rel="stylesheet"/>
 <link href="../css/brands.min.css" rel="stylesheet"/>
@@ -34,7 +34,7 @@
 <a class="nav-link" href="..">Proxi Markt</a>
 </li>
 <li class="nav-item">
-<a aria-current="page" class="nav-link active" href="./">Base de Dades: ProxiMarkt 🛒🍅</a>
+<a aria-current="page" class="nav-link active" href="./">Base de Datos</a>
 </li>
 <li class="nav-item">
 <a class="nav-link" href="../documentacion_iniciar_proyecto/">Iniciar proyecto</a>
@@ -68,13 +68,13 @@
 </div>
 <div class="navbar-collapse collapse card bg-body-tertiary" id="toc-collapse">
 <ul class="nav flex-column">
-<li class="nav-item" data-bs-level="1"><a class="nav-link" href="#base-de-dades-proximarkt">Base de Dades: ProxiMarkt 🛒🍅</a>
+<li class="nav-item" data-bs-level="1"><a class="nav-link" href="#base-de-datos">Base de Datos</a>
 <ul class="nav flex-column">
-<li class="nav-item" data-bs-level="2"><a class="nav-link" href="#descripcio-general">Descripció general</a>
+<li class="nav-item" data-bs-level="2"><a class="nav-link" href="#descripcion-general">Descripción general</a>
 <ul class="nav flex-column">
 </ul>
 </li>
-<li class="nav-item" data-bs-level="2"><a class="nav-link" href="#diagrama-entitat-relacio-amb-atributs">Diagrama Entitat - Relació amb atributs</a>
+<li class="nav-item" data-bs-level="2"><a class="nav-link" href="#diagrama-entidad-relacion-con-atributos">Diagrama Entidad - Relación con atributos</a>
 <ul class="nav flex-column">
 </ul>
 </li>
@@ -84,109 +84,109 @@
 </div>
 </div></div>
 <div class="col-md-9" role="main">
-<h1 id="base-de-dades-proximarkt">Base de Dades: ProxiMarkt 🛒🍅</h1>
-<h2 id="descripcio-general">Descripció general</h2>
-<p>La base de dades de ProxiMarkt servix per a guardar i organitzar tota la informació que necessita la plataforma per a funcionar bé. El seu objectiu és fer possible la comunicació entre compradors i venedors i gestionar coses com els productes, les reserves o els punts de lliurament.</p>
+<h1 id="base-de-datos">Base de Datos</h1>
+<h2 id="descripcion-general">Descripción general</h2>
+<p>La base de datos permite guardar y organizar toda la información que necesita la plataforma para su correcto funcionamiento. Su objetivo principal es mantener y relacionar la información de usuarios y productos principalmente. Que son el corazón de la aplicación. Permite guardar chats y mensajes entre usuarios.</p>
 <ul>
 <li>Motor: Mysql</li>
-<li>Versió: 8</li>
+<li>Versión: 8</li>
 </ul>
-<h2 id="diagrama-entitat-relacio-amb-atributs">Diagrama Entitat - Relació amb atributs</h2>
-<p><img alt="Diagrama Entitat Relació amb atributs" src="../diagrama_mermaid/diagrama_oscuro.svg"/></p>
+<h2 id="diagrama-entidad-relacion-con-atributos">Diagrama Entidad - Relación con atributos</h2>
+<p><img alt="Diagrama Entitat Relació amb atributs" src="../diagrama_mermaid/diagrama_neutral.png"/></p>
 <h3 id="relaciones">Relaciones</h3>
 <h4 id="chats-mensajes">Chats - Mensajes</h4>
-<div class="mermaid">---
+<div class="highlight"><pre><span></span><code>---
 config:
     theme: neutral
 ---
 
 flowchart LR
     id1[CHATS] &lt;-- (1:M) --&gt; id2[MENSAJES]
-</div>
+</code></pre></div>
 <p>Cada mensaje pertenece a un único chat; un chat puede contener varios mensajes.</p>
 <h4 id="mensajes-usuarios">Mensajes - Usuarios</h4>
-<div class="mermaid">---
+<div class="highlight"><pre><span></span><code>---
 config:
     theme: neutral
 ---
 
 flowchart LR
     id1[MENSAJES] &lt;-- (1:M) --&gt; id2[USUARIOS]
-</div>
+</code></pre></div>
 <p>Cada mensaje es enviado por un único usuario; un usuario puede enviar muchos mensajes.</p>
 <h4 id="usuarios-puntos_entrega">Usuarios - Puntos_entrega</h4>
-<div class="mermaid">---
+<div class="highlight"><pre><span></span><code>---
 config:
     theme: neutral
 ---
 
 flowchart LR
     id1[USUARIOS] &lt;-- (1:M) --&gt; id2[PUNTOS_ENTREGA]
-</div>
+</code></pre></div>
 <p>Cada punto de entrega es asignado por un usuario; un usuario puede asignarse varios puntos de entrega.</p>
 <h4 id="usuarios-productos">Usuarios - Productos</h4>
-<div class="mermaid">---
+<div class="highlight"><pre><span></span><code>---
 config:
     theme: neutral
 ---
 
 flowchart LR
     id1[USUARIOS] &lt;-- (1:M) --&gt; id2[PRODUCTOS]
-</div>
+</code></pre></div>
 <p>Un usuario puede publicar varios productos; cada producto pertenece a un único usuario.</p>
 <h4 id="chats-productos">Chats - Productos</h4>
-<div class="mermaid">---
+<div class="highlight"><pre><span></span><code>---
 config:
     theme: neutral
 ---
 
 flowchart LR
     id1[CHATS] &lt;-- (1:M) --&gt; id2[PRODUCTOS]
-</div>
+</code></pre></div>
 <p>Cada chat está asociado a un único producto; un producto puede tener varios chats simuláneos (mismo vendedor, diferentes compradores).</p>
 <h4 id="categorias-productos">Categorías - Productos</h4>
-<div class="mermaid">---
+<div class="highlight"><pre><span></span><code>---
 config:
     theme: neutral
 ---
 
 flowchart LR
     id1[CATEGORIAS] &lt;-- (1:M) --&gt; id2[PRODUCTOS]
-</div>
+</code></pre></div>
 <p>Cada producto pertenece a una categoría; una categoría puede tener muchos productos.</p>
 <p>En un futuro se espera implementar que un producto pertenezca a varias categorías. E incluso que una categoría pueda tener subcategorías.</p>
 <h4 id="productos-compraventas">Productos - Compraventas</h4>
-<div class="mermaid">---
+<div class="highlight"><pre><span></span><code>---
 config:
     theme: neutral
 ---
 
 flowchart LR
     id1[PRODUCTOS] &lt;-- (1:M) --&gt; id2[COMPRAVENTAS]
-</div>
+</code></pre></div>
 <p>Cada producto puede generar varias compraventas; cada compraventa corresponde a un único producto.</p>
 <h4 id="compraventas-resenas">Compraventas - Reseñas</h4>
-<div class="mermaid">---
+<div class="highlight"><pre><span></span><code>---
 config:
     theme: neutral
 ---
 
 flowchart LR
     id1[COMPRAVENTAS] &lt;-- (1:M) --&gt; id2[RESEÑAS]
-</div>
+</code></pre></div>
 <p>Una compraventa puede generar un máximo de 2 reseñas (comprador y vendedor); cada reseña pertenece a una única compraventa.</p>
 <h4 id="puntos_entrega-compraventas">Puntos_entrega - Compraventas</h4>
-<div class="mermaid">---
+<div class="highlight"><pre><span></span><code>---
 config:
     theme: neutral
 ---
 
 flowchart LR
     id1[PUNTOS_ENTREGA] &lt;-- (1:M) --&gt; id2[COMPRAVENTAS]
-</div>
+</code></pre></div>
 <p>Una compraventa puede tener lugar en un único punto de entrega. En un punto de entrega ocurren muchas operaciones de compraventa.</p>
 <h4 id="usuarios-compraventas">Usuarios - Compraventas</h4>
-<div class="mermaid">---
+<div class="highlight"><pre><span></span><code>---
 config:
     theme: neutral
 ---
@@ -194,12 +194,12 @@ config:
 flowchart LR
     id1[USUARIOS] &lt;-- (1:M) --&gt; id2[COMPRAVENTAS]
     id1[USUARIOS] &lt;-- (1:M) --&gt; id2[COMPRAVENTAS]
-</div>
+</code></pre></div>
 <p>Un único usuario con rol de comprador participa en la compraventa.
 Un único usuario con rol de vendedor participa en la compraventa.
 Cada usuario puede realizar muchas compraventas.</p>
 <h4 id="usuarios-resenas">Usuarios - Reseñas</h4>
-<div class="mermaid">---
+<div class="highlight"><pre><span></span><code>---
 config:
     theme: neutral
 ---
@@ -207,12 +207,12 @@ config:
 flowchart LR
     id1[USUARIOS] &lt;-- (1:M) --&gt; id2[RESEÑAS]
     id1[USUARIOS] &lt;-- (1:M) --&gt; id2[RESEÑAS]
-</div>
+</code></pre></div>
 <p>En cada reseña participa un único usuario reseñador.
 En cada reseña participa un único usuario reseñado.
 Un usuario puede tener muchas reseñas.</p>
 <h4 id="usuarios-chats">Usuarios - Chats</h4>
-<div class="mermaid">---
+<div class="highlight"><pre><span></span><code>---
 config:
     theme: neutral
 ---
@@ -220,116 +220,142 @@ config:
 flowchart LR
     id1[USUARIOS] &lt;-- (1:M) --&gt; id2[CHATS]
     id1[USUARIOS] &lt;-- (1:M) --&gt; id2[CHATS]
-</div>
+</code></pre></div>
 <p>Un chat tiene dos únicos participantes (comprador - vendedor).
 Los usuarios pueden tener muchos chats.</p>
 <h3 id="tablas-y-campos">Tablas y campos</h3>
 <h4 id="tabla-usuarios"><strong>Tabla usuarios</strong></h4>
-<pre><code class="language-sql">CREATE TABLE USUARIOS(
-    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_usuario VARCHAR(255) UNIQUE NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    contrasenya VARCHAR(255) NOT NULL,
-    telefono VARCHAR(20) UNIQUE NOT NULL, 
-    direccion VARCHAR(255),
-    longitud DECIMAL(10,8),
-    latitud DECIMAL(10,8),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    puntuacio DOUBLE DEFAULT 0
-);
-
-</code></pre>
-<h4 id="tabla-categorias"><strong>Tabla categorias</strong></h4>
-<pre><code class="language-sql">CREATE TABLE CATEGORIAS(
-    id_categoria INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_categoria VARCHAR(255) NOT NULL 
-);
-</code></pre>
-<h4 id="tabla-productos"><strong>Tabla productos</strong></h4>
-<pre><code class="language-sql">CREATE TABLE PRODUCTOS(
-    id_producto INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_producto VARCHAR(255) NOT NULL,
-    descripcion TEXT,
-    precio DECIMAL(10,2) NOT NULL,
-    stock_total INT NOT NULL DEFAULT 0,
-    stock_reserva INT NOT NULL DEFAULT 0,
-    stock_real INT NOT NULL DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    imagen VARCHAR(255),
-    id_categoria INT,
-    estado ENUM('agotado', 'reservado', 'disponible'), 
-    FOREIGN KEY (id_categoria) REFERENCES CATEGORIAS(id_categoria)
-);
-</code></pre>
-<h4 id="tabla-chat"><strong>Tabla chat</strong></h4>
-<pre><code class="language-sql">CREATE TABLE CHATS(
-    id_chat INT AUTO_INCREMENT PRIMARY KEY,
-    id_comprador INT,
-    id_vendedor INT,
-    id_producto INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_comprador) REFERENCES USUARIOS(id_usuario),
-    FOREIGN KEY (id_vendedor) REFERENCES USUARIOS(id_usuario),
-    FOREIGN KEY (id_producto) REFERENCES PRODUCTOS(id_producto),
-    UNIQUE (id_comprador, id_vendedor, id_producto)
-);
-</code></pre>
-<h4 id="tabla-mensajes"><strong>Tabla mensajes</strong></h4>
-<pre><code class="language-sql">CREATE TABLE MENSAJES(
-    id_mensaje INT AUTO_INCREMENT PRIMARY KEY,
-    id_chat INT,
-    id_envio INT,
-    contenido TEXT NOT NULL,
-    FOREIGN KEY (id_chat) REFERENCES CHAT(id_chat),
-    FOREIGN KEY (id_envio) REFERENCES USUARIOS(id_usuario)
-);
-</code></pre>
-<h4 id="tabla-puntos-entrega"><strong>Tabla puntos entrega</strong></h4>
-<pre><code class="language-sql">CREATE TABLE PUNTOS_ENTREGA(
-    id_punto INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT,
-    longitud DECIMAL(10,8) NOT NULL,
-    latitud DECIMAL(10,8) NOT NULL,
-    nombre_punto VARCHAR(255) NOT NULL,
-    direccion_punto VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_usuario) REFERENCES USUARIOS(id_usuario)
-);
-</code></pre>
-<h4 id="tabla-compraventas"><strong>Tabla compraventas</strong></h4>
-<pre><code class="language-sql">CREATE TABLE COMPRAVENTAS(
-    id_compraventa INT AUTO_INCREMENT PRIMARY KEY,
-    id_producto INT,
-    id_comprador INT,
-    id_vendedor INT,
-    cantidad_total INT NOT NULL,
-    id_punto INT,
-    estado ENUM('pendiente', 'en curso', 'completado', 'cancelado'),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_producto) REFERENCES PRODUCTOS(id_producto),
-    FOREIGN KEY (id_vendedor) REFERENCES USUARIOS(id_usuario),
-    FOREIGN KEY (id_comprador) REFERENCES USUARIOS(id_usuario),
-    FOREIGN KEY (id_punto) REFERENCES PUNTOS_ENTREGA(id_punto)
-);
-</code></pre>
-<h4 id="tabla-valoraciones"><strong>Tabla valoraciones</strong></h4>
-<pre><code class="language-sql">CREATE TABLE VALORACIONES(
-    id_valoracion INT AUTO_INCREMENT PRIMARY KEY,
-    id_venta INT,
-    id_resenyador INT,
-    id_resenyado INT,
-    valoracion ENUM('1','2','3','4','5') NOT NULL,
-    comentario TEXT,
-    fecha DATETIME DEFAULT CURRENT_TIMESTAMP, 
-    FOREIGN KEY (id_venta) REFERENCES COMPRAVENTAS(id_compraventa),
-    FOREIGN KEY (id_resenyador) REFERENCES USUARIOS(id_usuario),
-    FOREIGN KEY (id_resenyado) REFERENCES USUARIOS(id_usuario),
-    UNIQUE (id_venta, id_resenyador, id_resenyado)
-);
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">usuarios</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">nombre_usuario</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">email</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">UNIQUE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">contrasenya</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">telefono</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="k">UNIQUE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">direccion</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+<span class="w">    </span><span class="n">longitud</span><span class="w"> </span><span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">),</span>
+<span class="w">    </span><span class="n">latitud</span><span class="w"> </span><span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">),</span>
+<span class="w">    </span><span class="n">puntuacio</span><span class="w"> </span><span class="n">DOUBLE</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+<span class="w">    </span><span class="n">updated_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span>
+<span class="p">);</span>
 </code></pre></div>
+<h4 id="tabla-categorias"><strong>Tabla categorias</strong></h4>
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">categorias</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">nombre_categoria</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+<span class="w">    </span><span class="n">updated_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span>
+<span class="p">);</span>
+</code></pre></div>
+<h4 id="tabla-puntos-de-entrega"><strong>Tabla puntos de entrega</strong></h4>
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">puntos_entrega</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">id_usuario</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">longitud</span><span class="w"> </span><span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">latitud</span><span class="w"> </span><span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">nombre_punto</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">direccion_punto</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+<span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+<span class="w">    </span><span class="n">updated_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id_usuario</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">usuarios</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+</code></pre></div>
+<h4 id="tabla-productos"><strong>Tabla productos</strong></h4>
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">productos</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">id_categoria</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">id_usuario</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">id_puntoentrega</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">nombre_producto</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">descripcion</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">precio</span><span class="w"> </span><span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">stock_total</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="n">stock_reserva</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="n">stock_real</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="n">stock_total</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">stock_reserva</span><span class="p">)</span><span class="w"> </span><span class="n">STORED</span><span class="p">,</span>
+<span class="w">    </span><span class="n">imagen</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+<span class="w">    </span><span class="n">estado</span><span class="w"> </span><span class="n">ENUM</span><span class="p">(</span>
+<span class="w">        </span><span class="s1">'agotado'</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">'disponible'</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">'disponible'</span><span class="p">,</span>
+<span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+<span class="w">    </span><span class="n">updated_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id_categoria</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">categorias</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="w">    </span><span class="k">Foreign</span><span class="w"> </span><span class="k">Key</span><span class="w"> </span><span class="p">(</span><span class="n">id_usuario</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">usuarios</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="w">    </span><span class="k">Foreign</span><span class="w"> </span><span class="k">Key</span><span class="w"> </span><span class="p">(</span><span class="n">id_puntoentrega</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">puntos_entrega</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+</code></pre></div>
+<h4 id="tabla-chat"><strong>Tabla chat</strong></h4>
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">chats</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">id_comprador</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">id_vendedor</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">id_producto</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+<span class="w">    </span><span class="n">updated_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id_comprador</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">usuarios</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id_vendedor</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">usuarios</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id_producto</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">usuarios</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="w">    </span><span class="k">UNIQUE</span><span class="w"> </span><span class="p">(</span>
+<span class="w">        </span><span class="n">id_comprador</span><span class="p">,</span>
+<span class="w">        </span><span class="n">id_vendedor</span><span class="p">,</span>
+<span class="w">        </span><span class="n">id_producto</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="p">);</span>
+</code></pre></div>
+<h4 id="tabla-mensajes"><strong>Tabla mensajes</strong></h4>
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">mensajes</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">id_chat</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">id_envio</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">contenido</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+<span class="w">    </span><span class="n">updated_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id_chat</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">chats</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id_envio</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">usuarios</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+</code></pre></div>
+<h4 id="tabla-compraventas"><strong>Tabla compraventas</strong></h4>
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">compraventas</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">id_producto</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">id_comprador</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">id_vendedor</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">id_punto</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">cantidad_total</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">estado</span><span class="w"> </span><span class="n">ENUM</span><span class="p">(</span>
+<span class="w">        </span><span class="s1">'pendiente'</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">'en curso'</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">'completado'</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">'cancelado'</span>
+<span class="w">    </span><span class="p">),</span>
+<span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+<span class="w">    </span><span class="n">updated_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id_producto</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">productos</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id_comprador</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">usuarios</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id_vendedor</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">usuarios</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id_punto</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">puntos_entrega</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+</code></pre></div>
+<h4 id="tabla-valoraciones"><strong>Tabla valoraciones</strong></h4>
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">valoraciones</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">id_valoracion</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">id_venta</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">id_resenyador</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">id_resenyado</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">valoracion</span><span class="w"> </span><span class="n">ENUM</span><span class="p">(</span><span class="s1">'1'</span><span class="p">,</span><span class="w"> </span><span class="s1">'2'</span><span class="p">,</span><span class="w"> </span><span class="s1">'3'</span><span class="p">,</span><span class="w"> </span><span class="s1">'4'</span><span class="p">,</span><span class="w"> </span><span class="s1">'5'</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">comentario</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span>
+<span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+<span class="w">    </span><span class="n">updated_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id_venta</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">compraventas</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id_resenyador</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">usuarios</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id_resenyado</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">usuarios</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="w">    </span><span class="k">UNIQUE</span><span class="w"> </span><span class="p">(</span>
+<span class="w">        </span><span class="n">id_venta</span><span class="p">,</span>
+<span class="w">        </span><span class="n">id_resenyador</span><span class="p">,</span>
+<span class="w">        </span><span class="n">id_resenyado</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="p">);</span>
+</code></pre></div></div>
 </div>
 </div>
 <footer class="col-md-12">
@@ -382,6 +408,5 @@ Los usuarios pueden tener muchos chats.</p>
 </div>
 </div>
 </div>
-<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
-mermaid.initialize({});</script></body>
+</body>
 </html>
