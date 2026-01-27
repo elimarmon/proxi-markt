@@ -1,4 +1,4 @@
-# Base de Dades: ProxiMarkt
+# Base de Datos
 
 ## Descripción general
 
@@ -9,7 +9,7 @@ La base de datos permite guardar y organizar toda la información que necesita l
 
 ## Diagrama Entidad - Relación con atributos
 
-![Diagrama Entitat Relació amb atributs](diagrama_mermaid/diagrama_oscuro.svg)
+![Diagrama Entitat Relació amb atributs](diagrama_mermaid/diagrama_neutral.png)
 
 ### Relaciones
 
