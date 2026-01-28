@@ -67,9 +67,14 @@ const tamanoFondo = computed(() => {
 <style scoped>
 .capa-modal {
   position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(0, 0, 0, 0.4);
-  display: flex; justify-content: center; align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   z-index: 9999;
   font-family: sans-serif;
 }
@@ -86,13 +91,20 @@ const tamanoFondo = computed(() => {
 
 .boton-cerrar-x {
   position: absolute;
-  top: 20px; right: 20px;
-  background: none; border: none;
-  font-size: 18px; color: #888; cursor: pointer;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #888;
+  cursor: pointer;
 }
 
 .cabecera-seccion {
-  display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .circulo-icono {
@@ -103,36 +115,49 @@ const tamanoFondo = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; /* Evita que nada sobresalga */
+  overflow: hidden;
 }
 
 .radio-icono {
-  width: 30px; /* Tamaño ajustado para que no toque los bordes */
+  width: 30px;
   height: 30px;
   object-fit: contain;
 }
 
 .cabecera-seccion h2 {
-  font-size: 20px; margin: 0; color: #1a1a1a;
+  font-size: 20px;
+  margin: 0;
+  color: #1a1a1a;
 }
 
 .texto-descripcion {
-  color: #666; font-size: 14px; line-height: 1.4; margin-bottom: 30px;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 30px;
 }
 
 .bloque-valor {
-  text-align: center; margin-bottom: 30px;
+  text-align: center;
+  margin-bottom: 30px;
 }
 
 .cifra-grande {
-  display: block; font-size: 48px; font-weight: 700; color: #00c853; line-height: 1;
+  display: block;
+  font-size: 48px;
+  font-weight: 700;
+  color: #4CA626;
+  line-height: 1;
 }
 
 .subtexto-etiqueta {
-  font-size: 13px; color: #888;
+  font-size: 13px;
+  color: #888;
 }
 
-.area-deslizador { margin-bottom: 30px; }
+.area-deslizador {
+  margin-bottom: 30px;
+}
 
 .entrada-rango {
   appearance: none;
@@ -157,8 +182,11 @@ const tamanoFondo = computed(() => {
 }
 
 .etiquetas-rango {
-  display: flex; justify-content: space-between;
-  margin-top: 10px; color: #aaa; font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  color: #AAAAAA;
+  font-size: 12px;
 }
 
 .cuadro-informativo {
@@ -179,26 +207,37 @@ const tamanoFondo = computed(() => {
 }
 
 .contenido-info p {
-  margin: 0; font-size: 13px; color: #333; line-height: 1.4;
+  margin: 0;
+  font-size: 13px;
+  color: #333;
+  line-height: 1.4;
 }
 
-.contenido-info strong { color: #00c853; }
+.contenido-info strong {
+  color: #4CA626;
+}
 
 .contenido-info span {
-  font-size: 11px; color: #999; display: block; margin-top: 2px;
+  font-size: 11px;
+  color: #999999;
+  display: block;
+  margin-top: 2px;
 }
 
 .boton-confirmacion {
   width: 100%;
-  background: #00c853;
-  color: white; border: none;
-  padding: 16px; border-radius: 12px;
-  font-weight: 600; font-size: 15px;
+  background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
   cursor: pointer;
   transition: background 0.2s;
 }
 
 .boton-confirmacion:hover {
-  background: #00a946;
+  background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
 }
 </style>
