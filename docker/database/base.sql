@@ -106,7 +106,7 @@ CREATE TABLE compraventas (
 );
 
 CREATE TABLE valoraciones (
-    id_valoracion INT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     id_venta INT,
     id_resenyador INT,
     id_resenyado INT,
@@ -123,5 +123,3 @@ CREATE TABLE valoraciones (
         id_resenyado
     )
 );
-
-INSERT INTO categorias (nombre_categoria) VALUES ('Fruta'), ('Verdura'), ('Derivados de animales'), ('Bebidas artesanales');

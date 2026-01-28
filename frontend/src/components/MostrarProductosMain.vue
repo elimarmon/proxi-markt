@@ -1,12 +1,75 @@
 <script setup>
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+
 const props = defineProps({
   productos: {
     type: Array,
     required: true,
     default: () => []
   }
-
 });
+
+const miUsuario = ref(null);
+const producto = ref(null);
+
+const obtenerMiUbicacion = async () => {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+
+  try {
+    const usuario = await axios.get('http://localhost:8080/api/datosuser', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+      }
+    });
+
+    const productosResp = await axios.get('http://localhost:8080/api/productos', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+      }
+    });
+
+    miUsuario.value = usuario.data;
+    producto.value = productosResp.data;
+
+    console.log("Usuario:", miUsuario.value);
+    console.log("Productos:", producto.value);
+    
+  } catch (error) {
+    console.error("Error cargando datos:", error);
+  }
+}
+
+onMounted(() => {
+  obtenerMiUbicacion();
+});
+
+const calcularKm = (latVendedor, lngVendedor) => {
+
+  if (!miUsuario.value || !miUsuario.value.latitud) {
+      return '--'; 
+  }
+  
+  if (!latVendedor || !lngVendedor) {
+      return '--';
+  }
+
+  const miLat = parseFloat(miUsuario.value.latitud);
+  const miLng = parseFloat(miUsuario.value.longitud);
+  
+  const vendLat = parseFloat(latVendedor);
+  const vendLng = parseFloat(lngVendedor);
+
+  const p = Math.PI / 180;
+  const c = Math.cos;
+  const a = 0.5 - c((vendLat - miLat) * p)/2 + 
+            c(miLat * p) * c(vendLat * p) * (1 - c((vendLng - miLng) * p))/2;
+
+  return (12742 * Math.asin(Math.sqrt(a))).toFixed(1);
+}
 </script>
 
 <template>
@@ -17,23 +80,27 @@ const props = defineProps({
 
           <div class="imagen-contenedor">
             <img :src="producto.imagen ? `http://localhost:8080/storage/${producto.imagen}` : 'https://via.placeholder.com/400x300'" 
-              alt="Imagen producto" class="imagen-producto"            >
-            <span class="categoria">{{ producto.categoria.nombre_categoria || 'Sin categoría' }}</span>
+              alt="Imagen producto" class="imagen-producto">
+            <span class="categoria">{{ producto.categoria?.nombre_categoria || 'Sin categoría' }}</span>
           </div>
 
           <div class="detalles-producto">
             <h4 class="nombre">{{ producto.nombre_producto }}</h4>
             <p class="precio">{{ producto.precio }}€</p>
             
-            <p class="descripcion">{{ producto.descripcion || 'Descripción del producto con variedades de temporada y sabor auténtico. Ideal para ensaladas.' }}</p>
+            <p class="descripcion">{{ producto.descripcion || 'Descripción del producto...' }}</p>
             
             <div class="informacion">
               <div class="objeto">
-                <img class="icono" src="../assets/iconos/casa.png" alt="granja"> <span class="texto-gris">Mercado de Santa Caterina</span>
+                <img class="icono" src="../assets/iconos/casa.png" alt="granja"> 
+                <span class="texto-gris">Mercado de Santa Caterina</span>
               </div>
 
               <div class="objeto">
-                <img class="icono" src="../assets/iconos/ubicacion.png" alt="direccion"> <span class="texto-azul">A 7.8 km de ti</span>
+                <img class="icono" src="../assets/iconos/ubicacion.png" alt="direccion"> 
+                <span class="texto-azul">
+                    A {{ calcularKm(producto.punto_entrega?.latitud, producto.punto_entrega?.longitud) }} km de ti
+                </span>
               </div>
               
               <div class="objeto">
@@ -53,6 +120,7 @@ const props = defineProps({
 </template>
 
 <style scoped>
+
 .contenedor-seccion-productos {
   font-family: 'Segoe UI', 'Arial';
   padding: 20px 0;
