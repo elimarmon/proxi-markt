@@ -65,7 +65,7 @@ CREATE TABLE chats (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_comprador) REFERENCES usuarios (id),
     FOREIGN KEY (id_vendedor) REFERENCES usuarios (id),
-    FOREIGN KEY (id_producto) REFERENCES usuarios (id),
+    FOREIGN KEY (id_producto) REFERENCES productos (id),
     UNIQUE (
         id_comprador,
         id_vendedor,

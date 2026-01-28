@@ -78,7 +78,7 @@ const routes = [
         path: '/mapa',
         name: 'mapa',
         component: mapa
-    }
+    },
 ];
 
 const router = createRouter({
