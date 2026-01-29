@@ -5,9 +5,6 @@
   import axios from 'axios'
   import navbar from './nav.vue'
   import MostrarProductos from './mostrarProductos.vue'
-  import { useRouter } from "vue-router";
-
-  const router = useRouter();
 
   let map;
 
@@ -122,27 +119,27 @@
     console.log("Datos del usuario",DatosUser.value)
   }
 
-    const EliminarPunto = async (id) => {
-        if (!confirm('¿Estás seguro de que quieres eliminar este punto de entrega?')) return;
+  const EliminarPunto = async (id) => {
+      if (!confirm('¿Estás seguro de que quieres eliminar este punto de entrega?')) return;
 
-        const token = localStorage.getItem('token');
-        try {
-            await axios.delete(`http://localhost:8080/api/deletepunto/${id}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json'
-                }
-            });
-            alert('Punto eliminado correctamente');
-            PuntosEntrega.value = PuntosEntrega.value.filter(p => p.id !== id);
-            location.reload();
-        } catch (error) {
-            console.error("Error al eliminar:", error);
-            alert('No se pudo eliminar el punto');
-        }
-    }
+      const token = localStorage.getItem('token');
+      try {
+          await axios.delete(`http://localhost:8080/api/deletepunto/${id}`, {
+              headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Accept': 'application/json'
+              }
+          });
+          alert('Punto eliminado correctamente');
+          PuntosEntrega.value = PuntosEntrega.value.filter(p => p.id !== id);
+          location.reload();
+      } catch (error) {
+          console.error("Error al eliminar:", error);
+          alert('No se pudo eliminar el punto');
+      }
+  }
 
-    const CargarProductosUser = async () => {
+  const CargarProductosUser = async () => {
       const token = localStorage.getItem('token');
       const productos = await axios.get('http://localhost:8080/api/productosuser', {
         headers: {
@@ -155,20 +152,20 @@
 
   }
 
-    const EliminarProducto = async (id) => {
-      const token = localStorage.getItem('token');
-      
-      const eliminar = await axios.delete('http://localhost:8080/api/productos/'+ id, {
-        headers: {
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/json'
-            }}
-          )
-      if(eliminar.status === 200){
-        alert('producto eliminado correctamente')
-        location.reload();
-      }
+  const EliminarProducto = async (id) => {
+    const token = localStorage.getItem('token');
+    
+    const eliminar = await axios.delete('http://localhost:8080/api/productos/'+ id, {
+      headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }}
+        )
+    if(eliminar.status === 200){
+      alert('producto eliminado correctamente')
+      location.reload();
     }
+  }
 
   onMounted(() => {
       CargarPuntos();

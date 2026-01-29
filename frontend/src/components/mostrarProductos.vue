@@ -36,7 +36,7 @@ const eliminarproducto = (id) => {
           </div>
         </div>
         <div class="acciones-producto">
-          <router-link :to="{name: 'editar_producto', params:{id:producto.id}, state:{producto:producto}}" class="btn-accion btn-editar" title="Editar producto">
+          <router-link :to="{name: 'editar_producto', params:{id:producto.id}}" class="btn-accion btn-editar" title="Editar producto">
             Editar
           </router-link>
           <button @click="eliminarproducto(producto.id)" class="btn-accion btn-eliminar" title="Eliminar producto">

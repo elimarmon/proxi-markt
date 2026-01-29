@@ -1,22 +1,41 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 
 const props = defineProps({
   productos: {
     type: Array,
-    required: true,
     default: () => []
   }
 });
 
 const miUsuario = ref(null);
 const producto = ref(null);
+const productosparamostrar = ref([]);
+
+const establecerProductos = () => {
+  // comprobar si en les props ve algo, si no ve res eu busca en el
+  // else if que ve a ser el history state
+  if (props.productos && props.productos.length > 0) {
+    productosparamostrar.value = props.productos;
+  } 
+  else if (window.history.state && window.history.state.productos) {
+    productosparamostrar.value = window.history.state.productos;
+  } 
+  else {
+    productosparamostrar.value = [];
+  }
+};
+
+watch(() => props.productos, () => {
+  establecerProductos();
+}, { deep: true });
+
 
 const obtenerMiUbicacion = async () => {
   const token = localStorage.getItem('token');
   if (!token) return;
-
+  
   try {
     const usuario = await axios.get('http://localhost:8080/api/datosuser', {
       headers: {
@@ -24,7 +43,7 @@ const obtenerMiUbicacion = async () => {
         'Accept': 'application/json'
       }
     });
-
+    
     const productosResp = await axios.get('http://localhost:8080/api/productos', {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -44,8 +63,9 @@ const obtenerMiUbicacion = async () => {
 }
 
 onMounted(() => {
-  obtenerMiUbicacion();
-});
+      obtenerMiUbicacion();
+      establecerProductos(); 
+    });
 
 const calcularKm = (latVendedor, lngVendedor) => {
 
@@ -74,8 +94,8 @@ const calcularKm = (latVendedor, lngVendedor) => {
 
 <template>
   <div class="contenedor-seccion-productos">
-    <div v-if="productos && productos.length > 0" class="grid-productos">
-      <div v-for="producto in productos" :key="producto.id" class="carta-producto">
+    <div v-if="productosparamostrar && productosparamostrar.length > 0" class="grid-productos">
+      <div v-for="producto in productosparamostrar" :key="producto.id" class="carta-producto">
         <router-link :to="{name: 'detalle-productos', params: {id: producto.id}}" class="carta-link">
 
           <div class="imagen-contenedor">

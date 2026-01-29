@@ -12,6 +12,7 @@ import DetalleProducto from "../components/DetalleProducto.vue";
 import principal from '../components/principal.vue';
 import EditarProducto from "../components/EditarProducto.vue";
 import compras from '../components/compras.vue';
+import MostrarProductosMain from "../components/MostrarProductosMain.vue";
 
 const routes = [
     {
@@ -47,8 +48,7 @@ const routes = [
     {
         path: '/productos/:id/editar',
         name: 'editar_producto',
-        component: EditarProducto,
-        props: true
+        component: EditarProducto
     },
     {
         path: '/mensaje',
@@ -85,6 +85,12 @@ const routes = [
         name: 'mapa',
         component: mapa
     },
+    {
+        path: '/productos_punto',
+        name: 'productos punto',
+        component: MostrarProductosMain,
+        props: true
+    }
 ];
 
 const router = createRouter({
