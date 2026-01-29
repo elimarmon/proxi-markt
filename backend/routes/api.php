@@ -7,12 +7,17 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PuntoEntregaController;
 use Illuminate\Support\Facades\Route;
 
+// Rutas de puntos de entrega
+
+Route::get('/puntos_radio/{radio}', [PuntoEntregaController::class, 'puntos_radio']);
+
 // Rutas de productos
 
 Route::get('/productos', [ProductoController::class, 'index']);
 Route::post("/productos", [ProductoController::class, "store"]);
 Route::get('/productos/{id}', [ProductoController::class, 'show']);
 Route::put('/productos/{id}', [ProductoController::class, 'update']);
+Route::get('/productosporpunto/{id}', [ProductoController::class, 'obtenerProductospunto']);
 
 // Rutas de categorías
 

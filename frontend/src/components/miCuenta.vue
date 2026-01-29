@@ -5,9 +5,6 @@
   import axios from 'axios'
   import navbar from './nav.vue'
   import MostrarProductos from './mostrarProductos.vue'
-  import { useRouter } from "vue-router";
-
-  const router = useRouter();
 
   let map;
 
@@ -20,6 +17,7 @@
   const PuntosEntrega = ref([])
   const DatosUser = ref([])
   const ProductosUser = ref([])
+  const eleccionActual = ref('productos');
 
   console.log(PuntosEntrega)
 
@@ -121,27 +119,27 @@
     console.log("Datos del usuario",DatosUser.value)
   }
 
-    const EliminarPunto = async (id) => {
-        if (!confirm('¿Estás seguro de que quieres eliminar este punto de entrega?')) return;
+  const EliminarPunto = async (id) => {
+      if (!confirm('¿Estás seguro de que quieres eliminar este punto de entrega?')) return;
 
-        const token = localStorage.getItem('token');
-        try {
-            await axios.delete(`http://localhost:8080/api/deletepunto/${id}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json'
-                }
-            });
-            alert('Punto eliminado correctamente');
-            PuntosEntrega.value = PuntosEntrega.value.filter(p => p.id !== id);
-            location.reload();
-        } catch (error) {
-            console.error("Error al eliminar:", error);
-            alert('No se pudo eliminar el punto');
-        }
-    }
+      const token = localStorage.getItem('token');
+      try {
+          await axios.delete(`http://localhost:8080/api/deletepunto/${id}`, {
+              headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Accept': 'application/json'
+              }
+          });
+          alert('Punto eliminado correctamente');
+          PuntosEntrega.value = PuntosEntrega.value.filter(p => p.id !== id);
+          location.reload();
+      } catch (error) {
+          console.error("Error al eliminar:", error);
+          alert('No se pudo eliminar el punto');
+      }
+  }
 
-    const CargarProductosUser = async () => {
+  const CargarProductosUser = async () => {
       const token = localStorage.getItem('token');
       const productos = await axios.get('http://localhost:8080/api/productosuser', {
         headers: {
@@ -154,20 +152,20 @@
 
   }
 
-    const EliminarProducto = async (id) => {
-      const token = localStorage.getItem('token');
-      
-      const eliminar = await axios.delete('http://localhost:8080/api/productos/'+ id, {
-        headers: {
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/json'
-            }}
-          )
-      if(eliminar.status === 200){
-        alert('producto eliminado correctamente')
-        location.reload();
-      }
+  const EliminarProducto = async (id) => {
+    const token = localStorage.getItem('token');
+    
+    const eliminar = await axios.delete('http://localhost:8080/api/productos/'+ id, {
+      headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }}
+        )
+    if(eliminar.status === 200){
+      alert('producto eliminado correctamente')
+      location.reload();
     }
+  }
 
   onMounted(() => {
       CargarPuntos();
@@ -234,28 +232,41 @@
         </div>
       </div>
 
-    <div class="contenedor-secciones-datos">
-      
-      <section class="seccion-bloque">
-        <h3>Mis productos</h3>
-        <MostrarProductos :productos="ProductosUser" @borrar="EliminarProducto"></MostrarProductos>
-      </section>
+      <div class="eleccion">
+        <ul>
+          <li>
+            <button
+            :class="{ active: eleccionActual === 'productos' }"
+            @click="eleccionActual = 'productos'">
+              📦Mis Productos ({{ ProductosUser.length }})
+            </button>
+          </li>
+          <li>
+            <button
+            :class="{ active: eleccionActual === 'compras'}"
+            @click="eleccionActual = 'compras'">
+              🛒Mis Compras
+            </button>
+          </li>
+          <li>
+            <button
+            :class="{ active: eleccionActual === 'ventas'}"
+            @click="eleccionActual = 'ventas'">
+              🍎Mis Ventas
+            </button>
+          </li>
+          <li>
+            <button
+            :class="{ active: eleccionActual === 'valoraciones'}"
+            @click="eleccionActual = 'valoraciones'">
+              ⭐Mis Valoraciones
+            </button>
+          </li>
+        </ul>
+      </div>
 
-        <section class="seccion-bloque">
-          <h3>Mis Compras</h3>
-          <div class="card-vacia">No has realizado compras.</div>
-        </section>
-
-        <section class="seccion-bloque">
-          <h3>Mis Ventas</h3>
-          <div class="card-vacia">No tienes ventas registradas.</div>
-        </section>
-
-        <section class="seccion-bloque">
-          <h3>Mis Valoraciones</h3>
-          <div class="card-vacia">Aún no tienes valoraciones.</div>
-        </section>
-
+      <div class="contenedor-secciones-datos">
+         <MostrarProductos v-if="eleccionActual === 'productos'" :productos="ProductosUser" @borrar="EliminarProducto"/>
       </div>
     </div>
   </div>
@@ -486,6 +497,44 @@ hr {
 
 .boton-ubicacion:hover {
   background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
+}
+
+.eleccion {
+  margin-bottom: 25px;
+}
+
+.eleccion ul {
+  list-style: none;
+  display: flex;
+  background-color: #f3f4f6;
+  padding: 5px;
+  border-radius: 50px;
+  border: 1px solid #e5e7eb;
+  margin: 0;
+}
+
+.eleccion li {
+  flex: 1;
+  display: flex;
+}
+
+.eleccion button {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 50px;
+  color: #4b5563;
+  transition: all 0.3s ease;
+}
+
+.eleccion button.active {
+  background-color: white;
+  color: #000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 600px) {
