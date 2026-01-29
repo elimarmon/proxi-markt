@@ -106,7 +106,9 @@ class ProductoController extends Controller
 
     public function obtenerProductospunto($id)
     {
-        $productos = Producto::where('id_puntoentrega', $id)->get();
+        $productos = Producto::with(['categoria', 'punto_entrega'])
+            ->where('id_puntoentrega', $id)
+            ->get();
 
         if ($productos->isEmpty()) {
             return response()->json([

@@ -1,5 +1,4 @@
 <script setup>
-import EditarProducto from './EditarProducto.vue';
 const props = defineProps({
   productos: {
     type: Array,

@@ -11,6 +11,9 @@
     <div id="contenedor-mapa">
       <div id="map" class="leaflet-map"></div>
     </div>
+    <div class="productos">
+      <MostrarProductosMain :productos="productos"></MostrarProductosMain>
+    </div>
   </div>
 </template>
 
@@ -19,12 +22,12 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { ref, onMounted, nextTick } from "vue";
 import axios from "axios";
-import { useRouter } from "vue-router";
 import navbar from "./nav.vue";
+import MostrarProductosMain from './MostrarProductosMain.vue';
 
-const router = useRouter();
 let map = null;
 const puntosdeproductos = ref([]);
+const productos = ref([]);
 
 const cargarMarcadores = () => {
   if (!map) return;
@@ -41,13 +44,9 @@ const cargarMarcadores = () => {
         }
       });
 
-      const productos = response.data.productos;
+      productos.value = response.data.productos;
+      console.log("Productos del punto ", productos.value)
 
-      router.push({
-        name: 'productos punto',
-        params: { id: punto.id },
-        state: { productos: productos }
-      });
     });
 
     marker.bindTooltip(punto.nombre_punto);
@@ -145,4 +144,6 @@ body {
   gap: 20px;
   margin-bottom: 20px;
 }
+
+
 </style>

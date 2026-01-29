@@ -84,12 +84,6 @@ const routes = [
         path: '/mapa',
         name: 'mapa',
         component: mapa
-    },
-    {
-        path: '/productos_punto',
-        name: 'productos punto',
-        component: MostrarProductosMain,
-        props: true
     }
 ];
 
