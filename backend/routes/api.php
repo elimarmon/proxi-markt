@@ -31,10 +31,6 @@ Route::post('/register', [AuthController::class, 'createUser'])
 Route::post('/login', [AuthController::class, 'loginUser'])
     ->name('login');
 
-// Rutas de compraventa
-
-Route::post("/compraventa/{producto}", [CompraVentaController::class, 'store']);
-
 // Rutas protegidas
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -47,5 +43,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/productosuser', [ProductoController::class, 'productosPorUsuario']);
     Route::delete('/productos/{id}', [ProductoController::class, 'destroy']);
     Route::get('/miscompras', [CompraVentaController::class, 'misCompras']);
-    Route::get('/misventas',  [CompraVentaController::class, 'misVentas']);
+    Route::get('/misventas', [CompraVentaController::class, 'misVentas']);
+    // Rutas de compraventa
+
+    Route::post("/compraventa/{producto}", [CompraVentaController::class, 'store']);
 });

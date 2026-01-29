@@ -90,13 +90,16 @@ CREATE TABLE compraventas (
     id_comprador INT,
     id_vendedor INT,
     id_punto INT,
-    cantidad_total INT NOT NULL,
+    cantidad INT NOT NULL,
+    precio DECIMAL(10,2) NOT NULL,
+    precio_total DECIMAL(10,2) AS (precio * cantidad) STORED,
+    fecha_prevista DATE,
     estado ENUM(
         'pendiente',
         'en curso',
         'completado',
         'cancelado'
-    ),
+    ) DEFAULT 'pendiente',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_producto) REFERENCES productos (id),
