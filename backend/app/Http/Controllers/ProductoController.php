@@ -68,7 +68,9 @@ class ProductoController extends Controller
      * Ver detalle de un producto específico
      */
     public function show($id) {
-        $producto = Producto::with('categoria')->findOrFail($id);
+        $producto = Producto::with(['categoria', 'usuario', 'punto_entrega'])
+            ->findOrFail($id);
+
         return response()->json($producto);
     }
 

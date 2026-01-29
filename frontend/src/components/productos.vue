@@ -12,8 +12,8 @@ const categoriasSeleccionadas = ref([]);
 const menuAbierto = ref(false);
 
 const manejarCambioRadio = (nuevoRadio) => {
-    radioActual.value = nuevoRadio;
-    mostrarProductos();
+  radioActual.value = nuevoRadio;
+  mostrarProductos();
 };
 
 const categorias = computed(() => {
@@ -23,18 +23,18 @@ const categorias = computed(() => {
 });
 
 const mostrarProductos = async () => {
-    const response = await axios.get("http://localhost:8080/api/productos", {
-      params: {
-        km: radioActual.value
-      }
-    });
-    productos.value = response.data;
-    console.log(response);
+  const response = await axios.get("http://localhost:8080/api/productos", {
+    params: {
+      km: radioActual.value
+    }
+  });
+  productos.value = response.data;
+  console.log(response);
 };
 
 const productosFiltrados = computed(() => {
   if (categoriasSeleccionadas.value.length === 0) return productos.value;
-  return productos.value.filter(p => 
+  return productos.value.filter(p =>
     p.categoria && categoriasSeleccionadas.value.includes(p.categoria.nombre_categoria)
   );
 });
@@ -44,58 +44,59 @@ const toggleMenu = () => {
 }
 
 onMounted(() => {
-    mostrarProductos();
+  mostrarProductos();
 });
 </script>
 
 <template>
   <navbar @cambiar-radio="manejarCambioRadio"></navbar>
-    <div class="contenedor-pagina">
-      <div class="zona-fija">
-        <h1 class="titulo-verde">Productos Frescos y Locales</h1>
-        <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual }} km)</p>
+  <div class="contenedor-pagina">
+    <div class="zona-fija">
+      <h1 class="titulo-verde">Productos Frescos y Locales</h1>
+      <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual }} km)</p>
 
-        <div class="card-busqueda">
-          <div id="buscador">
-            <div class="caja-busqueda">
-              <img src="../assets/iconos/buscar.png" alt="lupa" class="icono-pequeno" />
-              <input class="input-texto" type="text" placeholder="Buscar productos frescos..."/>
-            </div>
-            <button class="boton-secundario">
-              <img src="../assets/iconos/filtro.png" alt="filtro" class="icono-pequeno"/>
-              Filtros
-            </button>
+      <div class="card-busqueda">
+        <div id="buscador">
+          <div class="caja-busqueda">
+            <img src="../assets/iconos/buscar.png" alt="lupa" class="icono-pequeno" />
+            <input class="input-texto" type="text" placeholder="Buscar productos frescos..." />
           </div>
-          <p class="informacion-resultados"> 
-            {{ productos.length }} productos encontrados <span class="texto-verde">(en un radio de {{ radioActual }} km)</span>
-          </p>
-        </div>
-
-        <div class="caja-filtro-especial">
-          
-          <button class="boton-secundario" @click="toggleMenu">
-            <img src="../assets/iconos/filtro.png" alt="filtro" class="icono-pequeno"/>
-            <span>
-              {{ categoriasSeleccionadas.length > 0 ? `Filtros (${categoriasSeleccionadas.length})` : 'Filtros' }}
-            </span>
+          <button class="boton-secundario">
+            <img src="../assets/iconos/filtro.png" alt="filtro" class="icono-pequeno" />
+            Filtros
           </button>
-
-          <div v-if="menuAbierto" class="menu-checkboxes">
-            <label v-for="cat in categorias" :key="cat" class="fila-opcion">
-              <input type="checkbox" :value="cat" v-model="categoriasSeleccionadas">
-              {{ cat }}
-            </label>
-          </div>
         </div>
-      </div> 
-      <p class="informacion-resultados"> 
-        {{ productosFiltrados.length }} productos encontrados <span class="texto-verde">(en un radio de {{ radioActual }} km)</span>
-      </p>
-    </div>
+        <p class="informacion-resultados">
+          {{ productos.length }} productos encontrados <span class="texto-verde">(en un radio de {{ radioActual }}
+            km)</span>
+        </p>
+      </div>
 
-    <MostrarProductos :productos="productosFiltrados"></MostrarProductos>
-    
+      <div class="caja-filtro-especial">
+
+        <button class="boton-secundario" @click="toggleMenu">
+          <img src="../assets/iconos/filtro.png" alt="filtro" class="icono-pequeno" />
+          <span>
+            {{ categoriasSeleccionadas.length > 0 ? `Filtros (${categoriasSeleccionadas.length})` : 'Filtros' }}
+          </span>
+        </button>
+
+        <div v-if="menuAbierto" class="menu-checkboxes">
+          <label v-for="cat in categorias" :key="cat" class="fila-opcion">
+            <input type="checkbox" :value="cat" v-model="categoriasSeleccionadas">
+            {{ cat }}
+          </label>
+        </div>
+      </div>
+    </div>
+    <p class="informacion-resultados">
+      {{ productosFiltrados.length }} productos encontrados <span class="texto-verde">(en un radio de {{ radioActual }}
+        km)</span>
+    </p>
   </div>
+
+  <MostrarProductos :productos="productosFiltrados"></MostrarProductos>
+
 </template>
 
 <style scoped>
@@ -117,16 +118,16 @@ body {
   font-family: 'Segoe UI', 'Arial';
 }
 
-.titulo-verde { 
-  color: #4CA626; 
-  font-size: 2rem; 
-  margin-bottom: 5px; 
+.titulo-verde {
+  color: #4CA626;
+  font-size: 2rem;
+  margin-bottom: 5px;
   font-weight: bold;
 }
 
-.subtitulo { 
-  color: #666666; 
-  margin-bottom: 30px; 
+.subtitulo {
+  color: #666666;
+  margin-bottom: 30px;
 }
 
 .zona-fija {
@@ -150,13 +151,13 @@ body {
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 #buscador {
-  display: flex; 
-  align-items: center; 
-  gap: 15px; 
+  display: flex;
+  align-items: center;
+  gap: 15px;
   margin-bottom: 10px;
 }
 
@@ -164,37 +165,37 @@ body {
   background-color: #F9F9F9;
   border-radius: 8px;
   padding: 12px 15px;
-  display: flex; 
-  align-items: center; 
-  flex-grow: 1; 
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
   border: 1px solid #DDDDDD;
 }
 
 .input-texto {
-  border: none; 
-  background: transparent; 
-  width: 100%; 
+  border: none;
+  background: transparent;
+  width: 100%;
   margin-left: 10px;
-  outline: none; 
-  font-size: 16px; 
+  outline: none;
+  font-size: 16px;
   color: #333333;
 }
 
-.icono-pequeno { 
-  width: 20px; 
+.icono-pequeno {
+  width: 20px;
   height: 20px;
-  
+
 }
 
 .informacion-resultados {
-  font-size: 0.9rem; 
+  font-size: 0.9rem;
   color: #666666;
   padding-left: 5px;
 }
 
 .texto-verde {
-  color: #4CA626; 
-  }
+  color: #4CA626;
+}
 
 .caja-filtro-especial {
   position: relative;
@@ -206,10 +207,10 @@ body {
   border-radius: 8px;
   padding: 12px 20px;
   cursor: pointer;
-  display: flex; 
-  align-items: center; 
+  display: flex;
+  align-items: center;
   gap: 10px;
-  font-weight: 600; 
+  font-weight: 600;
   color: #333;
   transition: all 0.2s ease;
   min-width: 140px;
@@ -240,13 +241,13 @@ body {
 
 .menu-checkboxes {
   position: absolute;
-  top: calc(100% + 8px); 
+  top: calc(100% + 8px);
   right: 0;
-  width: 260px; 
+  width: 260px;
   background: white;
   border: 1px solid #eee;
   border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12); 
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   z-index: 1000;
   overflow: hidden;
   animation: fadeIn 0.2s ease-out;
@@ -265,7 +266,7 @@ body {
 
 .lista-opciones {
   padding: 8px;
-  max-height: 300px; 
+  max-height: 300px;
   overflow-y: auto;
 }
 
@@ -281,7 +282,7 @@ body {
 }
 
 .fila-opcion:hover {
-  background-color: #f0fdf4; 
+  background-color: #f0fdf4;
 }
 
 .nombre-cat {
@@ -299,7 +300,9 @@ body {
   background-color: white;
   cursor: pointer;
   position: relative;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .fila-opcion input[type="checkbox"]:checked {
@@ -332,18 +335,29 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; 
-    transform: translateY(-10px); 
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
-  to { opacity: 1; 
-    transform: translateY(0); 
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @media (max-width: 768px) {
-  .contenedor-pagina { padding: 0 20px 20px 20px; }
-  #buscador { flex-direction: column; align-items: stretch; }
-  .menu-checkboxes { width: 100%; } 
-}
+  .contenedor-pagina {
+    padding: 0 20px 20px 20px;
+  }
 
+  #buscador {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .menu-checkboxes {
+    width: 100%;
+  }
+}
 </style>
