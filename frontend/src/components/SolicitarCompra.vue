@@ -36,7 +36,7 @@ const enviarSolicitud = async () => {
         <br>
         <textarea v-model="form.mensaje" name="mensaje" id="mensaje">Escribe un mensaje...</textarea>
         <br><br>
-        <button type="reset"">Limpiar</button> <button type=" submit">Enviar Solicitud</button>
+        <button type="reset">Limpiar</button> <button type=" submit">Enviar Solicitud</button>
     </form>
 </template>
 
