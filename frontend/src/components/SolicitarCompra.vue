@@ -1,13 +1,7 @@
 <script setup>
-import axios from "axios";
-import reactive from "axios";
+import { reactive } from "vue";
 
-const props = defineProps({
-    id: {
-        type: Number,
-        required: true
-    }
-});
+const emit = defineEmits(['enviar-solicitud']);
 
 const form = reactive({
     cantidad: null,
@@ -15,39 +9,32 @@ const form = reactive({
     mensaje: '',
 })
 
-const solicitarCompra = async () => {
+const enviarSolicitud = async () => {
 
-    const compraVenta = {
+    emit('enviar-solicitud', {
         cantidad: form.cantidad,
-        fecha: form.fecha,
+        fecha_prevista: form.fecha,
         mensaje: form.mensaje,
-    }
+    });
 
-    const data = await axios.post(`http://localhost:8080/api/compraventa/${props.id}`, compraVenta);
-
-    if (data.status === 200) {
-        alert("Solicitud creada correctamente.")
-    }
-    else {
-        alert("Error en la solicitud.")
-    }
+    
 };
 </script>
 
 <template>
-    <form @prevent.default="solicitarCompra">
+    <form @submit.prevent="enviarSolicitud">
         <h3>Solicitar compra</h3>
         <label for="cantidad">Cantidad:</label>
         <br>
-        <input v-model="cantidad" type="number" id="cantidad">
+        <input v-model="form.cantidad" type="number" id="cantidad">
         <br><br>
         <label for="fecha">Fecha de recogida:</label>
         <br>
-        <input v-model="fecha" type="date" id="fecha">
+        <input v-model="form.fecha" type="date" id="fecha">
         <br><br>
         <label for="mensaje">Mensaje: (Opcional)</label>
         <br>
-        <textarea v-model="mensaje" name="mensaje" id="mensaje">Escribe un mensaje...</textarea>
+        <textarea v-model="form.mensaje" name="mensaje" id="mensaje">Escribe un mensaje...</textarea>
         <br><br>
         <button type="reset"">Limpiar</button> <button type=" submit">Enviar Solicitud</button>
     </form>
