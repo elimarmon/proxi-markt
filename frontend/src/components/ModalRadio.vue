@@ -1,16 +1,20 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 
-const propiedades = defineProps(['mostrar']);
+const propiedades = defineProps(['mostrar', 'distanciaInicial']);
 const emitir = defineEmits(['cerrar', 'confirmar']);
 
-const radioTemporal = ref(10);
+const radioTemporal = ref(propiedades.distanciaInicial || 10);
 const minimo = 1;
 const maximo = 50;
 
 const tamanoFondo = computed(() => {
   const porcentaje = ((radioTemporal.value - minimo) * 100) / (maximo - minimo);
   return `${porcentaje}% 100%`;
+});
+
+watch(() => propiedades.distanciaInicial, (nuevoValor) => {
+  radioTemporal.value = nuevoValor;
 });
 </script>
 
