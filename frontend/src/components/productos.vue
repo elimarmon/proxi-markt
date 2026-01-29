@@ -51,7 +51,7 @@ onMounted(() => {
           </p>
         </div>
     </div>
-    <MostrarProductos :productos="productos"></MostrarProductos>
+    <MostrarProductos :productos="productos" :radioMaximo="radioActual"></MostrarProductos>
   </div>
 </template>
 
