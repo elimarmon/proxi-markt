@@ -238,21 +238,21 @@
             <button
             :class="{ active: eleccionActual === 'productos' }"
             @click="eleccionActual = 'productos'">
-              <img src="../assets/iconos/productos_stock.png" alt="caja-stock" class="icono">Mis Productos ({{ ProductosUser.length }})
+              <img src="../assets/iconos/productos_stock.png" alt="caja-stock" class="iconoSubNav">Mis Productos ({{ ProductosUser.length }})
             </button>
           </li>
           <li>
             <button
             :class="{ active: eleccionActual === 'compras'}"
             @click="eleccionActual = 'compras'">
-              <img src="../assets/iconos/carrito.png" alt="carrito" class="icono">Mis Compras
+              <img src="../assets/iconos/carrito.png" alt="carrito" class="iconoSubNav">Mis Compras
             </button>
           </li>
           <li>
             <button
             :class="{ active: eleccionActual === 'ventas'}"
             @click="eleccionActual = 'ventas'">
-            <img src="../assets/iconos/manzana.png" alt="manzana" class="icono">Mis Ventas
+            <img src="../assets/iconos/manzana.png" alt="manzana" class="iconoSubNav">Mis Ventas
             </button>
           </li>
           <li>
@@ -343,6 +343,24 @@ hr {
 .iconoSubNav {
   width: 25px;
   height: 25px;
+  object-fit: contain;
+}
+
+.eleccion button {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 50px;
+  color: #4b5563;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .info-usuario .valoracion {
@@ -521,19 +539,6 @@ hr {
 .eleccion li {
   flex: 1;
   display: flex;
-}
-
-.eleccion button {
-  flex: 1;
-  padding: 10px 0;
-  border: none;
-  background: transparent;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  border-radius: 50px;
-  color: #4b5563;
-  transition: all 0.3s ease;
 }
 
 .eleccion button.active {
