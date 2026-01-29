@@ -238,28 +238,28 @@
             <button
             :class="{ active: eleccionActual === 'productos' }"
             @click="eleccionActual = 'productos'">
-              📦Mis Productos ({{ ProductosUser.length }})
+              <img src="../assets/iconos/productos_stock.png" alt="caja-stock" class="icono">Mis Productos ({{ ProductosUser.length }})
             </button>
           </li>
           <li>
             <button
             :class="{ active: eleccionActual === 'compras'}"
             @click="eleccionActual = 'compras'">
-              🛒Mis Compras
+              <img src="../assets/iconos/carrito.png" alt="carrito" class="icono">Mis Compras
             </button>
           </li>
           <li>
             <button
             :class="{ active: eleccionActual === 'ventas'}"
             @click="eleccionActual = 'ventas'">
-              🍎Mis Ventas
+            <img src="../assets/iconos/manzana.png" alt="manzana" class="icono">Mis Ventas
             </button>
           </li>
           <li>
             <button
             :class="{ active: eleccionActual === 'valoraciones'}"
             @click="eleccionActual = 'valoraciones'">
-              ⭐Mis Valoraciones
+              <img src="../assets/iconos/valoraciones-icono.png" alt="valoraciones" class="iconoSubNav">Mis Valoraciones
             </button>
           </li>
         </ul>
@@ -336,6 +336,11 @@ hr {
 }
 
 .icono {
+  width: 25px;
+  height: 25px;
+}
+
+.iconoSubNav {
   width: 25px;
   height: 25px;
 }
