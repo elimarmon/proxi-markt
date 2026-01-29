@@ -50,16 +50,25 @@ onMounted(() => {
 
 <template>
   <navbar @cambiar-radio="manejarCambioRadio"></navbar>
-  
-  <div class="contenedor-pagina">
-    <h1 class="titulo-verde">Productos Frescos y Locales</h1>
-    <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual }} km)</p>
+    <div class="contenedor-pagina">
+      <div class="zona-fija">
+        <h1 class="titulo-verde">Productos Frescos y Locales</h1>
+        <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual }} km)</p>
 
-    <div class="card-busqueda">
-      <div id="buscador">
-        <div class="caja-busqueda">
-          <img src="../assets/iconos/buscar.png" alt="lupa" class="icono-pequeno" />
-          <input class="input-texto" type="text" placeholder="Buscar productos frescos..."/>
+        <div class="card-busqueda">
+          <div id="buscador">
+            <div class="caja-busqueda">
+              <img src="../assets/iconos/buscar.png" alt="lupa" class="icono-pequeno" />
+              <input class="input-texto" type="text" placeholder="Buscar productos frescos..."/>
+            </div>
+            <button class="boton-secundario">
+              <img src="../assets/iconos/filtro.png" alt="filtro" class="icono-pequeno"/>
+              Filtros
+            </button>
+          </div>
+          <p class="informacion-resultados"> 
+            {{ productos.length }} productos encontrados <span class="texto-verde">(en un radio de {{ radioActual }} km)</span>
+          </p>
         </div>
 
         <div class="caja-filtro-especial">
@@ -90,19 +99,49 @@ onMounted(() => {
 </template>
 
 <style scoped>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", "Arial";
+}
+
+body {
+  min-width: 400px;
+}
+
 .contenedor-pagina {
   max-width: 1200px;
-  margin: 90px auto 0;
-  padding: 0 40px 40px 40px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0 auto;
+  padding: 380px 40px 40px;
+  font-family: 'Segoe UI', 'Arial';
 }
 
 .titulo-verde { 
-  color: #4CA626; font-size: 2rem; margin-bottom: 5px; font-weight: bold;
+  color: #4CA626; 
+  font-size: 2rem; 
+  margin-bottom: 5px; 
+  font-weight: bold;
 }
 
 .subtitulo { 
-  color: #666666; margin-bottom: 30px; 
+  color: #666666; 
+  margin-bottom: 30px; 
+}
+
+.zona-fija {
+  position: fixed;
+  top: 80px;
+  left: 0;
+  width: 100%;
+  height: auto;
+  background-color: white;
+  z-index: 900;
+  box-shadow: 0 10px 20px -10px rgba(255, 255, 255, 1);
+  padding-top: 20px;
+  padding-left: max(40px, calc((100% - 1200px) / 2 + 40px));
+  padding-right: max(40px, calc((100% - 1200px) / 2 + 40px));
+  box-sizing: border-box;
 }
 
 .card-busqueda {
@@ -110,33 +149,52 @@ onMounted(() => {
   border: 1px solid #EEEEEE;
   border-radius: 12px;
   padding: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 #buscador {
-  display: flex; align-items: center; gap: 15px; margin-bottom: 10px;
+  display: flex; 
+  align-items: center; 
+  gap: 15px; 
+  margin-bottom: 10px;
 }
 
 .caja-busqueda {
   background-color: #F9F9F9;
   border-radius: 8px;
   padding: 12px 15px;
-  display: flex; align-items: center; flex-grow: 1; border: 1px solid #DDDDDD;
+  display: flex; 
+  align-items: center; 
+  flex-grow: 1; 
+  border: 1px solid #DDDDDD;
 }
 
 .input-texto {
-  border: none; background: transparent; width: 100%; margin-left: 10px;
-  outline: none; font-size: 16px; color: #333333;
+  border: none; 
+  background: transparent; 
+  width: 100%; 
+  margin-left: 10px;
+  outline: none; 
+  font-size: 16px; 
+  color: #333333;
 }
 
-.icono-pequeno { width: 20px; height: 20px; }
+.icono-pequeno { 
+  width: 20px; 
+  height: 20px;
+  
+}
 
 .informacion-resultados {
-  font-size: 0.9rem; color: #666666; padding-left: 5px;
+  font-size: 0.9rem; 
+  color: #666666;
+  padding-left: 5px;
 }
 
-.texto-verde { color: #4CA626; }
+.texto-verde {
+  color: #4CA626; 
+  }
 
 .caja-filtro-especial {
   position: relative;
@@ -148,8 +206,11 @@ onMounted(() => {
   border-radius: 8px;
   padding: 12px 20px;
   cursor: pointer;
-  display: flex; align-items: center; gap: 10px;
-  font-weight: 600; color: #333;
+  display: flex; 
+  align-items: center; 
+  gap: 10px;
+  font-weight: 600; 
+  color: #333;
   transition: all 0.2s ease;
   min-width: 140px;
   justify-content: space-between;
@@ -271,8 +332,12 @@ onMounted(() => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; 
+    transform: translateY(-10px); 
+  }
+  to { opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
 @media (max-width: 768px) {

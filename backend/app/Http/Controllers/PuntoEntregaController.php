@@ -67,4 +67,30 @@ class PuntoEntregaController extends Controller
 
         return response()->json(['message' => 'Punto de entrega eliminado']);
     }
+
+    public function puntos_radio(Request $request, $radio)
+    {
+        $latUsuario = $request->query('lat');
+        $lngUsuario = $request->query('lng');
+        $radioTierra = 6371;
+
+        if (!$latUsuario || !$lngUsuario) {
+            return response()->json(['error' => 'Faltan coordenadas'], 400);
+        }
+        
+        $puntos = PuntoEntrega::select('*')
+            ->selectRaw(
+                "( ? * acos( cos( radians(?) ) * cos( radians( latitud ) ) * cos( radians( longitud ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitud ) ) ) ) AS distancia",
+                [$radioTierra, $latUsuario, $lngUsuario, $latUsuario]
+            )
+            ->with([
+                'usuario:id,nombre_usuario', 
+                'productos'
+            ])
+            ->having('distancia', '<=', $radio)
+            ->orderBy('distancia', 'asc')
+            ->get();
+
+        return response()->json($puntos);
+    }
 }

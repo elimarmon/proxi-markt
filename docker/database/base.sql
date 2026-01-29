@@ -65,7 +65,7 @@ CREATE TABLE chats (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_comprador) REFERENCES usuarios (id),
     FOREIGN KEY (id_vendedor) REFERENCES usuarios (id),
-    FOREIGN KEY (id_producto) REFERENCES usuarios (id),
+    FOREIGN KEY (id_producto) REFERENCES productos (id),
     UNIQUE (
         id_comprador,
         id_vendedor,
@@ -90,13 +90,16 @@ CREATE TABLE compraventas (
     id_comprador INT,
     id_vendedor INT,
     id_punto INT,
-    cantidad_total INT NOT NULL,
+    cantidad INT NOT NULL,
+    precio DECIMAL(10,2) NOT NULL,
+    precio_total DECIMAL(10,2) AS (precio * cantidad) STORED,
+    fecha_prevista DATE,
     estado ENUM(
         'pendiente',
         'en curso',
         'completado',
         'cancelado'
-    ),
+    ) DEFAULT 'pendiente',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_producto) REFERENCES productos (id),
@@ -106,7 +109,7 @@ CREATE TABLE compraventas (
 );
 
 CREATE TABLE valoraciones (
-    id_valoracion INT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     id_venta INT,
     id_resenyador INT,
     id_resenyado INT,
@@ -123,5 +126,3 @@ CREATE TABLE valoraciones (
         id_resenyado
     )
 );
-
-INSERT INTO categorias (nombre_categoria) VALUES ('Fruta'), ('Verdura'), ('Derivados de animales'), ('Bebidas artesanales');

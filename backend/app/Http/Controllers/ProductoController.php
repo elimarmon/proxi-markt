@@ -103,4 +103,23 @@ class ProductoController extends Controller
         return response()->json(['message' => 'Producto eliminado correctamente'], 200);
        
     }
+
+    public function obtenerProductospunto($id)
+    {
+        $productos = Producto::with(['categoria', 'punto_entrega'])
+            ->where('id_puntoentrega', $id)
+            ->get();
+
+        if ($productos->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No hay productos para este punto de entrega o el punto no existe.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'productos' => $productos
+        ]);
+    }
 }

@@ -12,20 +12,21 @@ class CompraVentaController extends Controller
 {
     public function store(Request $request, Producto $producto) {
         $compraVentaValidada = $request->validate([
-            'id_comprador' => 'nullable|exists:usuarios,id',
-            'id_vendedor' => 'nullable|exists:usuarios,id',
-            'id_punto' => 'nullable|exists:puntos_entrega,id',
-            'cantidad_total' => "required|integer|min:1|lte:{$producto->stock_real}",
+            'id_vendedor' => 'required|exists:usuarios,id',
+            'id_punto' => 'required|exists:puntos_entrega,id',
+            'cantidad' => "required|integer|min:1|lte:{$producto->stock_real}",
         ]);
 
         try {
             DB::beginTransaction();
 
+            $compraVentaValidada['id_comprador'] = Auth::id();
             $compraVentaValidada['id_producto'] = $producto->id;
+            $compraVentaValidada['precio'] = $producto->precio;
 
             CompraVenta::create($compraVentaValidada);
 
-            $producto->increment('stock_reserva', $request->cantidad_total);
+            $producto->increment('stock_reserva', $request->cantidad);
 
             DB::commit();
 
@@ -58,8 +59,8 @@ class CompraVentaController extends Controller
 
             // 2. Descontar del Stock Total definitivamente
             $producto = $venta->producto;
-            $producto->decrement('stock_total', $venta->cantidad_total);
-            $producto->decrement('stock_reserva', $venta->cantidad_total);
+            $producto->decrement('stock_total', $venta->cantidad);
+            $producto->decrement('stock_reserva', $venta->cantidad);
 
             DB::commit();
             return response()->json(['message' => 'Venta finalizada y stock descontado']);

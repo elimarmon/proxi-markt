@@ -11,7 +11,7 @@ import mapa from '../components/mapa.vue';
 import DetalleProducto from "../components/DetalleProducto.vue";
 import principal from '../components/principal.vue';
 import EditarProducto from "../components/EditarProducto.vue";
-import compras from '../components/compras.vue';
+import MostrarProductosMain from "../components/MostrarProductosMain.vue";
 
 const routes = [
     {
@@ -27,6 +27,7 @@ const routes = [
     {
         path: "/productos/:id",
         name: "detalle-productos",
+        props: true,
         component: DetalleProducto
     },
     {
@@ -47,8 +48,7 @@ const routes = [
     {
         path: '/productos/:id/editar',
         name: 'editar_producto',
-        component: EditarProducto,
-        props: true
+        component: EditarProducto
     },
     {
         path: '/mensaje',
@@ -59,11 +59,6 @@ const routes = [
         path: '/comandas',
         name: 'comandas',
         component: comandas
-    },
-    {
-        path: '/compras',
-        name: 'compras',
-        component: compras
     },
     {
         path: '/publicar',

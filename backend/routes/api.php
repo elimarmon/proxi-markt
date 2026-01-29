@@ -7,12 +7,17 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PuntoEntregaController;
 use Illuminate\Support\Facades\Route;
 
+// Rutas de puntos de entrega
+
+Route::get('/puntos_radio/{radio}', [PuntoEntregaController::class, 'puntos_radio']);
+
 // Rutas de productos
 
 Route::get('/productos', [ProductoController::class, 'index']);
 Route::post("/productos", [ProductoController::class, "store"]);
 Route::get('/productos/{id}', [ProductoController::class, 'show']);
 Route::put('/productos/{id}', [ProductoController::class, 'update']);
+Route::get('/productosporpunto/{id}', [ProductoController::class, 'obtenerProductospunto']);
 
 // Rutas de categorías
 
@@ -26,10 +31,6 @@ Route::post('/register', [AuthController::class, 'createUser'])
 Route::post('/login', [AuthController::class, 'loginUser'])
     ->name('login');
 
-// Rutas de compraventa
-
-Route::post("/compraventa/{producto}", [CompraVentaController::class, 'store']);
-
 // Rutas protegidas
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -42,5 +43,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/productosuser', [ProductoController::class, 'productosPorUsuario']);
     Route::delete('/productos/{id}', [ProductoController::class, 'destroy']);
     Route::get('/miscompras', [CompraVentaController::class, 'misCompras']);
-    Route::get('/misventas',  [CompraVentaController::class, 'misVentas']);
+    Route::get('/misventas', [CompraVentaController::class, 'misVentas']);
+    // Rutas de compraventa
+
+    Route::post("/compraventa/{producto}", [CompraVentaController::class, 'store']);
 });
