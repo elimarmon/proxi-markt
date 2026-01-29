@@ -1,17 +1,34 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
 const props = defineProps({
   productos: {
     type: Array,
     default: () => []
+  },
+  radioMaximo: {
+    type: Number,
+    default: 10
   }
 });
 
 
 const miUsuario = ref(null);
 const productoubicacion = ref(null);
+
+const productosFiltrados = computed(() => {
+  if(!props.productos) return [];
+  return props.productos.filter(producto => {
+    const distancia = calcularKm(
+      producto.punto_entrega?.latitud,
+      producto.punto_entrega?.longitud
+    );
+
+    if(distancia === '--') return false;
+    return parseFloat(distancia) <= props.radioMaximo;
+  });
+});
 
 const obtenerMiUbicacion = async () => {
   const token = localStorage.getItem('token');
@@ -74,9 +91,9 @@ const calcularKm = (latVendedor, lngVendedor) => {
 
 <template>
   <div class="contenedor-seccion-productos">
-    <div v-if="productos && productos.length > 0" class="grid-productos">
-      <div v-for="producto in productos" :key="producto.id" class="carta-producto">
-        <router-link :to="{ name: 'detalle-productos', params: { id: producto.id } }" class="carta-link">
+    <div v-if="productosFiltrados && productosFiltrados.length > 0" class="grid-productos">
+      <div v-for="producto in productosFiltrados" :key="producto.id" class="carta-producto">
+        <router-link :to="{name: 'detalle-productos', params: {id: producto.id}}" class="carta-link">
 
           <div class="imagen-contenedor">
             <img

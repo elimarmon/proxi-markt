@@ -47,7 +47,7 @@ const nombreUsuario = async () => {
 
 onMounted(() => {
   nombreUsuario();
-})
+});
 </script>
 
 <template>
@@ -133,6 +133,7 @@ onMounted(() => {
         </div>
       </div> </div>  <ModalRadio 
       :mostrar="isModalOpen" 
+      :distanciaInicial="radioActual"
       @cerrar="isModalOpen = false" 
       @confirmar="confirmarNuevoRadio"
     />

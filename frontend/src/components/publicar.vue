@@ -9,7 +9,6 @@
     const PuntosEntrega = ref([])
     const Categorias = ref([])
 
-
     const nombre_producto = ref('');
     const descripcion = ref('');
     const precio = ref(0);
