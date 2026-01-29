@@ -350,8 +350,7 @@ hr {
   flex: 1;
   padding: 10px 0;
   border: none;
-  background: transparent;
-  font-weight: 600;
+  font-weight: bold;
   font-size: 0.9rem;
   cursor: pointer;
   border-radius: 50px;
