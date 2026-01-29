@@ -10,14 +10,11 @@ const form = reactive({
 })
 
 const enviarSolicitud = async () => {
-
     emit('enviar-solicitud', {
         cantidad: form.cantidad,
         fecha_prevista: form.fecha,
         mensaje: form.mensaje,
     });
-
-    
 };
 </script>
 

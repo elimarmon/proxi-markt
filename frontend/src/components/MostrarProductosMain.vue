@@ -3,89 +3,88 @@ import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
 const props = defineProps({
-  productos: {
-    type: Array,
-    default: () => []
-  },
-  radioMaximo: {
-    type: Number,
-    default: 10
-  }
+    productos: {
+        type: Array,
+        default: () => []
+    },
+    radioMaximo: {
+        type: Number,
+        default: 10
+    }
 });
-
 
 const miUsuario = ref(null);
 const productoubicacion = ref(null);
 
 const productosFiltrados = computed(() => {
-  if(!props.productos) return [];
-  return props.productos.filter(producto => {
-    const distancia = calcularKm(
-      producto.punto_entrega?.latitud,
-      producto.punto_entrega?.longitud
-    );
+    if (!props.productos) return [];
+    return props.productos.filter(producto => {
+        const distancia = calcularKm(
+            producto.punto_entrega?.latitud,
+            producto.punto_entrega?.longitud
+        );
 
-    if(distancia === '--') return false;
-    return parseFloat(distancia) <= props.radioMaximo;
-  });
+        if (distancia === '--') return false;
+        return parseFloat(distancia) <= props.radioMaximo;
+    });
 });
 
 const obtenerMiUbicacion = async () => {
-  const token = localStorage.getItem('token');
-  if (!token) return;
+    const token = localStorage.getItem('token');
+    if (!token) return;
 
-  try {
-    const usuario = await axios.get('http://localhost:8080/api/datosuser', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json'
-      }
-    });
+    try {
+        const usuario = await axios.get('http://localhost:8080/api/datosuser', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            }
+        });
 
-    const productosResp = await axios.get('http://localhost:8080/api/productos', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json'
-      }
-    });
+        const productosResp = await axios.get('http://localhost:8080/api/productos', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            }
+        });
 
-    miUsuario.value = usuario.data;
-    productoubicacion.value = productosResp.data;
+        miUsuario.value = usuario.data;
+        productoubicacion.value = productosResp.data;
 
-    // console.log("Usuario:", miUsuario.value);
-    // console.log("Productos:", productoubicacion.value);
+        // console.log("Usuario:", miUsuario.value);
+        // console.log("Productos:", productoubicacion.value);
 
-  } catch (error) {
-    console.error("Error cargando datos:", error);
-  }
+    } catch (error) {
+        console.error("Error cargando datos:", error);
+    }
 }
 
 onMounted(() => {
-  obtenerMiUbicacion();
+    obtenerMiUbicacion();
 });
 
 const calcularKm = (latVendedor, lngVendedor) => {
 
-  if (!miUsuario.value || !miUsuario.value.latitud) {
-    return '--';
-  }
+    if (!miUsuario.value || !miUsuario.value.latitud) {
+        return '--';
+    }
 
-  if (!latVendedor || !lngVendedor) {
-    return '--';
-  }
+    if (!latVendedor || !lngVendedor) {
+        return '--';
+    }
 
-  const miLat = parseFloat(miUsuario.value.latitud);
-  const miLng = parseFloat(miUsuario.value.longitud);
+    const miLat = parseFloat(miUsuario.value.latitud);
+    const miLng = parseFloat(miUsuario.value.longitud);
 
-  const vendLat = parseFloat(latVendedor);
-  const vendLng = parseFloat(lngVendedor);
+    const vendLat = parseFloat(latVendedor);
+    const vendLng = parseFloat(lngVendedor);
 
-  const p = Math.PI / 180;
-  const c = Math.cos;
-  const a = 0.5 - c((vendLat - miLat) * p) / 2 +
-    c(miLat * p) * c(vendLat * p) * (1 - c((vendLng - miLng) * p)) / 2;
+    const p = Math.PI / 180;
+    const c = Math.cos;
+    const a = 0.5 - c((vendLat - miLat) * p) / 2 +
+        c(miLat * p) * c(vendLat * p) * (1 - c((vendLng - miLng) * p)) / 2;
 
-  return (12742 * Math.asin(Math.sqrt(a))).toFixed(1);
+    return (12742 * Math.asin(Math.sqrt(a))).toFixed(1);
 }
 </script>
 

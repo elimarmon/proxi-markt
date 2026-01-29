@@ -1,37 +1,38 @@
 <template>
-  <div id="iniciarSesion" class="form-card">
-    <h3>Iniciar Sesión</h3>
-    <p class="subtitle">Accede a tu cuenta de ProxiMarkt</p>
+    <div id="iniciarSesion" class="form-card">
+        <h3>Iniciar Sesión</h3>
+        <p class="subtitle">Accede a tu cuenta de ProxiMarkt</p>
 
-    <form @submit.prevent="enviarInfo">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input v-model="form.email" type="email" name="email" id="email" placeholder="tu@email.com"/>
-      </div>
+        <form @submit.prevent="enviarInfo">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input v-model="form.email" type="email" name="email" id="email" placeholder="tu@email.com" />
+            </div>
 
-      <div class="form-group">
-        <label for="contrasenya">Contraseña</label>
-        <input v-model="form.contrasenya" type="password" name="contrasenya" id="contrasenya" placeholder="••••••••"/>
-      </div>
+            <div class="form-group">
+                <label for="contrasenya">Contraseña</label>
+                <input v-model="form.contrasenya" type="password" name="contrasenya" id="contrasenya"
+                    placeholder="••••••••" />
+            </div>
 
-      <button type="submit" class="boton-submit">Iniciar Sesión</button>
-    </form>
-  </div>
+            <button type="submit" class="boton-submit">Iniciar Sesión</button>
+        </form>
+    </div>
 </template>
 
 <script setup>
-  import { ref } from 'vue';
-  import axios from 'axios';
-  import { useRouter } from 'vue-router';
+import { ref } from 'vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
 
-  const router = useRouter()
+const router = useRouter()
 
-  const form = ref({
+const form = ref({
     email: "",
-    contrasenya:""
-  })
+    contrasenya: ""
+})
 
-  const enviarInfo = async () => {
+const enviarInfo = async () => {
     const { email, contrasenya } = form.value;
 
     if (!email || !contrasenya) {
@@ -44,133 +45,133 @@
 
         if (login.status === 200) {
             const token = login.data.token;
-            localStorage.setItem('token', token); 
+            localStorage.setItem('token', token);
             console.log("Token guardado con éxito");
 
-            if(login.data.user.direccion === null){
-              router.push('/ubicacion');
-            }else{
-              router.push('/cuenta')
+            if (login.data.user.direccion === null) {
+                router.push('/ubicacion');
+            } else {
+                router.push('/cuenta')
             }
 
-            form.value = { email: '', contrasenya: '' }; 
+            form.value = { email: '', contrasenya: '' };
         }
     } catch (error) {
         console.error("Error en el login:", error.response?.data || error.message);
         alert("Credenciales incorrectas");
     }
-  }
+}
 </script>
 
 <style scoped>
 * {
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
 }
 
-body{
-  min-width: 400px;
+body {
+    min-width: 400px;
 }
 
 .form-card {
-  background: white;
-  border: 1px solid #E5E7EB;
-  border-radius: 12px;
-  padding: 35px 30px;
-  text-align: left;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  width: 100%;
-  max-width: none;
-  box-sizing: border-box;
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 35px 30px;
+    text-align: left;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
 }
 
 h3 {
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin-top: 0;
-  margin-bottom: 8px;
-  color: #111827;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 8px;
+    color: #111827;
 }
 
 .subtitle {
-  color: #6B7280;
-  font-size: 0.95rem;
-  margin-bottom: 25px;
+    color: #6B7280;
+    font-size: 0.95rem;
+    margin-bottom: 25px;
 }
 
 .form-group {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 label {
-  display: block;
-  font-weight: 600;
-  font-size: 0.9rem;
-  margin-bottom: 8px;
-  color: #1F2937;
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    color: #1F2937;
 }
 
 input {
-  width: 100%;
-  padding: 12px 15px;
-  background-color: #F3F4F6;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  color: #333;
-  outline: none;
-  transition: all 0.2s;
-  box-sizing: border-box;
+    width: 100%;
+    padding: 12px 15px;
+    background-color: #F3F4F6;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #333;
+    outline: none;
+    transition: all 0.2s;
+    box-sizing: border-box;
 }
 
 input:focus {
-  background-color: #FFF;
-  border-color: #D1D5DB;
-  box-shadow: 0 0 0 3px rgba(0, 176, 80, 0.1);
+    background-color: #FFF;
+    border-color: #D1D5DB;
+    box-shadow: 0 0 0 3px rgba(0, 176, 80, 0.1);
 }
 
 input::placeholder {
-  color: #9CA3AF;
+    color: #9CA3AF;
 }
 
 .boton-submit {
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
-  color: #FFF;
-  font-weight: bold;
-  font-size: 1rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: background-color 0.2s;
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
+    color: #FFF;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.2s;
 }
 
 .boton-submit:hover {
-  background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
+    background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
 }
 
 @media (min-width: 1200px) {
-  .form-card {
-    max-width: 500px;
-  }
+    .form-card {
+        max-width: 500px;
+    }
 }
 
 @media (max-width: 768px) {
-  .login-container {
-    align-items: flex-start;
-    padding-top: 40px;
-  }
+    .login-container {
+        align-items: flex-start;
+        padding-top: 40px;
+    }
 
-  .form-card {
-    width: 100%;
-    max-width: none;
-    padding: 25px 20px;
-  }
+    .form-card {
+        width: 100%;
+        max-width: none;
+        padding: 25px 20px;
+    }
 
-  h3 {
-    font-size: 1.2rem;
-  }
+    h3 {
+        font-size: 1.2rem;
+    }
 }
 </style>

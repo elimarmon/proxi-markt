@@ -1,56 +1,56 @@
 <script setup>
-    import { reactive, onMounted } from 'vue';
-    import axios from 'axios';
-    import navbar from './nav.vue'
-    import { useRouter } from 'vue-router';
+import { reactive, onMounted } from 'vue';
+import axios from 'axios';
+import navbar from './nav.vue'
+import { useRouter } from 'vue-router';
 
-    const router = useRouter()
+const router = useRouter()
 
 
-    const props = defineProps({
-        id: {
-            type: [String, Number],
-            required: true
-        }
-    });
-
-    const formulario = reactive({
-        id: props.id,
-        nombre_producto: "",
-        descripcion: "",
-        precio: 0,
-        stock_total: 0,
-    })
-
-    const CargarProducto = async () => {
-        const producto = await axios.get('http://localhost:8080/api/productos/'+props.id)
-        const datosproducto = producto.data;
-
-        Object.assign(formulario, datosproducto)
-
+const props = defineProps({
+    id: {
+        type: [String, Number],
+        required: true
     }
+});
 
-    const emits = defineEmits(['editar']);
+const formulario = reactive({
+    id: props.id,
+    nombre_producto: "",
+    descripcion: "",
+    precio: 0,
+    stock_total: 0,
+})
 
-    const editarProducto = async () => {
-        const token = localStorage.getItem('token');
+const CargarProducto = async () => {
+    const producto = await axios.get('http://localhost:8080/api/productos/' + props.id)
+    const datosproducto = producto.data;
 
-        const editar = await axios.put('http://localhost:8080/api/productos/'+props.id, formulario, {
-            headers: {
+    Object.assign(formulario, datosproducto)
+
+}
+
+const emits = defineEmits(['editar']);
+
+const editarProducto = async () => {
+    const token = localStorage.getItem('token');
+
+    const editar = await axios.put('http://localhost:8080/api/productos/' + props.id, formulario, {
+        headers: {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json'
-          }
-        })
-
-        if(editar.status === 200){
-            router.push('/cuenta')
         }
+    })
 
+    if (editar.status === 200) {
+        router.push('/cuenta')
     }
 
-    onMounted(() => {
-        CargarProducto();
-    })
+}
+
+onMounted(() => {
+    CargarProducto();
+})
 
 </script>
 <template>
@@ -58,7 +58,7 @@
     <div class="contenedor-edicion">
         <div class="tarjeta-formulario">
             <h1 class="titulo-principal">Edición de producto</h1>
-            
+
             <form @submit.prevent="editarProducto">
                 <div class="grupo-campo">
                     <label for="nombre">Nombre producto</label>
@@ -139,7 +139,8 @@ input {
     border-radius: 8px;
     font-size: 14px;
     transition: all 0.3s ease;
-    box-sizing: border-box; /* Evita que el padding rompa el ancho */
+    box-sizing: border-box;
+    /* Evita que el padding rompa el ancho */
 }
 
 input:focus {
