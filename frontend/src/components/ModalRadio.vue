@@ -13,6 +13,12 @@ const tamanoFondo = computed(() => {
   return `${porcentaje}% 100%`;
 });
 
+watch(() => propiedades.mostrar, (seEstaMostrando) => {
+  if (seEstaMostrando) {
+    radioTemporal.value = propiedades.distanciaInicial;
+  }
+});
+
 watch(() => propiedades.distanciaInicial, (nuevoValor) => {
   radioTemporal.value = nuevoValor;
 });
