@@ -49,6 +49,7 @@ onMounted(() => {
 
 <template>
     <navbar @cambiar-radio="manejarCambioRadio"></navbar>
+
     <div class="contenedor-pagina">
         <div class="zona-fija">
             <h1 class="titulo-verde">Productos Frescos y Locales</h1>
@@ -73,20 +74,22 @@ onMounted(() => {
 
             <div class="caja-filtro-especial">
 
-                <button class="boton-secundario" @click="toggleMenu">
+                <button class="boton-secundario"
+                    :class="{ 'activo': menuAbierto || categoriasSeleccionadas.length > 0 }" @click="toggleMenu">
                     <img src="../assets/iconos/filtro.png" alt="filtro" class="icono-pequeno" />
                     <span>
                         {{ categoriasSeleccionadas.length > 0 ? `Filtros (${categoriasSeleccionadas.length})` :
-                        'Filtros' }}
+                            'Filtros' }}
                     </span>
                 </button>
 
                 <div v-if="menuAbierto" class="menu-checkboxes">
                     <label v-for="cat in categorias" :key="cat" class="fila-opcion">
                         <input type="checkbox" :value="cat" v-model="categoriasSeleccionadas">
-                        {{ cat }}
+                        <span class="nombre-cat">{{ cat }}</span>
                     </label>
                 </div>
+
             </div>
         </div>
         <p class="informacion-resultados">
@@ -95,7 +98,7 @@ onMounted(() => {
         </p>
     </div>
 
-    <MostrarProductos :productos="productosFiltrados"></MostrarProductos>
+    <MostrarProductos :productos="productosFiltrados" :radioMaximo="radioActual"></MostrarProductos>
 </template>
 
 <style scoped>
@@ -220,7 +223,6 @@ body {
     background-color: #f8f8f8;
     border-color: #ccc;
 }
-
 
 .boton-secundario.activo {
     border-color: #4CA626;

@@ -78,17 +78,27 @@ class ProductoController extends Controller
     public function update(Request $request, $id) {
         $producto = Producto::findOrFail($id);
 
-        $request->validate([
+        $data = $request->validate([
             'nombre_producto' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'precio' => 'numeric|min:0',
-            'stock_total' => 'integer|min:0',
+            'descripcion'     => 'nullable|string',
+            'precio'          => 'numeric|min:0',
+            'stock_total'     => 'integer|min:0',
+            'id_puntoentrega' => 'required|exists:puntos_entrega,id',
+            'imagen'          => 'nullable|image|max:2048'
         ]);
 
-        $producto->update($request->all());
+        if ($request->hasFile('imagen')) {
+            if ($producto->imagen) {
+                Storage::disk('public')->delete($producto->imagen);
+            }
+            
+            $data['imagen'] = $request->file('imagen')->store('productos', 'public');
+        }
+
+        $producto->update($data);
 
         return response()->json([
-            'message' => 'Producto actualizado',
+            'message' => 'Producto actualizado con éxito',
             'producto' => $producto
         ], 200);
     }

@@ -90,8 +90,8 @@ const calcularKm = (latVendedor, lngVendedor) => {
 
 <template>
     <div class="contenedor-seccion-productos">
-        <div v-if="productos && productos.length > 0" class="grid-productos">
-            <div v-for="producto in productos" :key="producto.id" class="carta-producto">
+        <div v-if="productosFiltrados && productosFiltrados.length > 0" class="grid-productos">
+      <div v-for="producto in productosFiltrados" :key="producto.id" class="carta-producto">
                 <router-link :to="{ name: 'detalle-productos', params: { id: producto.id } }" class="carta-link">
 
                     <div class="imagen-contenedor">
@@ -114,7 +114,7 @@ const calcularKm = (latVendedor, lngVendedor) => {
 
                             <div class="objeto">
                                 <img class="icono" src="../assets/iconos/ubicacion.png" alt="direccion"> <span
-                                    class="texto-azul">A 7.8 km de ti</span>
+                                    class="texto-azul">A {{ calcularKm(producto.punto_entrega?.latitud, producto.punto_entrega?.longitud) }} km de ti</span>
                             </div>
 
                             <div class="objeto">
