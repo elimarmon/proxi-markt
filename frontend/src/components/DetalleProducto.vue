@@ -37,7 +37,7 @@ onMounted(() => obtenerProducto());
 
     <div class="product-detail-card">
       <div class="image-section">
-        <img :src="http://localhost:8080/storage/${producto.imagen}" :alt="producto.nombre_producto" />
+        <img :src="`http://localhost:8080/storage/${producto.imagen}`" :alt="producto.nombre_producto"/>
       </div>
 
       <div class="info-section">

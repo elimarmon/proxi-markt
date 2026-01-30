@@ -95,7 +95,7 @@ onMounted(() => {
 
     <MostrarProductos :productos="productosFiltrados"></MostrarProductos>
     
-  </div>
+  
 </template>
 
 <style scoped>
