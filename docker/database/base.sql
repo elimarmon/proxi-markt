@@ -7,8 +7,8 @@ CREATE TABLE usuarios (
     contrasenya VARCHAR(255) NOT NULL,
     telefono VARCHAR(20) UNIQUE NOT NULL,
     direccion VARCHAR(255),
-    longitud DECIMAL(10, 8),
-    latitud DECIMAL(10, 8),
+    longitud DECIMAL(12, 8),
+    latitud DECIMAL(12, 8),
     puntuacio DOUBLE DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -24,8 +24,8 @@ CREATE TABLE categorias (
 CREATE TABLE puntos_entrega (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT,
-    longitud DECIMAL(10, 8) NOT NULL,
-    latitud DECIMAL(10, 8) NOT NULL,
+    longitud DECIMAL(12, 8) NOT NULL,
+    latitud DECIMAL(12, 8) NOT NULL,
     nombre_punto VARCHAR(255) NOT NULL,
     direccion_punto VARCHAR(255),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
