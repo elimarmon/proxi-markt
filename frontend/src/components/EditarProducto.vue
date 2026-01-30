@@ -23,7 +23,7 @@
     })
 
     const CargarProducto = async () => {
-        const producto = await axios.get('http://localhost:8080/api/productos/'+props.id)
+        const producto = await axios.get('http://localhost:8080/api/productos/',props.id)
         const datosproducto = producto.data;
 
         Object.assign(formulario, datosproducto)
