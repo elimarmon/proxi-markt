@@ -9,7 +9,13 @@
     </div>
 
     <div id="contenedor-mensajes">
-        Apartado mensajes
+      <div v-if="mensajes.length == 0" class="sin-mensajes">
+        Aún no tienes mensajes
+      </div>
+      
+      <div v-else>
+        Aquí se mostrarían los mensajes...
+      </div>
     </div>
   </div>
 </template>
@@ -22,6 +28,7 @@ import navbar from "./nav.vue";
 
 
 const router = useRouter();
+const mensajes = ref([]);
 </script>
 
 <style scoped>
@@ -66,5 +73,18 @@ body {
   display: flex;
   gap: 20px;
   margin-bottom: 20px;
+}
+
+.sin-mensajes {
+  text-align: center;
+  margin-top: 50px;
+  color: #999999;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  padding: 30px;
+  border: 1px solid #eeeeee;
+  border-radius: 12px;
+  background-color: #fafafa;
 }
 </style>
