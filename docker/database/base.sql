@@ -126,3 +126,5 @@ CREATE TABLE valoraciones (
         id_resenyado
     )
 );
+
+INSERT INTO categorias (nombre_categoria) VALUES ('Fruta'), ('Verdura'), ('Derivados de animales'), ('Bebidas artesanales');
