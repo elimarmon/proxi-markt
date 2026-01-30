@@ -48,7 +48,8 @@ const routes = [
     {
         path: '/productos/:id/editar',
         name: 'editar_producto',
-        component: EditarProducto
+        component: EditarProducto,
+        props: true
     },
     {
         path: '/mensaje',
