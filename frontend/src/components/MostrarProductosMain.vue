@@ -52,9 +52,6 @@ const obtenerMiUbicacion = async () => {
     miUsuario.value = usuario.data;
     productoubicacion.value = productosResp.data;
 
-    // console.log("Usuario:", miUsuario.value);
-    // console.log("Productos:", productoubicacion.value);
-
   } catch (error) {
     console.error("Error cargando datos:", error);
   }
@@ -109,8 +106,8 @@ const calcularKm = (latVendedor, lngVendedor) => {
 
                         <div class="informacion">
                             <div class="objeto">
-                                <img class="icono" src="../assets/iconos/casa.png" alt="granja"> <span
-                                    class="texto-gris">Mercado de Santa Caterina</span>
+                                <img class="icono" src="../assets/iconos/casa.png" alt="granja">
+                                <span class="texto-gris">{{ producto.punto_entrega?.nombre_punto || 'Sin ubicación' }}</span>
                             </div>
 
                             <div class="objeto">
