@@ -16,7 +16,6 @@ class PuntoEntregaFactory extends Factory
      */
     public function definition(): array {
         return [
-            'id_usuario' => $this->faker->numberBetween(1, 5),
             'nombre_punto' => $this->faker->word(),
             'direccion_punto' => $this->faker->address(),
             'latitud' => $this->faker->randomFloat(8, -90, 90),

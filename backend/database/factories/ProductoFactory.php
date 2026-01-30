@@ -45,9 +45,7 @@ class ProductoFactory extends Factory
         $numeroFoto = $this->faker->numberBetween(1, 8);
 
         return [
-            'id_usuario' => $this->faker->numberBetween(1, 5),
             'id_categoria' => $this->faker->numberBetween(1, 5),
-            'id_puntoentrega' => $this->faker->numberBetween(1, 12),
             'nombre_producto' => $this->faker->randomElement($alimentos),
             'precio' => $this->faker->randomFloat(2, 0, 999.99),
             'descripcion' => $this->faker->paragraph(),
