@@ -1,299 +1,223 @@
 <script setup>
-import { reactive, onMounted, ref } from 'vue';
+import SolicitarCompra from './SolicitarCompra.vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import navbar from './nav.vue'
-import { useRouter } from 'vue-router';
+import Navbar from "@/components/nav.vue";
 
-const router = useRouter()
+const props = defineProps(['id']);
+const producto = ref(null);
 
-const PuntosEntrega = ref([])
-const archivoImagen = ref(null);
-const imagenPreview = ref(null);
-
-
-const props = defineProps({
-    id: {
-        type: [String, Number],
-        required: true
-    }
-});
-
-const formulario = reactive({
-    id: props.id,
-    nombre_producto: "",
-    descripcion: "",
-    precio: 0,
-    stock_total: 0,
-    id_puntoentrega: ""
-})
-
-const seleccionarArchivo = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        archivoImagen.value = file;
-        imagenPreview.value = URL.createObjectURL(file);
+const obtenerProducto = async () => {
+    try {
+        const response = await axios.get(`http://localhost:8080/api/productos/${props.id}`);
+        producto.value = response.data;
+        console.log("Producto cargado:", producto.value);
+    } catch (error) {
+        console.error("Error al obtener producto:", error);
     }
 }
-
-const CargarProducto = async () => {
-    const producto = await axios.get('http://localhost:8080/api/productos/' + props.id)
-    const datosproducto = producto.data;
-
-    Object.assign(formulario, datosproducto)
-
-    imagenPreview.value = null;
-    archivoImagen.value = null;
-
+// esta funcio dona formato a la fecha per a que no es vega raro
+const formatDate = (dateString) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString();
 }
 
-const emits = defineEmits(['editar']);
+const token = localStorage.getItem('token');
 
-const editarProducto = async () => {
-    const token = localStorage.getItem('token');
-
-    const data = new FormData();
-    data.append('_method', 'PUT'); // per a que laravel eu trate com un PUT
-    data.append('nombre_producto', formulario.nombre_producto);
-    data.append('descripcion', formulario.descripcion || '');
-    data.append('precio', formulario.precio);
-    data.append('stock_total', formulario.stock_total);
-    data.append('id_puntoentrega', formulario.id_puntoentrega);
-
-    if (archivoImagen.value) {
-        data.append('imagen', archivoImagen.value);
+const crearCompraventa = (datosCompra) => {
+    const payload = {
+        id_producto: producto.value.id,
+        id_vendedor: producto.value.id_usuario,
+        id_punto: producto.value.id_puntoentrega,
+        cantidad: datosCompra.cantidad,
+        precio: producto.value.precio,
+        fecha_prevista: datosCompra.fecha,
     }
-
-    // fem un post per a que laravel trate be en el archiu
-    const editar = await axios.post('http://localhost:8080/api/productos/' + props.id, data, {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
-        }
-    })
-
-    if (editar.status === 200) {
-        router.push('/cuenta')
-    }
+    axios.post(`http://localhost:8080/api/compraventa/${props.id}`, payload, { 
+        headers: { 
+            'Authorization': `Bearer ${token}`
+        } 
+    });
 }
 
-const CargarPuntos = async () => {
-    const token = localStorage.getItem('token');
-    const resposta = await axios.get('http://localhost:8080/api/puntosuser', {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-        }
-    })
-    PuntosEntrega.value = resposta.data;
-}
-
-onMounted(() => {
-    CargarProducto();
-    CargarPuntos();
-})
-
+onMounted(() => obtenerProducto());
 </script>
 
 <template>
-    <navbar></navbar>
-    <div class="contenedor-edicion">
-        <div class="tarjeta-formulario">
-            <h1 class="titulo-principal">Edición de producto</h1>
+  <navbar />
+  <div class="contenedor-pagina" v-if="producto">
+    <h1 class="titulo-verde">{{ producto.nombre_producto }}</h1>
+    <p class="subtitulo">Detalles del producto y contacto con el productor</p>
 
-            <form @submit.prevent="editarProducto">
-                <div class="grupo-campo">
-                    <label for="nombre">Nombre producto</label>
-                    <input v-model="formulario.nombre_producto" type="text" id="nombre">
-                </div>
+    <div class="product-detail-card">
+      <div class="image-section">
+        <img :src="`http://localhost:8080/storage/${producto.imagen}`" :alt="producto.nombre_producto" />
+      </div>
 
-                <div class="grupo-campo">
-                    <label for="descripcion">Descripcion del producto</label>
-                    <input v-model="formulario.descripcion" type="text" id="descripcion">
-                </div>
-
-                <div class="grupo-campo">
-                    <label for="punto">Punto de entrega</label>
-                    <select v-model="formulario.id_puntoentrega" id="punto">
-                        <option value="" disabled>Selecciona un punto</option>
-                        <option v-for="punto in PuntosEntrega" :key="punto.id" :value="punto.id">
-                            {{ punto.nombre_punto }}
-                        </option>
-                    </select>
-                    <p class="ayuda-texto">Indica dónde el comprador podrá recoger el producto</p>
-                </div>
-
-                <div class="grupo-campo">
-                    <label for="precio">Precio del producto</label>
-                    <input v-model="formulario.precio" type="number" id="precio">
-                </div>
-
-                <div class="grupo-campo">
-                    <label for="stock">Stock del producto</label>
-                    <input v-model="formulario.stock_total" type="number" id="stock">
-                </div>
-
-                <div class="grupo-campo">
-                    <label for="imagen">Imagen del producto (opcional)</label>
-
-                    <div class="preview-container" v-if="imagenPreview || formulario.imagen">
-                        <img :src="imagenPreview || `http://localhost:8080/storage/${formulario.imagen}`"
-                            alt="Vista previa" class="foto-preview" />
-                        <p class="texto-ayuda">{{ imagenPreview ? 'Nueva imagen seleccionada' : 'Imagen actual' }}</p>
-                    </div>
-
-                    <div class="zona-upload">
-                        <input type="file" @change="seleccionarArchivo" id="imagen" accept="image/*" class="input-file-oculto">
-                        <div class="diseno-upload">
-                            <span class="icono-nube">↑</span>
-                            <p>Haz clic para subir o arrastra una imagen</p>
-                            <small>PNG, JPG o WEBP (máx. 5MB)</small>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" class="boton-actualizar">Actualizar</button>
-            </form>
+      <div class="info-section">
+        <div class="header-info">
+          <div class="title-row">
+            <span class="badge" v-if="producto.categoria">{{ producto.categoria.nombre_categoria }}</span>
+            <p class="price">{{ producto.precio }}€</p>
+          </div>
         </div>
+
+        <div class="details-box">
+          <div class="detail-item">
+            <span class="label">Stock disponible:</span>
+            <span class="valor-verde">{{ producto.stock_total }} unidades</span>
+          </div>
+          
+          <div class="detail-item" v-if="producto.punto_entrega">
+            <span class="label">Punto de entrega:</span>
+            <span>{{ producto.punto_entrega.nombre_punto }}</span>
+            <small class="direccion">{{ producto.punto_entrega.direccion_punto }}</small>
+          </div>
+
+          <div class="detail-item" v-if="producto.usuario">
+            <span class="label">Vendedor:</span>
+            <span>{{ producto.usuario.nombre_usuario }}</span>
+          </div>
+        </div>
+
+        <div class="form-container">
+          <SolicitarCompra :precio="producto.precio" @enviar-solicitud="crearCompraventa" />
+        </div>
+      </div>
     </div>
+
+    <div class="description-section">
+      <h3>Descripción</h3>
+      <p>{{ producto.descripcion }}</p>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-.contenedor-edicion {
-    display: flex;
-    justify-content: center;
-    padding: 60px 20px;
-    background-color: #f9f9f9;
-    min-height: 100vh;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.contenedor-pagina {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 120px 20px 40px; 
+  font-family: 'Segoe UI', 'Arial';
 }
 
-.tarjeta-formulario {
-    background: #ffffff;
-    width: 100%;
-    max-width: 650px; /* Un poco más ancha como en la imagen */
-    padding: 40px;
-    border-radius: 12px;
-    border: 1px solid #edf2f7;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+.titulo-verde {
+  color: #4CA626;
+  font-size: 2.2rem;
+  margin-bottom: 5px;
+  font-weight: bold;
 }
 
-.titulo-principal {
-    color: #4CA626;
-    font-size: 24px;
-    margin-bottom: 30px;
-    font-weight: bold;
-    text-align: center;
+.subtitulo {
+  color: #666666;
+  margin-bottom: 30px;
 }
 
-.grupo-campo {
-    margin-bottom: 20px;
+.product-detail-card {
+  display: flex;
+  flex-direction: row; 
+  gap: 40px;
+  background: transparent; 
+  margin-bottom: 40px;
 }
 
-label {
-    display: block;
-    font-size: 13.5px;
-    font-weight: 500;
-    color: #4A5568;
-    margin-bottom: 8px;
+.image-section {
+  flex: 1.2;
+  min-width: 0; 
 }
 
-input, select {
-    width: 100%;
-    padding: 11px 14px;
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: all 0.2s ease;
-    box-sizing: border-box;
+.image-section img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+  object-fit: cover;
 }
 
-input:focus, select:focus {
-    outline: none;
-    border-color: #4CA626;
-    background-color: #ffffff;
-    box-shadow: 0 0 0 3px rgba(76, 166, 38, 0.1);
+.info-section {
+  flex: 1;
 }
 
-.ayuda-texto {
-    font-size: 12px;
-    color: #A0AEC0;
-    margin-top: 4px;
+.price {
+  color: #333;
+  font-size: 2.5rem;
+  font-weight: bold;
 }
 
-/* Estilos para la zona de carga de imagen */
-.zona-upload {
-    position: relative;
-    border: 2px dashed #E2E8f0;
-    border-radius: 10px;
-    height: 160px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    background-color: #fff;
-    transition: all 0.2s;
+.details-box, 
+.form-container, 
+.description-section {
+  background: #FFFFFF;
+  border: 1px solid #EEEEEE;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); 
 }
 
-.zona-upload:hover {
-    background-color: #f9fafb;
-    border-color: #4CA626;
+.detail-item {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
 }
 
-.input-file-oculto {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-    z-index: 2;
+.label {
+  font-size: 0.75rem;
+  color: #999;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
 }
 
-.diseno-upload {
-    text-align: center;
-    color: #718096;
+.boton-primario {
+  background: linear-gradient(to right, #5cb82a, #008f4c);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
-.icono-nube {
-    font-size: 24px;
-    display: block;
-    margin-bottom: 8px;
+.boton-primario:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
 }
 
-.diseno-upload p {
-    font-size: 14px;
-    font-weight: 500;
-    margin-bottom: 4px;
+.boton-primario:active {
+  transform: translateY(0);
 }
 
-.diseno-upload small {
-    font-size: 11px;
-    color: #A0AEC0;
+.description-section h3 {
+  color: #333;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.preview-container {
-    margin-bottom: 15px;
-    text-align: center;
+.description-section p {
+  color: #555;
+  line-height: 1.6;
 }
 
-.foto-preview {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 2px solid #edf2f7;
+@media (max-width: 992px) {
+  .product-detail-card { gap: 25px; }
+  .titulo-verde { font-size: 1.8rem; }
 }
 
-.boton-actualizar {
-    width: 100%;
-    padding: 14px;
-    margin-top: 10px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 15px;
-    cursor: pointer;
-    border: none;
-    color: white;
-    background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
+@media (max-width: 768px) {
+  .contenedor-pagina { padding-top: 100px; }
+  .product-detail-card { flex-direction: column; gap: 20px; }
+  .image-section img { max-height: 400px; }
+  .titulo-verde { text-align: center; }
+  .subtitulo { text-align: center; }
 }
 </style>
