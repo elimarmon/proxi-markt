@@ -1,29 +1,20 @@
 <script setup>
-<<<<<<< HEAD
-import { reactive, onMounted } from 'vue';
-=======
 import { reactive, onMounted, ref } from 'vue';
->>>>>>> develop
 import axios from 'axios';
 import navbar from './nav.vue'
 import { useRouter } from 'vue-router';
 
 const router = useRouter()
-<<<<<<< HEAD
-=======
 
 const PuntosEntrega = ref([])
 const archivoImagen = ref(null);
 const imagenPreview = ref(null);
->>>>>>> develop
 
 
 const props = defineProps({
     id: {
         type: [String, Number],
         required: true
-<<<<<<< HEAD
-=======
     }
 });
 
@@ -70,34 +61,8 @@ const editarProducto = async () => {
 
     if (archivoImagen.value) {
         data.append('imagen', archivoImagen.value);
->>>>>>> develop
     }
-});
 
-<<<<<<< HEAD
-const formulario = reactive({
-    id: props.id,
-    nombre_producto: "",
-    descripcion: "",
-    precio: 0,
-    stock_total: 0,
-})
-
-const CargarProducto = async () => {
-    const producto = await axios.get('http://localhost:8080/api/productos/' + props.id)
-    const datosproducto = producto.data;
-
-    Object.assign(formulario, datosproducto)
-
-}
-
-const emits = defineEmits(['editar']);
-
-const editarProducto = async () => {
-    const token = localStorage.getItem('token');
-
-    const editar = await axios.put('http://localhost:8080/api/productos/' + props.id, formulario, {
-=======
     // fem un post per a que laravel trate be en el archiu
     const editar = await axios.post('http://localhost:8080/api/productos/' + props.id, data, {
         headers: {
@@ -114,29 +79,17 @@ const editarProducto = async () => {
 const CargarPuntos = async () => {
     const token = localStorage.getItem('token');
     const resposta = await axios.get('http://localhost:8080/api/puntosuser', {
->>>>>>> develop
         headers: {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json'
         }
     })
-<<<<<<< HEAD
-
-    if (editar.status === 200) {
-        router.push('/cuenta')
-    }
-
-=======
     PuntosEntrega.value = resposta.data;
->>>>>>> develop
 }
 
 onMounted(() => {
     CargarProducto();
-<<<<<<< HEAD
-=======
     CargarPuntos();
->>>>>>> develop
 })
 
 </script>
@@ -189,7 +142,8 @@ onMounted(() => {
                     </div>
 
                     <div class="zona-upload">
-                        <input type="file" @change="seleccionarArchivo" id="imagen" accept="image/*" class="input-file-oculto">
+                        <input type="file" @change="seleccionarArchivo" id="imagen" accept="image/*"
+                            class="input-file-oculto">
                         <div class="diseno-upload">
                             <span class="icono-nube">↑</span>
                             <p>Haz clic para subir o arrastra una imagen</p>
@@ -217,7 +171,8 @@ onMounted(() => {
 .tarjeta-formulario {
     background: #ffffff;
     width: 100%;
-    max-width: 650px; /* Un poco más ancha como en la imagen */
+    max-width: 650px;
+    /* Un poco más ancha como en la imagen */
     padding: 40px;
     border-radius: 12px;
     border: 1px solid #edf2f7;
@@ -244,24 +199,20 @@ label {
     margin-bottom: 8px;
 }
 
-input, select {
+input,
+select {
     width: 100%;
     padding: 11px 14px;
     background-color: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     font-size: 14px;
-<<<<<<< HEAD
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-    /* Evita que el padding rompa el ancho */
-=======
     transition: all 0.2s ease;
     box-sizing: border-box;
->>>>>>> develop
 }
 
-input:focus, select:focus {
+input:focus,
+select:focus {
     outline: none;
     border-color: #4CA626;
     background-color: #ffffff;
