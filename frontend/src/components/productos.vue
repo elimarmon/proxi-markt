@@ -90,7 +90,7 @@
         </div>
       </div> 
       
-      <MostrarProductos :productos="productosFiltrados"></MostrarProductos>
+      <MostrarProductos :productos="productos" :radioMaximo="radioActual"></MostrarProductos>
     </div>
   </template>
 
