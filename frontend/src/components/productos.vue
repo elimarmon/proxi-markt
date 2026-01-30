@@ -50,50 +50,48 @@ onMounted(() => {
 
 <template>
   <navbar @cambiar-radio="manejarCambioRadio"></navbar>
-    <div class="contenedor-pagina">
-      <div class="zona-fija">
-        <h1 class="titulo-verde">Productos Frescos y Locales</h1>
-        <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual }} km)</p>
+  
+  <div class="contenedor-pagina">
+    <div class="zona-fija">
+      <h1 class="titulo-verde">Productos Frescos y Locales</h1>
+      <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual }} km)</p>
 
-        <div class="card-busqueda">
-          <div id="buscador">
-            <div class="caja-busqueda">
-              <img src="../assets/iconos/buscar.png" alt="lupa" class="icono-pequeno" />
-              <input class="input-texto" type="text" placeholder="Buscar productos frescos..."/>
-            </div>
-            <button class="boton-secundario">
+      <div class="card-busqueda">
+        <div id="buscador">
+          <div class="caja-busqueda">
+            <img src="../assets/iconos/buscar.png" alt="lupa" class="icono-pequeno" />
+            <input class="input-texto" type="text" placeholder="Buscar productos frescos..."/>
+          </div>
+
+          <div class="caja-filtro-especial">
+            
+            <button 
+              class="boton-secundario" 
+              :class="{ 'activo': menuAbierto || categoriasSeleccionadas.length > 0 }"
+              @click="toggleMenu"
+            >
               <img src="../assets/iconos/filtro.png" alt="filtro" class="icono-pequeno"/>
-              Filtros
+              <span>
+                {{ categoriasSeleccionadas.length > 0 ? `Filtros (${categoriasSeleccionadas.length})` : 'Filtros' }}
+              </span>
             </button>
-          </div>
-          <p class="informacion-resultados"> 
-            {{ productos.length }} productos encontrados <span class="texto-verde">(en un radio de {{ radioActual }} km)</span>
-          </p>
-        </div>
 
-        <div class="caja-filtro-especial">
-          
-          <button class="boton-secundario" @click="toggleMenu">
-            <img src="../assets/iconos/filtro.png" alt="filtro" class="icono-pequeno"/>
-            <span>
-              {{ categoriasSeleccionadas.length > 0 ? `Filtros (${categoriasSeleccionadas.length})` : 'Filtros' }}
-            </span>
-          </button>
+            <div v-if="menuAbierto" class="menu-checkboxes">
+              <label v-for="cat in categorias" :key="cat" class="fila-opcion">
+                <input type="checkbox" :value="cat" v-model="categoriasSeleccionadas">
+                <span class="nombre-cat">{{ cat }}</span>
+              </label>
+            </div>
 
-          <div v-if="menuAbierto" class="menu-checkboxes">
-            <label v-for="cat in categorias" :key="cat" class="fila-opcion">
-              <input type="checkbox" :value="cat" v-model="categoriasSeleccionadas">
-              {{ cat }}
-            </label>
-          </div>
-        </div>
-      </div> 
-      <p class="informacion-resultados"> 
-        {{ productosFiltrados.length }} productos encontrados <span class="texto-verde">(en un radio de {{ radioActual }} km)</span>
-      </p>
-    </div>
-
+          </div> 
+        </div> <p class="informacion-resultados"> 
+          {{ productosFiltrados.length }} productos encontrados <span class="texto-verde">(en un radio de {{ radioActual }} km)</span>
+        </p>
+      </div>
+    </div> 
+    
     <MostrarProductos :productos="productos" :radioMaximo="radioActual"></MostrarProductos>
+  </div>
 </template>
 
 <style scoped>
