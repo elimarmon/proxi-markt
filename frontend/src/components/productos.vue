@@ -32,10 +32,12 @@
       console.log(response);
   };
 
+  const textoBusqueda = ref("");
+
   const productosFiltrados = computed(() => {
-    if (categoriasSeleccionadas.value.length === 0) return productos.value;
     return productos.value.filter(p => 
-      p.categoria && categoriasSeleccionadas.value.includes(p.categoria.nombre_categoria)
+      (!textoBusqueda.value || p.nombre_producto.toLowerCase().includes(textoBusqueda.value.toLowerCase())) &&
+      (categoriasSeleccionadas.value.length === 0 || categoriasSeleccionadas.value.includes(p.categoria?.nombre_categoria))
     );
   });
 
@@ -50,7 +52,7 @@
 
   <template>
     <navbar @cambiar-radio="manejarCambioRadio"></navbar>
-    
+  
     <div class="contenedor-pagina">
       <div class="zona-fija">
         <h1 class="titulo-verde">Productos Frescos y Locales</h1>
@@ -60,11 +62,10 @@
           <div id="buscador">
             <div class="caja-busqueda">
               <img src="../assets/iconos/buscar.png" alt="lupa" class="icono-pequeno" />
-              <input class="input-texto" type="text" placeholder="Buscar productos frescos..."/>
+              <input v-model="textoBusqueda" class="input-texto" type="text" placeholder="Buscar productos frescos..."/>
             </div>
 
             <div class="caja-filtro-especial">
-              
               <button 
                 class="boton-secundario" 
                 :class="{ 'activo': menuAbierto || categoriasSeleccionadas.length > 0 }"

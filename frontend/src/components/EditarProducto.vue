@@ -124,7 +124,7 @@ onMounted(() => {
 
                 <div class="grupo-campo">
                     <label for="precio">Precio del producto</label>
-                    <input v-model="formulario.precio" type="number" id="precio">
+                    <input v-model="formulario.precio" type="decimal" id="precio">
                 </div>
 
                 <div class="grupo-campo">
