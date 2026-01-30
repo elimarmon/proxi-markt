@@ -184,6 +184,106 @@ onMounted(() => obtenerProducto());
   text-decoration: none;
 }
 
+    <div class="description-section">
+      <h3>Descripción</h3>
+      <p>{{ producto.descripcion }}</p>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.contenedor-pagina {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 120px 20px 40px; 
+  font-family: 'Segoe UI', 'Arial';
+}
+
+.titulo-verde {
+  color: #4CA626;
+  font-size: 2.2rem;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.subtitulo {
+  color: #666666;
+  margin-bottom: 30px;
+}
+
+.product-detail-card {
+  display: flex;
+  flex-direction: row; 
+  gap: 40px;
+  background: transparent; 
+  margin-bottom: 40px;
+}
+
+.image-section {
+  flex: 1.2;
+  min-width: 0; 
+}
+
+.image-section img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+  object-fit: cover;
+}
+
+.info-section {
+  flex: 1;
+}
+
+.price {
+  color: #333;
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.details-box, 
+.form-container, 
+.description-section {
+  background: #FFFFFF;
+  border: 1px solid #EEEEEE;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); 
+}
+
+.detail-item {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 0.75rem;
+  color: #999;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.boton-primario {
+  background: linear-gradient(to right, #5cb82a, #008f4c);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 .boton-primario:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
