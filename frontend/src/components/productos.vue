@@ -93,7 +93,7 @@ onMounted(() => {
       </p>
     </div>
 
-    <MostrarProductos :productos="productosFiltrados"></MostrarProductos>
+    <MostrarProductos :productos="productos" :radioMaximo="radioActual"></MostrarProductos>
 </template>
 
 <style scoped>
