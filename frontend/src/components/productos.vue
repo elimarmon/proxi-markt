@@ -89,9 +89,8 @@ onMounted(() => {
             {{ productosFiltrados.length }} productos encontrados <span class="texto-verde">(en un radio de {{ radioActual }} km)</span>
           </p>
         </div>
-
-        <MostrarProductos :productos="productosFiltrados" :radioMaximo="radioActual"></MostrarProductos>
-        </div>
+      </div>
+    <MostrarProductos :productos="productosFiltrados" :radioMaximo="radioActual"></MostrarProductos>
     </div>
 </template>
 

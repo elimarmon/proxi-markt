@@ -3,10 +3,12 @@
   <div class="contenedor-pagina">
     <div id="contenedor-titulo">
       <h1 class="titulo">Comandas</h1>
-      <p class="subtitulo">Gestiona las solicitudes de compra de tus productos</p>
+      <p class="subtitulo">
+        Gestiona las solicitudes de compra de tus productos
+      </p>
     </div>
     <div class="contenedor-comandas">
-      <img src="../assets/iconos/stock.png" alt="Comandas pendientes" class="icono">
+      <img src="../assets/iconos/stock.png" alt="Comandas pendientes" class="icono"/>
       <h3>Comandas pendientes</h3>
       <p>{{ comandas.length }} pendientes</p>
 
@@ -17,42 +19,50 @@
       </div>
 
       <div v-for="comanda in comandas" :key="comanda.id" class="comanda">
-        <img src="../assets/fotos-prueba/tomate.webp" alt="foto-producto" class="foto-producto">
-        <h3>{{ comanda.nombre_producto }}</h3>
+        <img :src="getUrlImagen(comanda.producto?.imagen)" alt="foto-producto" class="foto-producto"
+        @error="$event.target.src = 'https://via.placeholder.com/150'"/>
+
+        <h3>
+          {{ comanda.producto?.nombre_producto || "Producto desconocido" }}
+        </h3>
+
         <p id="estado">{{ comanda.estado }}</p>
+
         <div id="precio-total">
           <p>{{ comanda.precio_total }}€</p>
           <p>Total</p>
         </div>
-        
+
         <div id="cantidad">
-          <img src="../assets/iconos/stock.png" alt="icono-cantidad" class="icono">
+          <img src="../assets/iconos/stock.png" alt="icono-cantidad" class="icono"/>
           <p>Cantidad: {{ comanda.cantidad }}</p>
         </div>
 
         <div id="horario">
-          <img src="../assets/iconos/calendario.png" alt="icono-calendario" class="icono">
-          <p>{{ comanda.fecha }}</p>
+          <img src="../assets/iconos/calendario.png" alt="icono-calendario" class="icono"/>
+          <p>{{ comanda.fecha_prevista }}</p>
         </div>
 
         <div id="usuario">
-          <img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-cuenta" class="icono">
-          <p>{{ comanda.cliente_nombre }}</p>
+          <img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-cuenta" class="icono"/>
+          <p>
+            {{ comanda.comprador?.nombre_usuario || "Usuario desconocido" }}
+          </p>
         </div>
 
         <div class="mensaje-comprador">
-          <img src="../assets/iconos/chat-comanda.png" alt="icono-chat" class="icono">
-          <p>Mensaje del comprador:</p>
-          <p>{{ comanda.mensaje || 'Sin mensaje' }}</p>
+          <img src="../assets/iconos/chat-comanda.png" alt="icono-chat" class="icono"/>
+          <p>Nota del pedido:</p>
+          <p>{{ comanda.mensaje || "No especificado" }}</p>
         </div>
 
-        <button>
-          <img src="../assets/iconos/aceptar.png" alt="icono-aceptar" class="icono">
+        <button v-if="!comprador" class="aceptar">
+          <img src="../assets/iconos/aceptar.png" alt="icono-aceptar" class="icono"/>
           Aceptar comanda
         </button>
 
-        <button>
-          <img src="../assets/iconos/rechazar.png" alt="icono-rechazar" class="icono">
+        <button class="rechazar">
+          <img src="../assets/iconos/rechazar.png" alt="icono-rechazar" class="icono"/>
           Rechazar comanda
         </button>
       </div>
@@ -67,14 +77,24 @@ import navbar from "./nav.vue";
 
 const comandas = ref([]);
 const cargando = ref(true);
+const comprador = ref(false);
+const token = localStorage.getItem("token");
 
 const obtenerComandas = async () => {
   try {
-    const response = await axios.get("http://localhost:8080/api/misventas", {
-        withCredentials: true
+    const response = await axios.get("http://localhost:8080/api/miscomandas", {
+      withCredentials: true,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
     });
-    comandas.value = response.data;
-    
+    console.log(response.data);
+
+    comprador.value = response.data.comprador;
+    comandas.value = response.data.datos;
+    console.log(comandas.value);
   } catch (error) {
     console.error("Error:", error);
   } finally {
@@ -85,6 +105,15 @@ const obtenerComandas = async () => {
 onMounted(() => {
   obtenerComandas();
 });
+
+const BASE_URL = "http://localhost:8080";
+
+const getUrlImagen = (rutaRelativa) => {
+  if (!rutaRelativa) {
+    return "https://via.placeholder.com/150";
+  }
+  return `${BASE_URL}/storage/${rutaRelativa}`;
+};
 </script>
 
 <style scoped>
@@ -92,7 +121,7 @@ onMounted(() => {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Segoe UI', 'Arial';
+  font-family: "Segoe UI", "Arial";
 }
 
 body {
@@ -104,14 +133,14 @@ body {
   padding: 20px 50px;
 }
 
-#contenedor-titulo{
+#contenedor-titulo {
   max-width: 90%;
   margin: 40px auto 0 auto;
 }
 
 .titulo {
   font-family: sans-serif;
-  color: #4CA626;
+  color: #4ca626;
   margin-bottom: 10px;
   font-weight: bold;
 }
@@ -123,44 +152,44 @@ body {
 }
 
 .contenedor-comandas {
-    max-width: 90%;
-    margin: auto;
-    margin-top: 40px;
-    display: flow-root;
+  max-width: 90%;
+  margin: auto;
+  margin-top: 40px;
+  display: flow-root;
 }
 
 .contenedor-comandas > .icono {
-    width: 40px;
-    height: 40px;
-    vertical-align: middle;
-    margin-right: 10px;
+  width: 40px;
+  height: 40px;
+  vertical-align: middle;
+  margin-right: 10px;
 }
 
 .contenedor-comandas h3 {
-    display: inline-block;
-    font-size: 1.4rem;
-    color: #333333;
-    vertical-align: middle;
-    font-weight: bold;
+  display: inline-block;
+  font-size: 1.4rem;
+  color: #333333;
+  vertical-align: middle;
+  font-weight: bold;
 }
 
 .contenedor-comandas > p:nth-of-type(1) {
-    float: right;
-    background-color: #FFEADA;
-    color: #FF7519;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 1rem;
+  float: right;
+  background-color: #ffeada;
+  color: #ff7519;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1rem;
 }
 
 .comanda {
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   padding: 15px 30px;
   border: 1px solid #eaeaea;
-  border-left: 7px solid #FF7519;
+  border-left: 7px solid #ff7519;
   margin-top: 25px;
   display: grid;
   grid-template-columns: 130px 1fr auto;
@@ -184,7 +213,7 @@ body {
   width: fit-content;
   font-size: 15px;
   background: #fff4e6;
-  color: #FF7519;
+  color: #ff7519;
   padding: 2px 6px;
   border-radius: 4px;
   align-self: start;
@@ -207,8 +236,8 @@ body {
 .comanda > p:nth-of-type(2) {
   display: inline-flex;
   align-items: center;
-  background-color: #ffEADA;
-  color: #FF7519;
+  background-color: #ffeada;
+  color: #ff7519;
   padding: 6px 15px;
   border-radius: 20px;
   font-size: 0.9rem;
@@ -220,10 +249,10 @@ body {
 }
 
 .comanda > p:nth-of-type(2)::before {
-    display: inline-block;
-    margin-right: 8px;
-    vertical-align: middle;
-    height: 16px;
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+  height: 16px;
 }
 
 #precio-total {
@@ -246,112 +275,111 @@ body {
   margin-top: 5px;
 }
 
-#cantidad, #horario, #usuario {
+#cantidad,
+#horario,
+#usuario {
   grid-column: 2 / span 2;
   grid-row: 3;
   display: inline-flex;
   align-items: center;
   color: #333333;
   font-size: 0.95rem;
-  background: #FFFFFF;
+  background: #ffffff;
 }
 
 #cantidad {
-    margin-right: auto;
+  margin-right: auto;
 }
 
 #horario {
-   margin-left: 140px;
+  margin-left: 140px;
 }
 
 #usuario {
-    margin-left: 300px;
+  margin-left: 300px;
 }
 
-#cantidad .icono, #horario .icono, #usuario .icono {
-    width: 18px;
-    height: 18px;
-    margin-right: 8px;
+#cantidad .icono,
+#horario .icono,
+#usuario .icono {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
 }
 
 .mensaje-comprador {
   grid-column: 1 / span 3;
   grid-row: 4;
-  background-color: #F0F7FF;
+  background-color: #f0f7ff;
   padding: 20px;
   border-radius: 10px;
   margin-top: 10px;
 }
 
 .mensaje-comprador .icono {
-    width: 30px;
-    height: 30px;
-    vertical-align: middle;
-    margin-right: 10px;
+  width: 30px;
+  height: 30px;
+  vertical-align: middle;
+  margin-right: 10px;
 }
 
 .mensaje-comprador p:nth-child(2) {
-    display: inline-block;
-    color: #007BFF;
-    font-weight: bold;
-    margin-bottom: 8px;
+  display: inline-block;
+  color: #007bff;
+  font-weight: bold;
+  margin-bottom: 8px;
 }
 
 .mensaje-comprador p:last-child {
-    display: block;
-    color: #333333;
-    margin-left: 34px;
-    font-style: italic;
+  display: block;
+  color: #333333;
+  margin-left: 34px;
+  font-style: italic;
 }
 
 .comanda > button {
-    padding: 14px;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.2s ease;
-    height: 55px;
-    grid-row: 5;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  height: 55px;
+  grid-row: 5;
 }
 
 .comanda > button .icono {
-    width: 25px;
-    height: 25px;
+  width: 25px;
+  height: 25px;
 }
 
-.comanda > button:nth-of-type(1) {
+.aceptar {
   grid-column: 1 / -1;
   width: calc(50% - 10px);
   justify-self: start;
-  background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
+  background: linear-gradient(90deg, #4ca626 0%, #009b58 100%);
   color: white;
   border: none;
 }
 
-.comanda > button:nth-of-type(1):hover {
-  background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
-    
+.aceptar:hover {
+  background: linear-gradient(90deg, #008f4c 0%, rgb(1, 104, 59) 100%);
 }
 
-.comanda > button:nth-of-type(1) .icono {
-    filter: brightness(0) invert(1);
-}
-
-.comanda > button:nth-of-type(2) {
+.rechazar {
   grid-column: 1 / -1;
   width: calc(50% - 10px);
   justify-self: end;
   background-color: white;
-  color: #E74C3C;
-  border: 2px solid #E74C3C;
+  color: #e74c3c;
+  border: 2px solid #e74c3c;
 }
 
-.comanda > button:nth-of-type(2):hover {
-    background-color: #FFDDDD;
+.rechazar:hover {
+  background-color: #ffdddd;
 }
 </style>
