@@ -58,6 +58,10 @@ const enviarSolicitud = async () => {
 </template>
 
 <style scoped>
+.formulario-compra{
+    padding-right: 20px;
+}
+
 .formulario-compra h3 {
     font-size: 1.1rem;
     color: #333;
