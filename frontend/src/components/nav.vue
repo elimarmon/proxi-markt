@@ -24,7 +24,7 @@ const confirmarNuevoRadio = (valor) => {
     localStorage.setItem('distancia_guardada', valor);
     isModalOpen.value = false;
     emit('cambiar-radio', valor);
-    console.log("Filtrando productos a:", valor, "km");
+    // console.log("Filtrando productos a:", valor === Infinity ? "Sin límite" : valor + " km");
 };
 
 const nombreUsuario = async () => {
@@ -107,7 +107,9 @@ onMounted(() => {
             <div id="radio_busqueda" @click="isModalOpen = true" style="cursor: pointer;">
                 <p>
                     <img src="../assets/iconos/tuerca_verde.png" alt="logo_tuerca">
-                    {{ radioActual }}km
+                    <span :class="{ 'simbolo-infinito-nav': radioActual === Infinity }">
+                        {{ radioActual === Infinity ? '∞' : radioActual + 'km' }}
+                    </span>
                 </p>
             </div>
 
@@ -221,7 +223,7 @@ nav li a {
 }
 
 nav li a .logos-nav {
-    width: 30;
+    width: 30px;
     height: 30px;
     margin-right: 10px;
 }
@@ -259,6 +261,12 @@ nav li a:hover .logos-nav {
 #radio_busqueda img {
     width: 40px;
     height: 40px;
+}
+
+.simbolo-infinito-nav {
+    font-size: 22px;
+    line-height: 1;
+    margin-top: -2px;
 }
 
 #usuario {
