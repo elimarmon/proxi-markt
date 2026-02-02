@@ -1,95 +1,99 @@
 <template>
-  <navbar></navbar>
-  <div class="contenedor-pagina">
-    <div id="contenedor-titulo">
-      <h1 class="titulo">Dashboard</h1>
-      <p class="subtitulo">Resumen de tu actividad en ProxiMarkt</p>
-    </div>
-
-    <div class="cajas-informacion-uno">
-      <div class="caja">
-        <h3>Mis productos</h3>
-        <p>{{ ProductosUser.length }}</p>
-        <img src="../assets/iconos/brote.png" class="icono" />
-      </div>
-
-      <div class="caja">
-        <h3>Stock total</h3>
-        <p>{{ ProductosUser.reduce((total, producto) => total + (producto.stock_total || 0), 0) }}</p>
-        <img src="../assets/iconos/ingresos.png" />
-      </div>
-
-      <div class="caja">
-        <h3>Mis Ventas</h3>
-        <p>{{ misVentas.filter(venta => venta.estado === 'completado').length }}</p>
-        <img src="../assets/iconos/info.png" />
-      </div>
-
-      <div class="caja">
-        <h3>Ingresos</h3>
-        <p>{{ misVentas.filter(venta => venta.estado === 'completado').reduce((total, venta) => total + (venta.cantidad_total * (venta.producto?.precio || 0)), 0).toFixed(2) }}€</p>
-        <img src="../assets/iconos/euro.png" />
-      </div>
-    </div>
-
-    <div class="cajas-informacion-dos">
-      <div class="ventas">
-        <img src="../assets/iconos/carrito.png" class="icono" />
-        <h3>Mis Ventas</h3>
-        
-        <div v-if="misVentas.length > 0" class="lista-scroll">
-          <div class="producto-ventas" v-for="venta in misVentas" :key="venta.id">
-            
-            <img :src="venta.producto?.imagen ? `http://localhost:8080/storage/${venta.producto.imagen}` : 'https://via.placeholder.com/150'" class="imagen-producto">
-            
-            <p id="nombre-producto">{{ venta.producto?.nombre_producto || 'Producto no disponible' }}</p>
-            
-            <p id="precio">{{ (venta.cantidad_total * (venta.producto?.precio || 0)).toFixed(2) }}€</p>
-            
-            <p id="info">Comprador #{{ venta.id_comprador }}</p>
-            <p id="estado">{{ venta.estado }}</p>
-          </div>
+    <navbar></navbar>
+    <div class="contenedor-pagina">
+        <div id="contenedor-titulo">
+            <h1 class="titulo">Dashboard</h1>
+            <p class="subtitulo">Resumen de tu actividad en ProxiMarkt</p>
         </div>
-        <p class="no-producto" v-else>No tienes ventas aún.</p>
-      </div>
 
-      <div class="productos">
-        <img src="../assets/iconos/disponibles.png" class="icono" />
-        <h3>Productos disponibles</h3>
-        
-        <div v-if="ProductosUser.length > 0" class="lista-scroll">
-          <div class="producto-disponible" v-for="producto in ProductosUser" :key="producto.id">
-            <img :src="producto.imagen ? `http://localhost:8080/storage/${producto.imagen}` : 'https://via.placeholder.com/150'" class="imagen-producto">
-            <p id="nombre-producto">{{ producto.nombre_producto }}</p>
-            <p id="precio-producto">{{ producto.precio }}€</p>
-            <p id="stock-disponible">{{ producto.stock_total }} disponibles</p>
-          </div>
+        <div class="cajas-informacion-uno">
+            <div class="caja">
+                <h3>Mis productos</h3>
+                <p>{{ ProductosUser.length }}</p>
+                <img src="../assets/iconos/brote.png" class="icono" />
+            </div>
+
+            <div class="caja">
+                <h3>Stock total</h3>
+                <p>{{ProductosUser.reduce((total, producto) => total + (producto.stock_total || 0), 0)}}</p>
+                <img src="../assets/iconos/ingresos.png" />
+            </div>
+
+            <div class="caja">
+                <h3>Mis Ventas</h3>
+                <p>{{misVentas.filter(venta => venta.estado === 'completado').length}}</p>
+                <img src="../assets/iconos/info.png" />
+            </div>
+
+            <div class="caja">
+                <h3>Ingresos</h3>
+                <p>{{misVentas.filter(venta => venta.estado === 'completado').reduce((total, venta) => total +
+                    (venta.cantidad_total * (venta.producto?.precio || 0)), 0).toFixed(2) }}€</p>
+                <img src="../assets/iconos/euro.png" />
+            </div>
         </div>
-        <p class="no-producto" v-else>No has publicado productos.</p>
-      </div>
-    </div>
 
-    <div class="cajas-informacion-tres">
-      
-      <div class="productos">
-        <img src="../assets/iconos/stock.png" class="icono" />
-        <h3>Mis Compras</h3>
+        <div class="cajas-informacion-dos">
+            <div class="ventas">
+                <img src="../assets/iconos/carrito.png" class="icono" />
+                <h3>Mis Ventas</h3>
 
-        <div v-if="misCompras.length > 0" class="lista-scroll">
-          <div class="compras-producto" v-for="compra in misCompras" :key="compra.id">
-            
-            <img :src="compra.producto?.imagen ? `http://localhost:8080/storage/${compra.producto.imagen}` : 'https://via.placeholder.com/150'" class="imagen-producto">
-            
-            <p id="nombre-producto">{{ compra.producto?.nombre_producto || 'Producto no disponible' }}</p>
-            <p id="info">Vendedor #{{ compra.id_vendedor }}</p>
-            <p id="estado">{{ compra.estado }}</p>
-            <p id="precio">{{ (compra.cantidad_total * (compra.producto?.precio || 0)).toFixed(2) }}€</p>
-          </div>
+                <div v-if="misVentas.length > 0" class="lista-scroll">
+                    <div class="producto-ventas" v-for="venta in misVentas" :key="venta.id">
+
+                        <img :src="venta.producto?.imagen ? `http://localhost:8080/storage/${venta.producto.imagen}` : 'https://via.placeholder.com/150'"
+                            class="imagen-producto">
+
+                        <p id="nombre-producto">{{ venta.producto?.nombre_producto || 'Producto no disponible' }}</p>
+
+                        <p id="precio">{{ (venta.cantidad_total * (venta.producto?.precio || 0)).toFixed(2) }}€</p>
+
+                        <p id="info">Comprador #{{ venta.id_comprador }}</p>
+                        <p id="estado">{{ venta.estado }}</p>
+                    </div>
+                </div>
+                <p class="no-producto" v-else>No tienes ventas aún.</p>
+            </div>
+
+            <div class="productos">
+                <img src="../assets/iconos/disponibles.png" class="icono" />
+                <h3>Productos disponibles</h3>
+
+                <div v-if="ProductosUser.length > 0" class="lista-scroll">
+                    <div class="producto-disponible" v-for="producto in ProductosUser" :key="producto.id">
+                        <img :src="producto.imagen ? `http://localhost:8080/storage/${producto.imagen}` : 'https://via.placeholder.com/150'"
+                            class="imagen-producto">
+                        <p id="nombre-producto">{{ producto.nombre_producto }}</p>
+                        <p id="precio-producto">{{ producto.precio }}€</p>
+                        <p id="stock-disponible">{{ producto.stock_total }} disponibles</p>
+                    </div>
+                </div>
+                <p class="no-producto" v-else>No has publicado productos.</p>
+            </div>
         </div>
-        <p class="no-producto" v-else>No has comprado nada aún.</p>
-      </div>
+
+        <div class="cajas-informacion-tres">
+
+            <div class="productos">
+                <img src="../assets/iconos/stock.png" class="icono" />
+                <h3>Mis Compras</h3>
+
+                <div v-if="misCompras.length > 0" class="lista-scroll">
+                    <div class="compras-producto" v-for="compra in misCompras" :key="compra.id">
+
+                        <img :src="compra.producto?.imagen ? `http://localhost:8080/storage/${compra.producto.imagen}` : 'https://via.placeholder.com/150'"
+                            class="imagen-producto">
+
+                        <p id="nombre-producto">{{ compra.producto?.nombre_producto || 'Producto no disponible' }}</p>
+                        <p id="info">Vendedor #{{ compra.id_vendedor }}</p>
+                        <p id="estado">{{ compra.estado }}</p>
+                        <p id="precio">{{ (compra.cantidad_total * (compra.producto?.precio || 0)).toFixed(2) }}€</p>
+                    </div>
+                </div>
+                <p class="no-producto" v-else>No has comprado nada aún.</p>
+            </div>
+        </div>
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -101,251 +105,251 @@ import navbar from "./nav.vue";
 const router = useRouter();
 
 const ProductosUser = ref([]);
-const misCompras = ref([]); 
+const misCompras = ref([]);
 const misVentas = ref([]);
 
 const getConfig = () => {
-  const token = localStorage.getItem('token');
-  return {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Accept': 'application/json'
-    }
-  };
+    const token = localStorage.getItem('token');
+    return {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+        }
+    };
 };
 
 const CargarProductosUser = async () => {
-  const response = await axios.get('http://localhost:8080/api/productosuser', getConfig());
-  ProductosUser.value = response.data;
+    const response = await axios.get('http://localhost:8080/api/productosuser', getConfig());
+    ProductosUser.value = response.data;
 };
 
 const obtenerCompras = async () => {
-  const response = await axios.get('http://localhost:8080/api/mis-compras', getConfig());
-  misCompras.value = response.data;
+    const response = await axios.get('http://localhost:8080/api/mis-compras', getConfig());
+    misCompras.value = response.data;
 };
 
 const obtenerVentas = async () => {
-  const response = await axios.get('http://localhost:8080/api/mis-ventas', getConfig());
-  misVentas.value = response.data;
+    const response = await axios.get('http://localhost:8080/api/mis-ventas', getConfig());
+    misVentas.value = response.data;
 };
 
 onMounted(() => {
-  CargarProductosUser();
-  obtenerCompras();
-  obtenerVentas();
+    CargarProductosUser();
+    obtenerCompras();
+    obtenerVentas();
 });
 </script>
 
 <style scoped>
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", "Arial";
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", "Arial";
 }
 
 body {
-  min-width: 400px;
+    min-width: 400px;
 }
 
 .contenedor-pagina {
-  margin-top: 80px;
-  padding: 20px 50px;
+    margin-top: 80px;
+    padding: 20px 50px;
 }
 
 #contenedor-titulo {
-  max-width: 90%;
-  margin: 40px auto 0 auto;
+    max-width: 90%;
+    margin: 40px auto 0 auto;
 }
 
 .titulo {
-  font-family: sans-serif;
-  color: #4CA626;
-  margin-bottom: 10px;
-  font-weight: bold;
+    font-family: sans-serif;
+    color: #4CA626;
+    margin-bottom: 10px;
+    font-weight: bold;
 }
 
 .subtitulo {
-  font-family: sans-serif;
-  color: #666666;
-  margin-bottom: 20px;
+    font-family: sans-serif;
+    color: #666666;
+    margin-bottom: 20px;
 }
 
 .cajas-informacion-uno,
 .cajas-informacion-dos,
 .cajas-informacion-tres {
-  max-width: 90%;
-  margin-left: auto;
-  margin-right: auto;
-  display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
 }
 
 .cajas-informacion-uno {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 30px;
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
 }
 
 .caja {
-  flex: 1;
-  min-width: 200px;
-  border-radius: 12px;
-  padding: 20px;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: relative;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+    flex: 1;
+    min-width: 200px;
+    border-radius: 12px;
+    padding: 20px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
 
 .caja h3 {
-  font-size: 20px;
-  opacity: 0.9;
-  z-index: 2;
+    font-size: 20px;
+    opacity: 0.9;
+    z-index: 2;
 }
 
 .caja p {
-  font-size: 28px;
-  font-weight: bold;
-  margin-top: 5px;
-  z-index: 2;
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: 5px;
+    z-index: 2;
 }
 
 .caja img {
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  filter: brightness(0) invert(1);
-  width: 70px;
-  padding: 10px;
-  background-color: rgba(255, 255, 255, 0.25);
-  border-radius: 10px;
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    filter: brightness(0) invert(1);
+    width: 70px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.25);
+    border-radius: 10px;
 }
 
 .cajas-informacion-uno .caja:nth-child(1) {
-  background: linear-gradient(to left, #009E5B, #20C97E);
+    background: linear-gradient(to left, #009E5B, #20C97E);
 }
 
 .cajas-informacion-uno .caja:nth-child(2) {
-  background: linear-gradient(to left, #1060C4, #4FACFE);
+    background: linear-gradient(to left, #1060C4, #4FACFE);
 }
 
 .cajas-informacion-uno .caja:nth-child(3) {
-  background: linear-gradient(to left, #D95000, #FF8C42);
+    background: linear-gradient(to left, #D95000, #FF8C42);
 }
 
 .cajas-informacion-uno .caja:nth-child(4) {
-  background: linear-gradient(to left, #801AC0, #B845FC);
+    background: linear-gradient(to left, #801AC0, #B845FC);
 }
 
 .cajas-informacion-dos,
 .cajas-informacion-tres {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
 }
 
 .ventas,
 .productos {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  flex: 1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border: 1px solid #EEEEEE;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    flex: 1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #EEEEEE;
 }
 
 .ventas h3,
 .productos h3 {
-  display: inline-block;
-  vertical-align: middle;
-  margin: 0;
-  margin-bottom: 20px;
-  font-size: 18px;
-  color: #333333;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: #333333;
 }
 
 .ventas .icono,
 .productos .icono {
-  display: inline-block;
-  vertical-align: middle;
-  width: 30px;
-  margin-right: 10px;
-  margin-bottom: 20px;
+    display: inline-block;
+    vertical-align: middle;
+    width: 30px;
+    margin-right: 10px;
+    margin-bottom: 20px;
 }
 
-.producto-disponible, 
+.producto-disponible,
 .compras-producto,
 .producto-ventas {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  grid-template-rows: auto auto;
-  gap: 0px 15px;
-  padding: 15px;
-  background-color: #F9FAFB;
-  border-radius: 12px;
-  margin-bottom: 10px;
-  align-items: center;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 0px 15px;
+    padding: 15px;
+    background-color: #F9FAFB;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    align-items: center;
 }
 
 .producto-disponible .imagen-producto,
 .compras-producto .imagen-producto,
 .producto-ventas .imagen-producto {
-  grid-column: 1;
-  grid-row: 1 / 3;
-  width: 50px;
-  height: 50px;
-  border-radius: 8px;
-  object-fit: cover;
+    grid-column: 1;
+    grid-row: 1 / 3;
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    object-fit: cover;
 }
 
 .producto-disponible #nombre-producto,
 .compras-producto #nombre-producto,
 .producto-ventas #nombre-producto {
-  grid-column: 2;
-  grid-row: 1;
-  font-weight: bold;
-  color: #333333;
-  font-size: 15px;
-  margin-bottom: 2px;
-  align-self: end;
+    grid-column: 2;
+    grid-row: 1;
+    font-weight: bold;
+    color: #333333;
+    font-size: 15px;
+    margin-bottom: 2px;
+    align-self: end;
 }
 
 .producto-disponible #info,
 .compras-producto #info,
 .producto-ventas #info {
-  grid-column: 2;
-  grid-row: 2;
-  font-size: 13px;
-  color: #64748B;
-  align-self: start;
+    grid-column: 2;
+    grid-row: 2;
+    font-size: 13px;
+    color: #64748B;
+    align-self: start;
 }
 
 .producto-disponible #precio-producto,
 .compras-producto #precio,
 .producto-ventas #precio {
-  grid-column: 3;
-  grid-row: 1;
-  text-align: right;
-  font-weight: bold;
-  color: #333333;
-  font-size: 15px;
-  align-self: end;
+    grid-column: 3;
+    grid-row: 1;
+    text-align: right;
+    font-weight: bold;
+    color: #333333;
+    font-size: 15px;
+    align-self: end;
 }
 
 .producto-disponible #stock-disponible,
 .compras-producto #estado,
 .producto-ventas #estado {
-  grid-column: 3;
-  grid-row: 2;
-  text-align: right;
-  font-size: 12px;
-  align-self: start;
+    grid-column: 3;
+    grid-row: 2;
+    text-align: right;
+    font-size: 12px;
+    align-self: start;
 }
 
 .producto-disponible #stock-disponible {
@@ -371,31 +375,31 @@ body {
 }
 
 .no-producto {
-  padding: 15px;
-  color: grey;
+    padding: 15px;
+    color: grey;
 }
 
 .lista-scroll {
-  max-height: 300px;
-  overflow-y: auto;
-  padding-right: 5px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 5px;
 }
 
 .lista-scroll::-webkit-scrollbar {
-  width: 8px;
+    width: 8px;
 }
 
 .lista-scroll::-webkit-scrollbar-track {
-  background: #F1F1F1;
-  border-radius: 4px;
+    background: #F1F1F1;
+    border-radius: 4px;
 }
 
 .lista-scroll::-webkit-scrollbar-thumb {
-  background: #CCCCCC;
-  border-radius: 4px;
+    background: #CCCCCC;
+    border-radius: 4px;
 }
 
 .lista-scroll::-webkit-scrollbar-thumb:hover {
-  background: #AAAAAA;
+    background: #AAAAAA;
 }
 </style>

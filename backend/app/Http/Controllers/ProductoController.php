@@ -18,16 +18,15 @@ class ProductoController extends Controller
         return response()->json($productos);
     }
 
-    public function productosPorUsuario(Request $request)
-    {
+    public function productosPorUsuario(Request $request) {
         $user = $request->user();
 
         $productos = Producto::with('categoria')
-        ->where('id_usuario', $user->id)
-        ->orderBy('created_at', 'desc')
-        ->get();
+            ->where('id_usuario', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-    return response()->json($productos);
+        return response()->json($productos);
     }
 
     /**
@@ -37,7 +36,7 @@ class ProductoController extends Controller
 
         $validado = $request->validate([
             'id_categoria' => 'required|exists:categorias,id',
-            'id_puntoentrega' => 'required|exists:puntos_entrega,id', 
+            'id_puntoentrega' => 'required|exists:puntos_entrega,id',
             'nombre_producto' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'precio' => 'required|numeric|min:0',
@@ -51,7 +50,7 @@ class ProductoController extends Controller
         $validado['estado'] = $validado['estado'] ?? 'disponible';
 
         if ($request->hasFile('imagen')) {
-        $validado['imagen'] = $request->file('imagen')->store('productos', 'public');
+            $validado['imagen'] = $request->file('imagen')->store('productos', 'public');
         } else {
             $validado['imagen'] = 'productos/default.png';
         }
@@ -80,18 +79,18 @@ class ProductoController extends Controller
 
         $data = $request->validate([
             'nombre_producto' => 'required|string|max:255',
-            'descripcion'     => 'nullable|string',
-            'precio'          => 'numeric|min:0',
-            'stock_total'     => 'integer|min:0',
+            'descripcion' => 'nullable|string',
+            'precio' => 'numeric|min:0',
+            'stock_total' => 'integer|min:0',
             'id_puntoentrega' => 'required|exists:puntos_entrega,id',
-            'imagen'          => 'nullable|image|max:2048'
+            'imagen' => 'nullable|image|max:2048'
         ]);
 
         if ($request->hasFile('imagen')) {
             if ($producto->imagen) {
                 Storage::disk('public')->delete($producto->imagen);
             }
-            
+
             $data['imagen'] = $request->file('imagen')->store('productos', 'public');
         }
 
@@ -103,19 +102,17 @@ class ProductoController extends Controller
         ], 200);
     }
 
-    public function destroy($id)
-    {
-       
+    public function destroy($id) {
+
         $producto = Producto::findOrFail($id);
 
         $producto->delete();
 
         return response()->json(['message' => 'Producto eliminado correctamente'], 200);
-       
+
     }
 
-    public function obtenerProductospunto($id)
-    {
+    public function obtenerProductospunto($id) {
         $productos = Producto::with(['categoria', 'punto_entrega'])
             ->where('id_puntoentrega', $id)
             ->get();

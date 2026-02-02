@@ -2,36 +2,84 @@
 import SolicitarCompra from './SolicitarCompra.vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import Navbar from "@/components/nav.vue";
+import navbar from './nav.vue' // Asegúrate que el nombre del archivo sea exacto (Nav.vue o nav.vue)
+import { useRouter } from 'vue-router';
 
-const props = defineProps(['id']);
-const producto = ref(null);
+const router = useRouter();
 
-const obtenerProducto = async () => {
-    try {
-        const response = await axios.get(`http://localhost:8080/api/productos/${props.id}`);
-        producto.value = response.data;
-        console.log("Producto cargado:", producto.value);
-    } catch (error) {
-        console.error("Error al obtener producto:", error);
+const PuntosEntrega = ref([]);
+const archivoImagen = ref(null);
+const imagenPreview = ref(null);
+
+const props = defineProps({
+    id: {
+        type: [String, Number],
+        required: true
+    }
+});
+
+const formulario = reactive({
+    id: props.id,
+    nombre_producto: "",
+    descripcion: "",
+    precio: 0,
+    stock_total: 0,
+    id_puntoentrega: "",
+    imagen: null
+});
+
+// URL Base para evitar repeticiones (Considera usar variables de entorno)
+const API_BASE = 'http://localhost:8080';
+
+const seleccionarArchivo = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        archivoImagen.value = file;
+        imagenPreview.value = URL.createObjectURL(file);
     }
 }
-// esta funcio dona formato a la fecha per a que no es vega raro
-const formatDate = (dateString) => {
-    if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString();
+
+const CargarProducto = async () => {
+    try {
+        const respuesta = await axios.get(`${API_BASE}/api/productos/${props.id}`);
+        Object.assign(formulario, respuesta.data);
+        // Resetear selección de archivo local al cargar datos nuevos
+        imagenPreview.value = null;
+        archivoImagen.value = null;
+    } catch (error) {
+        console.error("Error cargando producto:", error);
+    }
 }
 
-const token = localStorage.getItem('token');
+const editarProducto = async () => {
+    const token = localStorage.getItem('token');
 
-const crearCompraventa = (datosCompra) => {
-    const payload = {
-        id_producto: producto.value.id,
-        id_vendedor: producto.value.id_usuario,
-        id_punto: producto.value.id_puntoentrega,
-        cantidad: datosCompra.cantidad,
-        precio: producto.value.precio,
-        fecha_prevista: datosCompra.fecha,
+    const data = new FormData();
+    // Laravel requiere _method PUT cuando se envía FormData via POST
+    data.append('_method', 'PUT'); 
+    data.append('nombre_producto', formulario.nombre_producto);
+    data.append('descripcion', formulario.descripcion || '');
+    data.append('precio', formulario.precio);
+    data.append('stock_total', formulario.stock_total);
+    data.append('id_puntoentrega', formulario.id_puntoentrega);
+
+    if (archivoImagen.value) {
+        data.append('imagen', archivoImagen.value);
+    }
+
+    try {
+        const respuesta = await axios.post(`${API_BASE}/api/productos/${props.id}`, data, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        if (respuesta.status === 200 || respuesta.status === 204) {
+            router.push('/cuenta');
+        }
+    } catch (error) {
+        console.error("Error al editar:", error);
     }
     axios.post(`http://localhost:8080/api/compraventa/${props.id}`, payload, { 
         headers: { 
@@ -40,48 +88,89 @@ const crearCompraventa = (datosCompra) => {
     });
 }
 
-onMounted(() => obtenerProducto());
+const CargarPuntos = async () => {
+    const token = localStorage.getItem('token');
+    try {
+        const resposta = await axios.get(`${API_BASE}/api/puntosuser`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            }
+        });
+        PuntosEntrega.value = resposta.data;
+    } catch (error) {
+        console.error("Error cargando puntos:", error);
+    }
+}
+
+onMounted(() => {
+    CargarProducto();
+    CargarPuntos();
+});
 </script>
 
 <template>
-  <navbar />
-  <div class="contenedor-pagina" v-if="producto">
-    <h1 class="titulo-verde">{{ producto.nombre_producto }}</h1>
-    <p class="subtitulo">Detalles del producto y contacto con el productor</p>
+    <navbar></navbar>
+    <div class="contenedor-edicion">
+        <div class="tarjeta-formulario">
+            <h1 class="titulo-principal">Edición de producto</h1>
 
-    <div class="product-detail-card">
-      <div class="image-section">
-        <img :src="`http://localhost:8080/storage/${producto.imagen}`" :alt="producto.nombre_producto" />
-      </div>
+            <form @submit.prevent="editarProducto">
+                <div class="grupo-campo">
+                    <label for="nombre">Nombre producto</label>
+                    <input v-model="formulario.nombre_producto" type="text" id="nombre" placeholder="Ej: Manzanas Orgánicas">
+                </div>
 
-      <div class="info-section">
-        <div class="header-info">
-          <div class="title-row">
-            <span class="badge" v-if="producto.categoria">{{ producto.categoria.nombre_categoria }}</span>
-            <p class="price">{{ producto.precio }}€</p>
-          </div>
-        </div>
+                <div class="grupo-campo">
+                    <label for="descripcion">Descripción del producto</label>
+                    <input v-model="formulario.descripcion" type="text" id="descripcion" placeholder="Breve descripción...">
+                </div>
 
-        <div class="details-box">
-          <div class="detail-item">
-            <span class="label">Stock disponible:</span>
-            <span class="valor-verde">{{ producto.stock_total }} unidades</span>
-          </div>
-          
-          <div class="detail-item" v-if="producto.punto_entrega">
-            <span class="label">Punto de entrega:</span>
-            <span>{{ producto.punto_entrega.nombre_punto }}</span>
-            <small class="direccion">{{ producto.punto_entrega.direccion_punto }}</small>
-          </div>
+                <div class="grupo-campo">
+                    <label for="punto">Punto de entrega</label>
+                    <select v-model="formulario.id_puntoentrega" id="punto">
+                        <option value="" disabled>Selecciona un punto</option>
+                        <option v-for="punto in PuntosEntrega" :key="punto.id" :value="punto.id">
+                            {{ punto.nombre_punto }}
+                        </option>
+                    </select>
+                    <p class="ayuda-texto">Indica dónde el comprador podrá recoger el producto</p>
+                </div>
 
-          <div class="detail-item" v-if="producto.usuario">
-            <span class="label">Vendedor:</span>
-            <span>{{ producto.usuario.nombre_usuario }}</span>
-          </div>
-        </div>
+                <div class="dos-columnas">
+                    <div class="grupo-campo">
+                        <label for="precio">Precio (€)</label>
+                        <input v-model="formulario.precio" type="number" step="0.01" id="precio">
+                    </div>
 
-        <div class="form-container">
-          <SolicitarCompra :precio="producto.precio" @enviar-solicitud="crearCompraventa" />
+                    <div class="grupo-campo">
+                        <label for="stock">Stock disponible</label>
+                        <input v-model="formulario.stock_total" type="number" id="stock">
+                    </div>
+                </div>
+
+                <div class="grupo-campo">
+                    <label>Imagen del producto</label>
+
+                    <div class="preview-container" v-if="imagenPreview || formulario.imagen">
+                        <img :src="imagenPreview || `${API_BASE}/storage/${formulario.imagen}`"
+                            alt="Vista previa" class="foto-preview" />
+                        <p class="texto-ayuda-foto">{{ imagenPreview ? 'Nueva imagen seleccionada' : 'Imagen actual' }}</p>
+                    </div>
+
+                    <div class="zona-upload">
+                        <input type="file" @change="seleccionarArchivo" id="imagen" accept="image/*"
+                            class="input-file-oculto">
+                        <div class="diseno-upload">
+                            <span class="icono-nube">↑</span>
+                            <p>Haz clic para cambiar la imagen</p>
+                            <small>PNG, JPG o WEBP (máx. 5MB)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="boton-actualizar">Actualizar Producto</button>
+            </form>
         </div>
       </div>
     </div>
@@ -94,18 +183,31 @@ onMounted(() => obtenerProducto());
 </template>
 
 <style scoped>
-.contenedor-pagina {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 120px 20px 40px; 
-  font-family: 'Segoe UI', 'Arial';
+
+input, select, textarea, button {
+    font-family: inherit;
 }
 
-.titulo-verde {
-  color: #4CA626;
-  font-size: 2.2rem;
-  margin-bottom: 5px;
-  font-weight: bold;
+.contenedor-edicion {
+    display: flex;
+    justify-content: center;
+    /* Añadimos padding superior extra para evitar que el navbar tape el contenido */
+    padding: 80px 20px 40px; 
+    background-color: #f9f9f9;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+.tarjeta-formulario {
+    background: #ffffff;
+    width: 100%;
+    max-width: 650px;
+    padding: 32px;
+    border-radius: 12px;
+    border: 1px solid #edf2f7;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    height: fit-content;
 }
 
 .subtitulo {
@@ -121,38 +223,66 @@ onMounted(() => obtenerProducto());
   margin-bottom: 40px;
 }
 
-.image-section {
-  flex: 1.2;
-  min-width: 0; 
+.dos-columnas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
 
-.image-section img {
-  width: 100%;
-  height: auto;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-  object-fit: cover;
+label {
+    display: block;
+    font-size: 14px; /* Estandarizado */
+    font-weight: 600;
+    color: #4A5568;
+    margin-bottom: 8px;
 }
 
-.info-section {
-  flex: 1;
+input,
+select {
+    width: 100%;
+    padding: 12px 14px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    color: #2d3748;
 }
 
-.price {
-  color: #333;
-  font-size: 2.5rem;
-  font-weight: bold;
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #4CA626;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(76, 166, 38, 0.1);
 }
 
-.details-box, 
-.form-container, 
-.description-section {
-  background: #FFFFFF;
-  border: 1px solid #EEEEEE;
-  border-radius: 12px;
-  padding: 25px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); 
+.ayuda-texto {
+    font-size: 12px;
+    color: #718096;
+    margin-top: 6px;
+}
+
+.texto-ayuda-foto {
+    font-size: 12px;
+    color: #4CA626;
+    font-weight: 500;
+    margin-top: 8px;
+}
+
+.zona-upload {
+    position: relative;
+    border: 2px dashed #E2E8f0;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: #fff;
+    transition: all 0.2s;
+    min-height: 120px;
 }
 
 .detail-item {
@@ -161,13 +291,14 @@ onMounted(() => obtenerProducto());
   flex-direction: column;
 }
 
-.label {
-  font-size: 0.75rem;
-  color: #999;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
+.input-file-oculto {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
 }
 
 .boton-primario {
@@ -186,38 +317,62 @@ onMounted(() => obtenerProducto());
   text-decoration: none;
 }
 
-.boton-primario:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+.icono-nube {
+    font-size: 24px;
+    display: block;
+    margin-bottom: 4px;
 }
 
-.boton-primario:active {
-  transform: translateY(0);
+.preview-container {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.description-section h3 {
-  color: #333;
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #f0f0f0;
+.foto-preview {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 3px solid #f0f4f8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-.description-section p {
-  color: #555;
-  line-height: 1.6;
+.boton-actualizar {
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    color: white;
+    background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
+    transition: transform 0.1s active, opacity 0.2s;
 }
 
-@media (max-width: 992px) {
-  .product-detail-card { gap: 25px; }
-  .titulo-verde { font-size: 1.8rem; }
+.boton-actualizar:hover {
+    opacity: 0.95;
+    box-shadow: 0 4px 12px rgba(76, 166, 38, 0.2);
 }
 
-@media (max-width: 768px) {
-  .contenedor-pagina { padding-top: 100px; }
-  .product-detail-card { flex-direction: column; gap: 20px; }
-  .image-section img { max-height: 400px; }
-  .titulo-verde { text-align: center; }
-  .subtitulo { text-align: center; }
+.boton-actualizar:active {
+    transform: scale(0.98);
+}
+
+/* Responsive móvil */
+@media (max-width: 480px) {
+    .contenedor-edicion {
+        padding-top: 70px; /* Ajuste para pantallas pequeñas */
+    }
+    .tarjeta-formulario {
+        padding: 20px;
+    }
+    .dos-columnas {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
 }
 </style>
