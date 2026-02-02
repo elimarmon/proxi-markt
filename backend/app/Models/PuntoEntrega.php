@@ -13,7 +13,6 @@ class PuntoEntrega extends Model
 
     protected $table = 'puntos_entrega';
 
-
     protected $fillable = [
         'id_usuario',
         'longitud',
