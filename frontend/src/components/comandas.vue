@@ -63,7 +63,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import { useRouter } from "vue-router";
 import navbar from "./nav.vue";
 
 const comandas = ref([]);
@@ -71,10 +70,13 @@ const cargando = ref(true);
 
 const obtenerComandas = async () => {
   try {
-    const response = await axios.get("http://localhost:8080/api/comanda");
+    const response = await axios.get("http://localhost:8080/api/misventas", {
+        withCredentials: true
+    });
     comandas.value = response.data;
+    
   } catch (error) {
-    console.error("Error al obtener las comandas:", error);
+    console.error("Error:", error);
   } finally {
     cargando.value = false;
   }
