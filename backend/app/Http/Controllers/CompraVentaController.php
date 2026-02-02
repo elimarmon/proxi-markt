@@ -14,6 +14,7 @@ class CompraVentaController extends Controller
         $compraVentaValidada = $request->validate([
             'id_vendedor' => 'required|exists:usuarios,id',
             'id_punto' => 'required|exists:puntos_entrega,id',
+            'fecha_prevista' => 'required|date',
             'cantidad' => "required|integer|min:1|lte:{$producto->stock_real}",
         ]);
 

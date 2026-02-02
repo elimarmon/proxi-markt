@@ -17,6 +17,10 @@ const enviarSolicitud = async () => {
         fecha_prevista: form.fecha,
         mensaje: form.mensaje,
     });
+
+    form.cantidad = null;
+    form.fecha = null;
+    form.mensaje = "";
 };
 </script>
 
