@@ -179,6 +179,7 @@ button {
 .contenedor-edicion {
     display: flex;
     justify-content: center;
+    /* Añadimos padding superior extra para evitar que el navbar tape el contenido */
     padding: 80px 20px 40px;
     background-color: #f9f9f9;
     min-height: 100vh;

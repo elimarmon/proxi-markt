@@ -52,9 +52,6 @@ const obtenerMiUbicacion = async () => {
     miUsuario.value = usuario.data;
     productoubicacion.value = productosResp.data;
 
-    // console.log("Usuario:", miUsuario.value);
-    // console.log("Productos:", productoubicacion.value);
-
   } catch (error) {
     console.error("Error cargando datos:", error);
   }

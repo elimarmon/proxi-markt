@@ -42,9 +42,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/publicarproducto', [ProductoController::class, 'store']);
     Route::get('/productosuser', [ProductoController::class, 'productosPorUsuario']);
     Route::delete('/productos/{id}', [ProductoController::class, 'destroy']);
-    Route::get('/miscompras', [CompraVentaController::class, 'misCompras']);
-    Route::get('/misventas', [CompraVentaController::class, 'misVentas']);
+    
     // Rutas de compraventa
 
     Route::post("/compraventa/{producto}", [CompraVentaController::class, 'store']);
+    Route::get('/miscompras', [CompraVentaController::class, 'misCompras']);
+    Route::get('/misventas', [CompraVentaController::class, 'misVentas']);
+    Route::get('/miscomandas/{id}', [CompraVentaController::class, 'misComandas']);
 });

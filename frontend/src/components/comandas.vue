@@ -182,6 +182,19 @@ body {
     align-self: start;
 }
 
+.sin-comandas-texto {
+  text-align: center;
+  margin-top: 50px;
+  color: #999999;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  padding: 30px;
+  border: 1px solid #eeeeee;
+  border-radius: 12px;
+  background-color: #fafafa;
+}
+
 .comanda>p:nth-of-type(2)::before {
     display: inline-block;
     margin-right: 8px;
