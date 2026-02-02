@@ -1,49 +1,55 @@
 <template>
-  <navbar></navbar>
-  <div class="contenedor-pagina">
-    <div id="contenedor-titulo">
-      <h1 class="titulo">Comandas</h1>
-      <p class="subtitulo">Gestiona las solicitudes de compra de tus productos</p>
-    </div>
-    <div class="contenedor-comandas">
-      <img src="../assets/iconos/stock.png" alt="Comandas pendientes" class="icono">
-      <h3>Comandas pendientes</h3>
-      <p>{{ comandas.length }} pendientes</p>
-
-      <p v-if="cargando">Cargando comandas...</p>
-
-      <div v-if="!cargando && comandas.length === 0" class="sin-comandas-texto">
-        <p>No hay comandas pendientes</p>
-      </div>
-
-      <div v-for="comanda in comandas" :key="comanda.id" class="comanda">
-        <img src="../assets/fotos-prueba/tomate.webp" alt="foto-producto" class="foto-producto">
-        <h3>{{ comanda.nombre_producto }}</h3>
-        <p id="estado">{{ comanda.estado }}</p>
-        <div id="precio-total">
-          <p>{{ comanda.precio_total }}€</p>
-          <p>Total</p>
+    <navbar></navbar>
+    <div class="contenedor-pagina">
+        <div id="contenedor-titulo">
+            <h1 class="titulo">Comandas</h1>
+            <p class="subtitulo">Gestiona las solicitudes de compra de tus productos</p>
         </div>
-        
-        <div id="cantidad">
-          <img src="../assets/iconos/stock.png" alt="icono-cantidad" class="icono">
-          <p>Cantidad: {{ comanda.cantidad }}</p>
-        </div>
+        <div class="contenedor-comandas">
+            <img src="../assets/iconos/stock.png" alt="Comandas pendientes" class="icono">
+            <h3>Comandas pendientes</h3>
+            <p>3 pendientes</p>
 
-        <div id="horario">
-          <img src="../assets/iconos/calendario.png" alt="icono-calendario" class="icono">
-          <p>{{ comanda.fecha }}</p>
-        </div>
+            <div class="comanda">
+                <img src="../assets/fotos-prueba/tomate.webp" alt="foto-producto" class="foto-producto">
+                <h3>Tomates ecológicos</h3>
+                <p id="estado">Pendiente de Aprobación</p>
+                <div id="precio-total">
+                    <p>17.50€</p>
+                    <p>Total</p>
+                </div>
 
-        <div id="usuario">
-          <img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-cuenta" class="icono">
-          <p>{{ comanda.cliente_nombre }}</p>
-        </div>
+                <div id="cantidad">
+                    <img src="../assets/iconos/stock.png" alt="icono-cantidad" class="icono">
+                    <p>Cantidad: 5</p>
+                </div>
 
-        <div class="mensaje-comprador">
-          <img src="../assets/iconos/chat-comanda.png" alt="icono-chat" class="icono">
-          <p>Mensaje del comprador:</p>
-          <p>{{ comanda.mensaje || 'Sin mensaje' }}</p>
+                <div id="horario">
+                    <img src="../assets/iconos/calendario.png" alt="icono-calendario" class="icono">
+                    <p>19/1/2026</p>
+                </div>
+
+                <div id="usuario">
+                    <img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-cuenta" class="icono">
+                    <p>Juan Carlos Martínez</p>
+                </div>
+
+                <div class="mensaje-comprador">
+                    <img src="../assets/iconos/chat-comanda.png" alt="icono-chat" class="icono">
+                    <p>Mensaje del comprador:</p>
+                    <p>...</p>
+                </div>
+
+                <button>
+                    <img src="../assets/iconos/aceptar.png" alt="icono-aceptar" class="icono">
+                    Aceptar comanda
+                </button>
+
+                <button>
+                    <img src="../assets/iconos/rechazar.png" alt="icono-rechazar" class="icono">
+                    Rechazar comanda
+                </button>
+            </div>
         </div>
     </div>
 </template>
@@ -51,28 +57,10 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
+import { useRouter } from "vue-router";
 import navbar from "./nav.vue";
 
-const comandas = ref([]);
-const cargando = ref(true);
-
-const obtenerComandas = async () => {
-  try {
-    const response = await axios.get("http://localhost:8080/api/misventas", {
-        withCredentials: true
-    });
-    comandas.value = response.data;
-    
-  } catch (error) {
-    console.error("Error:", error);
-  } finally {
-    cargando.value = false;
-  }
-};
-
-onMounted(() => {
-  obtenerComandas();
-});
+const router = useRouter();
 </script>
 
 <style scoped>
@@ -166,17 +154,32 @@ body {
 }
 
 #estado {
-  grid-column: 2;
-  grid-row: 2;
-  display: inline-block;
-  width: fit-content;
-  font-size: 15px;
-  background: #fff4e6;
-  color: #FF7519;
-  padding: 2px 6px;
-  border-radius: 4px;
-  align-self: start;
-  margin-top: 5px;
+    grid-column: 2;
+    grid-row: 2;
+    display: inline-block;
+    width: fit-content;
+    font-size: 15px;
+    background: #fff4e6;
+    color: #FF7519;
+    padding: 2px 6px;
+    border-radius: 4px;
+    align-self: start;
+    margin-top: 5px;
+}
+
+.comanda>p:nth-of-type(2) {
+    display: inline-flex;
+    align-items: center;
+    background-color: #ffEADA;
+    color: #FF7519;
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    width: fit-content;
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
 }
 
 .sin-comandas-texto {
@@ -192,22 +195,7 @@ body {
   background-color: #fafafa;
 }
 
-.comanda > p:nth-of-type(2) {
-  display: inline-flex;
-  align-items: center;
-  background-color: #ffEADA;
-  color: #FF7519;
-  padding: 6px 15px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  width: fit-content;
-  grid-column: 2;
-  grid-row: 2;
-  align-self: start;
-}
-
-.comanda > p:nth-of-type(2)::before {
+.comanda>p:nth-of-type(2)::before {
     display: inline-block;
     margin-right: 8px;
     vertical-align: middle;
