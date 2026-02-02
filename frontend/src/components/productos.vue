@@ -91,6 +91,7 @@ onMounted(() => {
         </div>
 
         <MostrarProductos :productos="productosFiltrados" :radioMaximo="radioActual"></MostrarProductos>
+        </div>
     </div>
 </template>
 
