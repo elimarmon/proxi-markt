@@ -1,57 +1,63 @@
 <template>
-    <navbar></navbar>
-    <div class="contenedor-pagina">
-        <div id="contenedor-titulo">
-            <h1 class="titulo">Comandas</h1>
-            <p class="subtitulo">Gestiona las solicitudes de compra de tus productos</p>
-        </div>
-        <div class="contenedor-comandas">
-            <img src="../assets/iconos/stock.png" alt="Comandas pendientes" class="icono">
-            <h3>Comandas pendientes</h3>
-            <p>3 pendientes</p>
-
-            <div class="comanda">
-                <img src="../assets/fotos-prueba/tomate.webp" alt="foto-producto" class="foto-producto">
-                <h3>Tomates ecológicos</h3>
-                <p id="estado">Pendiente de Aprobación</p>
-                <div id="precio-total">
-                    <p>17.50€</p>
-                    <p>Total</p>
-                </div>
-
-                <div id="cantidad">
-                    <img src="../assets/iconos/stock.png" alt="icono-cantidad" class="icono">
-                    <p>Cantidad: 5</p>
-                </div>
-
-                <div id="horario">
-                    <img src="../assets/iconos/calendario.png" alt="icono-calendario" class="icono">
-                    <p>19/1/2026</p>
-                </div>
-
-                <div id="usuario">
-                    <img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-cuenta" class="icono">
-                    <p>Juan Carlos Martínez</p>
-                </div>
-
-                <div class="mensaje-comprador">
-                    <img src="../assets/iconos/chat-comanda.png" alt="icono-chat" class="icono">
-                    <p>Mensaje del comprador:</p>
-                    <p>...</p>
-                </div>
-
-                <button>
-                    <img src="../assets/iconos/aceptar.png" alt="icono-aceptar" class="icono">
-                    Aceptar comanda
-                </button>
-
-                <button>
-                    <img src="../assets/iconos/rechazar.png" alt="icono-rechazar" class="icono">
-                    Rechazar comanda
-                </button>
-            </div>
-        </div>
+  <navbar></navbar>
+  <div class="contenedor-pagina">
+    <div id="contenedor-titulo">
+      <h1 class="titulo">Comandas</h1>
+      <p class="subtitulo">Gestiona las solicitudes de compra de tus productos</p>
     </div>
+    <div class="contenedor-comandas">
+      <img src="../assets/iconos/stock.png" alt="Comandas pendientes" class="icono">
+      <h3>Comandas pendientes</h3>
+      <p>{{ comandas.length }} pendientes</p>
+
+      <p v-if="cargando">Cargando comandas...</p>
+
+      <div v-if="!cargando && comandas.length === 0" class="sin-comandas-texto">
+        <p>No hay comandas pendientes</p>
+      </div>
+
+      <div v-for="comanda in comandas" :key="comanda.id" class="comanda">
+        <img src="../assets/fotos-prueba/tomate.webp" alt="foto-producto" class="foto-producto">
+        <h3>{{ comanda.nombre_producto }}</h3>
+        <p id="estado">{{ comanda.estado }}</p>
+        <div id="precio-total">
+          <p>{{ comanda.precio_total }}€</p>
+          <p>Total</p>
+        </div>
+        
+        <div id="cantidad">
+          <img src="../assets/iconos/stock.png" alt="icono-cantidad" class="icono">
+          <p>Cantidad: {{ comanda.cantidad }}</p>
+        </div>
+
+        <div id="horario">
+          <img src="../assets/iconos/calendario.png" alt="icono-calendario" class="icono">
+          <p>{{ comanda.fecha }}</p>
+        </div>
+
+        <div id="usuario">
+          <img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-cuenta" class="icono">
+          <p>{{ comanda.cliente_nombre }}</p>
+        </div>
+
+        <div class="mensaje-comprador">
+          <img src="../assets/iconos/chat-comanda.png" alt="icono-chat" class="icono">
+          <p>Mensaje del comprador:</p>
+          <p>{{ comanda.mensaje || 'Sin mensaje' }}</p>
+        </div>
+
+        <button>
+          <img src="../assets/iconos/aceptar.png" alt="icono-aceptar" class="icono">
+          Aceptar comanda
+        </button>
+
+        <button>
+          <img src="../assets/iconos/rechazar.png" alt="icono-rechazar" class="icono">
+          Rechazar comanda
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -180,19 +186,6 @@ body {
     grid-column: 2;
     grid-row: 2;
     align-self: start;
-}
-
-.sin-comandas-texto {
-  text-align: center;
-  margin-top: 50px;
-  color: #999999;
-  font-size: 1.2rem;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  padding: 30px;
-  border: 1px solid #eeeeee;
-  border-radius: 12px;
-  background-color: #fafafa;
 }
 
 .comanda>p:nth-of-type(2)::before {
