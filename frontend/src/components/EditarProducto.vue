@@ -129,10 +129,11 @@ onMounted(() => {
                     <p class="ayuda-texto">Indica dónde el comprador podrá recoger el producto</p>
                 </div>
 
-                <div class="grupo-campo">
-                    <label for="precio">Precio del producto</label>
-                    <input v-model="formulario.precio" type="decimal" id="precio">
-                </div>
+                <div class="dos-columnas">
+                    <div class="grupo-campo">
+                        <label for="precio">Precio (€)</label>
+                        <input v-model="formulario.precio" type="number" step="0.01" id="precio">
+                    </div>
 
                     <div class="grupo-campo">
                         <label for="stock">Stock disponible</label>
