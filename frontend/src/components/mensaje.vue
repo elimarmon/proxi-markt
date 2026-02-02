@@ -55,7 +55,7 @@ body {
 
 .titulo {
   font-family: sans-serif;
-  color: #4ca626;
+  color: #4CA626;
   margin-bottom: 10px;
   font-weight: bold;
 }
@@ -76,15 +76,16 @@ body {
 }
 
 .sin-mensajes {
+  width: 100%;
   text-align: center;
   margin-top: 50px;
   color: #999999;
   font-size: 1.2rem;
-  font-weight: 500;
+  font-weight: bold;
   letter-spacing: 0.5px;
   padding: 30px;
-  border: 1px solid #eeeeee;
+  border: 1px solid #EEEEEE;
   border-radius: 12px;
-  background-color: #fafafa;
+  background-color: #FAFAFA;
 }
 </style>
