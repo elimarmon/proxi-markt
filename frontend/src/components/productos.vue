@@ -2,7 +2,6 @@
 import { ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
 import navbar from "./nav.vue";
-// import TarjetaProducto from "@/components/TarjetaProducto.vue";
 import MostrarProductos from './MostrarProductosMain.vue';
 
 const productos = ref([]);
@@ -32,12 +31,12 @@ const mostrarProductos = async () => {
     console.log(response);
 };
 
-  const textoBusqueda = ref("");
+const textoBusqueda = ref("");
 
-  const productosFiltrados = computed(() => {
-    return productos.value.filter(p => 
-      (!textoBusqueda.value || p.nombre_producto.toLowerCase().includes(textoBusqueda.value.toLowerCase())) &&
-      (categoriasSeleccionadas.value.length === 0 || categoriasSeleccionadas.value.includes(p.categoria?.nombre_categoria))
+const productosFiltrados = computed(() => {
+    return productos.value.filter(p =>
+        (!textoBusqueda.value || p.nombre_producto.toLowerCase().includes(textoBusqueda.value.toLowerCase())) &&
+        (categoriasSeleccionadas.value.length === 0 || categoriasSeleccionadas.value.includes(p.categoria?.nombre_categoria))
     );
 });
 
@@ -52,45 +51,47 @@ onMounted(() => {
 
 <template>
     <navbar @cambiar-radio="manejarCambioRadio"></navbar>
-  
+
     <div class="contenedor-pagina">
-      <div class="zona-fija">
-        <h1 class="titulo-verde">Productos Frescos y Locales</h1>
-        <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual }} km)</p>
+        <div class="zona-fija">
+            <h1 class="titulo-verde">Productos Frescos y Locales</h1>
+            <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual }} km)</p>
 
-        <div class="card-busqueda">
-          <div id="buscador">
-            <div class="caja-busqueda">
-              <img src="../assets/iconos/buscar.png" alt="lupa" class="icono-pequeno" />
-              <input v-model="textoBusqueda" class="input-texto" type="text" placeholder="Buscar productos frescos..."/>
+            <div class="card-busqueda">
+                <div id="buscador">
+                    <div class="caja-busqueda">
+                        <img src="../assets/iconos/buscar.png" alt="lupa" class="icono-pequeno" />
+                        <input v-model="textoBusqueda" class="input-texto" type="text"
+                            placeholder="Buscar productos frescos..." />
+                    </div>
+
+                    <div class="caja-filtro-especial">
+                        <button class="boton-secundario"
+                            :class="{ 'activo': menuAbierto || categoriasSeleccionadas.length > 0 }"
+                            @click="toggleMenu">
+                            <img src="../assets/iconos/filtro.png" alt="filtro" class="icono-pequeno" />
+                            <span>
+                                {{ categoriasSeleccionadas.length > 0 ? `Filtros (${categoriasSeleccionadas.length})` :
+                                'Filtros' }}
+                            </span>
+                        </button>
+
+                        <div v-if="menuAbierto" class="menu-checkboxes">
+                            <label v-for="cat in categorias" :key="cat" class="fila-opcion">
+                                <input type="checkbox" :value="cat" v-model="categoriasSeleccionadas">
+                                <span class="nombre-cat">{{ cat }}</span>
+                            </label>
+                        </div>
+
+                    </div>
+                </div>
+                <p class="informacion-resultados">
+                    {{ productosFiltrados.length }} productos encontrados <span class="texto-verde">(en un radio de {{
+                        radioActual }} km)</span>
+                </p>
             </div>
-
-            <div class="caja-filtro-especial">
-              <button 
-                class="boton-secundario" 
-                :class="{ 'activo': menuAbierto || categoriasSeleccionadas.length > 0 }"
-                @click="toggleMenu"
-              >
-                <img src="../assets/iconos/filtro.png" alt="filtro" class="icono-pequeno"/>
-                <span>
-                  {{ categoriasSeleccionadas.length > 0 ? `Filtros (${categoriasSeleccionadas.length})` : 'Filtros' }}
-                </span>
-              </button>
-
-              <div v-if="menuAbierto" class="menu-checkboxes">
-                <label v-for="cat in categorias" :key="cat" class="fila-opcion">
-                  <input type="checkbox" :value="cat" v-model="categoriasSeleccionadas">
-                  <span class="nombre-cat">{{ cat }}</span>
-                </label>
-              </div>
-
-            </div> 
-          </div> <p class="informacion-resultados"> 
-            {{ productosFiltrados.length }} productos encontrados <span class="texto-verde">(en un radio de {{ radioActual }} km)</span>
-          </p>
         </div>
-      </div>
-    <MostrarProductos :productos="productosFiltrados" :radioMaximo="radioActual"></MostrarProductos>
+        <MostrarProductos :productos="productosFiltrados" :radioMaximo="radioActual"></MostrarProductos>
     </div>
 </template>
 

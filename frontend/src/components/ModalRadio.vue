@@ -4,24 +4,51 @@ import { ref, computed, watch } from 'vue';
 const propiedades = defineProps(['mostrar', 'distanciaInicial']);
 const emitir = defineEmits(['cerrar', 'confirmar']);
 
-const radioTemporal = ref(propiedades.distanciaInicial || 10);
-const minimo = 1;
-const maximo = 20000;
+const minimoInterno = 0; 
+const maximo = 200; 
+
+const maximoSlider = computed(() => maximo + 1);
+
+const etiquetas = computed(() => [
+  { valor: 0, texto: `1 km` },
+  { valor: maximo / 2, texto: `${maximo / 2} km` },
+  { valor: maximoSlider.value, texto: 'Sin límite' }
+]);
+
+
+const normalizarEntrada = (valor) => {
+  if (valor === Infinity || valor >= maximoSlider.value) return maximoSlider.value;
+  if (valor <= 1) return 0;
+  return valor;
+};
+
+const radioTemporal = ref(normalizarEntrada(propiedades.distanciaInicial));
+
+const esIlimitado = computed(() => radioTemporal.value === maximoSlider.value);
+
+const valorAMostrar = computed(() => {
+  if (esIlimitado.value) return 'Sin límite';
+  return `${Math.max(1, radioTemporal.value)} km`;
+});
+
+const calcularPorcentaje = (valor) => {
+  return ((valor - minimoInterno) * 100) / (maximoSlider.value - minimoInterno);
+};
 
 const tamanoFondo = computed(() => {
-  const porcentaje = ((radioTemporal.value - minimo) * 100) / (maximo - minimo);
-  return `${porcentaje}% 100%`;
+  return `${calcularPorcentaje(radioTemporal.value)}% 100%`;
 });
 
 watch(() => propiedades.mostrar, (seEstaMostrando) => {
   if (seEstaMostrando) {
-    radioTemporal.value = propiedades.distanciaInicial;
+    radioTemporal.value = normalizarEntrada(propiedades.distanciaInicial);
   }
 });
 
-watch(() => propiedades.distanciaInicial, (nuevoValor) => {
-  radioTemporal.value = nuevoValor;
-});
+const confirmarSeleccion = () => {
+  const valorFinal = esIlimitado.value ? Infinity : Math.max(1, radioTemporal.value);
+  emitir('confirmar', valorFinal);
+};
 </script>
 
 <template>
@@ -36,38 +63,61 @@ watch(() => propiedades.distanciaInicial, (nuevoValor) => {
         <h2>Radio de Búsqueda</h2>
       </div>
 
-      <p class="texto-descripcion">Selecciona la distancia máxima para buscar productos frescos cerca de ti</p>
+      <p class="texto-descripcion">
+        Selecciona la distancia máxima para buscar productos frescos cerca de ti
+      </p>
 
       <div class="bloque-valor">
-        <span class="cifra-grande">{{ radioTemporal }} km</span>
-        <span class="subtexto-etiqueta">Distancia máxima de búsqueda</span>
+        <span class="cifra-grande">
+          {{ valorAMostrar }}
+        </span>
+        <span class="subtexto-etiqueta">
+          {{ esIlimitado ? 'Mostrando todos los productos' : 'Distancia máxima de búsqueda' }}
+        </span>
       </div>
 
       <div class="area-deslizador">
-        <input 
-          type="range" 
-          v-model="radioTemporal" 
-          :min="minimo" 
-          :max="maximo"
-          :style="{ backgroundSize: tamanoFondo }"
-          class="entrada-rango"
-        >
-        <div class="etiquetas-rango">
-          <span>{{ minimo }} km</span>
-          <span>25 km</span>
-          <span>{{ maximo }} km</span>
+        <div class="contenedor-input">
+          <input 
+            type="range" 
+            v-model.number="radioTemporal" 
+            :min="minimoInterno" 
+            :max="maximoSlider"
+            :style="{ backgroundSize: tamanoFondo }"
+            class="entrada-rango"
+          >
+          <div class="etiquetas-rango">
+            <span 
+              v-for="(etiqueta, index) in etiquetas" 
+              :key="index"
+              class="etiqueta-item"
+              :style="{ 
+                left: `${calcularPorcentaje(etiqueta.valor)}%`,
+                transform: index === 0 ? 'translateX(0)' : index === etiquetas.length - 1 ? 'translateX(-100%)' : 'translateX(-50%)'
+              }"
+            >
+              {{ etiqueta.texto }}
+            </span>
+          </div>
         </div>
       </div>
 
       <div class="cuadro-informativo">
-        <div class="icono-ubicacion"><img src="../assets/iconos/ubicacion.png" alt="Ubicacion"></div>
+        <div class="icono-ubicacion">
+          <img src="../assets/iconos/ubicacion.png" alt="Ubicación">
+        </div>
         <div class="contenido-info">
-          <p>Buscaremos productos en un radio de <strong>{{ radioTemporal }} km</strong> desde tu ubicación</p>
+          <p v-if="!esIlimitado">
+            Buscaremos productos en un radio de <strong>{{ Math.max(1, radioTemporal) }} km</strong> desde tu ubicación
+          </p>
+          <p v-else>
+            Buscaremos productos en <strong>cualquier distancia</strong> desde tu ubicación
+          </p>
           <span>Productos en tu zona</span>
         </div>
       </div>
 
-      <button class="boton-confirmacion" @click="$emit('confirmar', radioTemporal)">
+      <button class="boton-confirmacion" @click="confirmarSeleccion">
         Confirmar Radio de Búsqueda
       </button>
     </div>
@@ -86,7 +136,7 @@ watch(() => propiedades.distanciaInicial, (nuevoValor) => {
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  font-family: sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 .contenedor-modal {
@@ -138,6 +188,7 @@ watch(() => propiedades.distanciaInicial, (nuevoValor) => {
   font-size: 20px;
   margin: 0;
   color: #1a1a1a;
+  font-weight: 700;
 }
 
 .texto-descripcion {
@@ -150,41 +201,54 @@ watch(() => propiedades.distanciaInicial, (nuevoValor) => {
 .bloque-valor {
   text-align: center;
   margin-bottom: 30px;
+  min-height: 70px;
 }
 
 .cifra-grande {
   display: block;
-  font-size: 48px;
+  font-size: 44px;
   font-weight: 700;
   color: #4CA626;
   line-height: 1;
 }
 
 .subtexto-etiqueta {
-  font-size: 13px;
-  color: #888;
+  font-size: 12px;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 8px;
+  display: block;
 }
 
 .area-deslizador {
-  margin-bottom: 30px;
+  margin-bottom: 40px;
+}
+
+.contenedor-input {
+  position: relative;
+  width: 100%;
 }
 
 .entrada-rango {
   appearance: none;
   -webkit-appearance: none;
-  width: 100%; height: 8px;
+  width: 100%; 
+  height: 8px;
   border-radius: 5px;
   background: #ebebeb;
   background-image: linear-gradient(#1a1a1a, #1a1a1a);
   background-repeat: no-repeat;
   cursor: pointer;
   outline: none;
+  display: block;
 }
 
 .entrada-rango::-webkit-slider-thumb {
   appearance: none;
   -webkit-appearance: none;
-  height: 22px; width: 22px;
+  height: 22px; 
+  width: 22px;
   border-radius: 50%;
   background: white;
   border: 2px solid #1a1a1a;
@@ -192,26 +256,36 @@ watch(() => propiedades.distanciaInicial, (nuevoValor) => {
 }
 
 .etiquetas-rango {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
+  position: relative;
+  width: 100%;
+  height: 20px;
+  margin-top: 12px;
+}
+
+.etiqueta-item {
+  position: absolute;
   color: #AAAAAA;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  top: 0;
 }
 
 .cuadro-informativo {
   background: #f1fdf5;
   border-radius: 16px;
   padding: 16px;
-  display: flex; gap: 12px;
+  display: flex; 
+  gap: 12px;
   margin-bottom: 24px;
 }
 
 .icono-ubicacion { 
-  font-size: 18px;
+  display: flex;
+  align-items: center;
 }
 
-.icono-ubicacion img { 
+.icono-ubicacion img {
   width: 30px;
   height: 30px;
 }
@@ -244,10 +318,15 @@ watch(() => propiedades.distanciaInicial, (nuevoValor) => {
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .boton-confirmacion:hover {
-  background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.boton-confirmacion:active {
+  transform: translateY(0px);
 }
 </style>
