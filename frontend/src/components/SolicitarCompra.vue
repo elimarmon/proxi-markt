@@ -3,6 +3,8 @@ import { reactive } from "vue";
 
 const emit = defineEmits(['enviar-solicitud']);
 
+const props = defineProps({ precio: { type: [Number, String], required: true } })
+
 const form = reactive({
     cantidad: null,
     fecha: null,
@@ -21,7 +23,7 @@ const enviarSolicitud = async () => {
 <template>
     <form @submit.prevent="enviarSolicitud" class="formulario-compra">
         <h3>Solicitar compra</h3>
-        
+
         <div class="campo">
             <label for="cantidad">Cantidad</label>
             <input v-model="form.cantidad" type="number" id="cantidad" min="1">
@@ -34,16 +36,11 @@ const enviarSolicitud = async () => {
 
         <div class="campo">
             <label for="mensaje">Mensaje al vendedor (opcional)</label>
-            <textarea 
-                v-model="form.mensaje" 
-                id="mensaje" 
-                placeholder="Escribe un mensaje..."
-            ></textarea>
+            <textarea v-model="form.mensaje" id="mensaje" placeholder="Escribe un mensaje..."></textarea>
         </div>
 
         <div class="resumen-total" v-if="precio">
             <span>Total:</span>
-            <!-- El toFixed es per a que soles apareixquen 2 decimals -->
             <strong>{{ (form.cantidad * precio).toFixed(2) }}€</strong>
         </div>
 
@@ -74,7 +71,8 @@ label {
     margin-bottom: 8px;
 }
 
-input, textarea {
+input,
+textarea {
     width: 100%;
     padding: 12px;
     border: 1px solid #eee;
@@ -86,7 +84,8 @@ input, textarea {
     transition: border-color 0.2s;
 }
 
-input:focus, textarea:focus {
+input:focus,
+textarea:focus {
     border-color: #4CA626;
     background-color: #fff;
 }
