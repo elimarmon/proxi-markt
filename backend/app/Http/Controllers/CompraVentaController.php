@@ -83,10 +83,19 @@ class CompraVentaController extends Controller
 
     public function misVentas() {
         $ventas = CompraVenta::where('id_vendedor', Auth::id())
-            ->with('producto')
-            ->orderBy('created_at', 'desc')
-            ->get();
+                        ->with(['producto', 'comprador'])
+                        ->orderBy('created_at', 'desc')
+                        ->get();
 
         return response()->json($ventas);
+    }
+
+    public function misComandas($id) {
+        $compra = CompraVenta::with(['producto', 'usuario'])->find($id);
+        if (!$compra) {
+            return response()->json(['message' => 'Solicitud de compra no encontrada'], 404);
+        }
+
+        return response()->json($compra, 200);
     }
 }

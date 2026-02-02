@@ -8,9 +8,16 @@
             </p>
         </div>
 
-        <div id="contenedor-mensajes">
-            Apartado mensajes
+    <div id="contenedor-mensajes">
+      <div v-if="mensajes.length == 0" class="sin-mensajes">
+        Aún no tienes mensajes
+      </div>
+      
+      <div v-else>
+        <div class="mensaje">
+          <img src="../assets/iconos/cuenta.png" alt="icono-cuenta">
         </div>
+      </div>
     </div>
 </template>
 
@@ -20,6 +27,9 @@ import axios from "axios";
 import { useRouter } from "vue-router";
 import navbar from "./nav.vue";
 
+
+const router = useRouter();
+const mensajes = ref([]);
 </script>
 
 <style scoped>
@@ -45,10 +55,10 @@ body {
 }
 
 .titulo {
-    font-family: sans-serif;
-    color: #4ca626;
-    margin-bottom: 10px;
-    font-weight: bold;
+  font-family: sans-serif;
+  color: #4CA626;
+  margin-bottom: 10px;
+  font-weight: bold;
 }
 
 .subtitulo {
@@ -64,5 +74,19 @@ body {
     display: flex;
     gap: 20px;
     margin-bottom: 20px;
+}
+
+.sin-mensajes {
+  width: 100%;
+  text-align: center;
+  margin-top: 50px;
+  color: #999999;
+  font-size: 1.2rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  padding: 30px;
+  border: 1px solid #EEEEEE;
+  border-radius: 12px;
+  background-color: #FAFAFA;
 }
 </style>
