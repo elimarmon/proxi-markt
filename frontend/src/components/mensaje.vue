@@ -3,60 +3,20 @@
   <div class="contenedor-pagina">
     <div id="contenedor-titulo">
       <h1 class="titulo">Mensajes</h1>
-      <p class="subtitulo">Conversaciones con compradores y vendedores</p>
+      <p class="subtitulo">
+        Conversaciones con compradores y vendedores
+      </p>
     </div>
 
     <div id="contenedor-mensajes">
-      <div class="contenido-mensajes">
-        <div class="mensaje-card">
-          <div class="mensaje-avatar">
-            <img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-cuenta">
-          </div>
-
-          <div class="mensaje-info">
-            <div class="mensaje-header">
-              <h3 class="nombre-usuario">Juan Martínez Ruiz</h3>
-              <span class="fecha-mensaje">17 dic</span>
-            </div>
-
-            <div class="producto-tag">Tomates Ecológicos</div>
-
-            <p class="texto-ultimo">Perfecto, nos vemos mañana a las 10.</p>
-          </div>
+      <div v-if="mensajes.length == 0" class="sin-mensajes">
+        Aún no tienes mensajes
+      </div>
+      
+      <div v-else>
+        <div class="mensaje">
+          <img src="../assets/iconos/cuenta.png" alt="icono-cuenta">
         </div>
-
-        <div class="mensaje-card">
-          <div class="mensaje-avatar" style="background-color: #FF9800;">
-             <img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-cuenta">
-          </div>
-          <div class="mensaje-info">
-            <div class="mensaje-header">
-              <h3 class="nombre-usuario">Ana Gómez</h3>
-              <span class="fecha-mensaje">16 dic</span>
-            </div>
-            <div class="producto-tag">
-              Miel de Abeja
-            </div>
-            <p class="texto-ultimo">
-              ¿Sigue disponible este producto?
-            </p>
-          </div>
-        </div>
-
-        <div class="mensaje-card">
-          <div class="mensaje-avatar">
-            <img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-cuenta">
-          </div>
-          <div class="mensaje-info">
-            <div class="mensaje-header">
-              <h3 class="nombre-usuario">Carlos Ruiz</h3>
-              <span class="fecha-mensaje">15 dic</span>
-            </div>
-            <div class="producto-tag">Aceite de Oliva</div>
-            <p class="texto-ultimo">Gracias por la respuesta.</p>
-          </div>
-        </div>
-
       </div>
     </div>
   </div>
@@ -68,8 +28,9 @@ import axios from "axios";
 import { useRouter } from "vue-router";
 import navbar from "./nav.vue";
 
-const router = useRouter();
 
+const router = useRouter();
+const mensajes = ref([]);
 </script>
 
 <style scoped>
@@ -128,76 +89,5 @@ body {
   border: 1px solid #EEEEEE;
   border-radius: 12px;
   background-color: #FAFAFA;
-}
-
-.contenido-mensajes {
-  width: 100%;
-}
-
-.mensaje-card {
-  display: flex;
-  padding: 15px 0;
-  border-bottom: 1px solid #f0f0f0;
-  gap: 15px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.mensaje-card:hover {
-  background-color: #fcfcfc;
-}
-
-.mensaje-avatar {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.mensaje-info {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.mensaje-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-}
-
-.nombre-usuario {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-}
-
-.fecha-mensaje {
-  font-size: 0.8rem;
-  color: #888;
-}
-
-.producto-tag {
-  display: inline-block;
-  align-self: flex-start;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 2px 10px;
-  font-size: 0.75rem;
-  color: #444;
-  margin-bottom: 6px;
-  background-color: white;
-}
-
-.texto-ultimo {
-  font-size: 0.95rem;
-  color: #555;
-  margin: 0;
-  line-height: 1.4;
 }
 </style>
