@@ -72,7 +72,7 @@ onMounted(() => {
                             <img src="../assets/iconos/filtro.png" alt="filtro" class="icono-pequeno" />
                             <span>
                                 {{ categoriasSeleccionadas.length > 0 ? `Filtros (${categoriasSeleccionadas.length})` :
-                                'Filtros' }}
+                                    'Filtros' }}
                             </span>
                         </button>
 
@@ -86,8 +86,10 @@ onMounted(() => {
                     </div>
                 </div>
                 <p class="informacion-resultados">
-                    {{ productosFiltrados.length }} productos encontrados <span class="texto-verde">(en un radio de {{
-                        radioActual }} km)</span>
+                    {{ productosFiltrados.length }} productos encontrados
+                    <span class="texto-verde">
+                        ({{ radioActual === Infinity ? 'sin límite' : 'en un radio de ' + radioActual + ' km' }})
+                    </span>
                 </p>
             </div>
         </div>
