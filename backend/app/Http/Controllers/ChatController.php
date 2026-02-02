@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Chat;
+use Illuminate\Http\Request;
+
+class ChatController extends Controller
+{
+    public function index()
+    {
+        $usuarioId = auth()->id();
+
+        // esta funcio el que fa es mostrar tots els teus chats
+        return Chat::where('id_comprador', $usuarioId)
+            ->orWhere('id_vendedor', $usuarioId)
+            ->with(['producto', 'comprador', 'vendedor', 'mensajes' => function($q) {
+                // i esta funcio el que fa es mostrar el ultim mensatge que sa enviat en eixe chat
+                $q->latest()->limit(1); 
+            }])
+            ->get();
+    }
+
+    public function show($id)
+    {
+        // la magia de laravel, porta tots els mensatges relacionats al chat i 
+        // tambe porta informacio del producte
+        $chat = Chat::with('mensajes.emisor', 'producto')->findOrFail($id);
+        
+        // per a que ningun usuario sense loguejar puga vore els mensatges
+        if (auth()->id() !== $chat->id_comprador && auth()->id() !== $chat->id_vendedor) {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
+
+        return $chat;
+    }
+}

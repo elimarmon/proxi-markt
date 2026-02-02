@@ -1,8 +1,7 @@
 <script setup>
-import SolicitarCompra from './SolicitarCompra.vue';
-import { ref, onMounted } from 'vue';
+import { reactive, onMounted, ref } from 'vue';
 import axios from 'axios';
-import navbar from './nav.vue' // Asegúrate que el nombre del archivo sea exacto (Nav.vue o nav.vue)
+import navbar from './nav.vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -28,9 +27,6 @@ const formulario = reactive({
     imagen: null
 });
 
-// URL Base para evitar repeticiones (Considera usar variables de entorno)
-const API_BASE = 'http://localhost:8080';
-
 const seleccionarArchivo = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -41,9 +37,8 @@ const seleccionarArchivo = (e) => {
 
 const CargarProducto = async () => {
     try {
-        const respuesta = await axios.get(`${API_BASE}/api/productos/${props.id}`);
+        const respuesta = await axios.get(`http://localhost:8080/api/productos/${props.id}`);
         Object.assign(formulario, respuesta.data);
-        // Resetear selección de archivo local al cargar datos nuevos
         imagenPreview.value = null;
         archivoImagen.value = null;
     } catch (error) {
@@ -56,7 +51,7 @@ const editarProducto = async () => {
 
     const data = new FormData();
     // Laravel requiere _method PUT cuando se envía FormData via POST
-    data.append('_method', 'PUT'); 
+    data.append('_method', 'PUT');
     data.append('nombre_producto', formulario.nombre_producto);
     data.append('descripcion', formulario.descripcion || '');
     data.append('precio', formulario.precio);
@@ -68,7 +63,7 @@ const editarProducto = async () => {
     }
 
     try {
-        const respuesta = await axios.post(`${API_BASE}/api/productos/${props.id}`, data, {
+        const respuesta = await axios.post(`http://localhost:8080/api/productos/${props.id}`, data, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'multipart/form-data'
@@ -81,17 +76,12 @@ const editarProducto = async () => {
     } catch (error) {
         console.error("Error al editar:", error);
     }
-    axios.post(`http://localhost:8080/api/compraventa/${props.id}`, payload, { 
-        headers: { 
-            'Authorization': `Bearer ${token}`
-        } 
-    });
 }
 
 const CargarPuntos = async () => {
     const token = localStorage.getItem('token');
     try {
-        const resposta = await axios.get(`${API_BASE}/api/puntosuser`, {
+        const resposta = await axios.get(`http://localhost:8080/api/puntosuser`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
@@ -118,12 +108,14 @@ onMounted(() => {
             <form @submit.prevent="editarProducto">
                 <div class="grupo-campo">
                     <label for="nombre">Nombre producto</label>
-                    <input v-model="formulario.nombre_producto" type="text" id="nombre" placeholder="Ej: Manzanas Orgánicas">
+                    <input v-model="formulario.nombre_producto" type="text" id="nombre"
+                        placeholder="Ej: Manzanas Orgánicas">
                 </div>
 
                 <div class="grupo-campo">
                     <label for="descripcion">Descripción del producto</label>
-                    <input v-model="formulario.descripcion" type="text" id="descripcion" placeholder="Breve descripción...">
+                    <input v-model="formulario.descripcion" type="text" id="descripcion"
+                        placeholder="Breve descripción...">
                 </div>
 
                 <div class="grupo-campo">
@@ -153,9 +145,10 @@ onMounted(() => {
                     <label>Imagen del producto</label>
 
                     <div class="preview-container" v-if="imagenPreview || formulario.imagen">
-                        <img :src="imagenPreview || `${API_BASE}/storage/${formulario.imagen}`"
-                            alt="Vista previa" class="foto-preview" />
-                        <p class="texto-ayuda-foto">{{ imagenPreview ? 'Nueva imagen seleccionada' : 'Imagen actual' }}</p>
+                        <img :src="imagenPreview || `http://localhost:8080/storage/${formulario.imagen}`" alt="Vista previa"
+                            class="foto-preview" />
+                        <p class="texto-ayuda-foto">{{ imagenPreview ? 'Nueva imagen seleccionada' : 'Imagen actual' }}
+                        </p>
                     </div>
 
                     <div class="zona-upload">
@@ -172,27 +165,21 @@ onMounted(() => {
                 <button type="submit" class="boton-actualizar">Actualizar Producto</button>
             </form>
         </div>
-      </div>
     </div>
-
-    <div class="description-section">
-      <h3>Descripción</h3>
-      <p>{{ producto.descripcion }}</p>
-    </div>
-  </div>
 </template>
 
 <style scoped>
-
-input, select, textarea, button {
+input,
+select,
+textarea,
+button {
     font-family: inherit;
 }
 
 .contenedor-edicion {
     display: flex;
     justify-content: center;
-    /* Añadimos padding superior extra para evitar que el navbar tape el contenido */
-    padding: 80px 20px 40px; 
+    padding: 80px 20px 40px;
     background-color: #f9f9f9;
     min-height: 100vh;
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -210,17 +197,16 @@ input, select, textarea, button {
     height: fit-content;
 }
 
-.subtitulo {
-  color: #666666;
-  margin-bottom: 30px;
+.titulo-principal {
+    color: #4CA626;
+    font-size: 24px;
+    margin-bottom: 30px;
+    font-weight: bold;
+    text-align: center;
 }
 
-.product-detail-card {
-  display: flex;
-  flex-direction: row; 
-  gap: 40px;
-  background: transparent; 
-  margin-bottom: 40px;
+.grupo-campo {
+    margin-bottom: 20px;
 }
 
 .dos-columnas {
@@ -231,7 +217,7 @@ input, select, textarea, button {
 
 label {
     display: block;
-    font-size: 14px; /* Estandarizado */
+    font-size: 14px;
     font-weight: 600;
     color: #4A5568;
     margin-bottom: 8px;
@@ -285,15 +271,15 @@ select:focus {
     min-height: 120px;
 }
 
-.detail-item {
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
+.zona-upload:hover {
+    background-color: #f9fafb;
+    border-color: #4CA626;
 }
 
 .input-file-oculto {
     position: absolute;
-    top: 0; left: 0;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     opacity: 0;
@@ -301,20 +287,9 @@ select:focus {
     z-index: 2;
 }
 
-.boton-primario {
-  background: linear-gradient(to right, #5cb82a, #008f4c);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 24px;
-  font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
+.diseno-upload {
+    text-align: center;
+    color: #718096;
 }
 
 .icono-nube {
@@ -336,7 +311,7 @@ select:focus {
     object-fit: cover;
     border-radius: 12px;
     border: 3px solid #f0f4f8;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .boton-actualizar {
@@ -362,14 +337,15 @@ select:focus {
     transform: scale(0.98);
 }
 
-/* Responsive móvil */
 @media (max-width: 480px) {
     .contenedor-edicion {
-        padding-top: 70px; /* Ajuste para pantallas pequeñas */
+        padding-top: 70px;
     }
+
     .tarjeta-formulario {
         padding: 20px;
     }
+
     .dos-columnas {
         grid-template-columns: 1fr;
         gap: 0;
