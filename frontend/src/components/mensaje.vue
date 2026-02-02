@@ -1,12 +1,12 @@
 <template>
-  <navbar></navbar>
-  <div class="contenedor-pagina">
-    <div id="contenedor-titulo">
-      <h1 class="titulo">Mensajes</h1>
-      <p class="subtitulo">
-        Conversaciones con compradores y vendedores
-      </p>
-    </div>
+    <navbar></navbar>
+    <div class="contenedor-pagina">
+        <div id="contenedor-titulo">
+            <h1 class="titulo">Mensajes</h1>
+            <p class="subtitulo">
+                Conversaciones con compradores y vendedores
+            </p>
+        </div>
 
     <div id="contenedor-mensajes">
       <div v-if="mensajes.length == 0" class="sin-mensajes">
@@ -19,7 +19,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -35,24 +34,24 @@ const mensajes = ref([]);
 
 <style scoped>
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', 'Arial';
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', 'Arial';
 }
 
 body {
-  min-width: 400px;
+    min-width: 400px;
 }
 
 .contenedor-pagina {
-  margin-top: 80px;
-  padding: 20px 50px;
+    margin-top: 80px;
+    padding: 20px 50px;
 }
 
-#contenedor-titulo{
-  max-width: 90%;
-  margin: 40px auto 0 auto;
+#contenedor-titulo {
+    max-width: 90%;
+    margin: 40px auto 0 auto;
 }
 
 .titulo {
@@ -63,18 +62,18 @@ body {
 }
 
 .subtitulo {
-  font-family: sans-serif;
-  color: #666666;
-  margin-bottom: 20px;
+    font-family: sans-serif;
+    color: #666666;
+    margin-bottom: 20px;
 }
 
 #contenedor-mensajes {
-  max-width: 90%;
-  margin-left: auto;
-  margin-right: auto;
-  display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
 }
 
 .sin-mensajes {

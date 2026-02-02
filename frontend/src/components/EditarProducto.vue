@@ -1,15 +1,14 @@
 <script setup>
 import { reactive, onMounted, ref } from 'vue';
 import axios from 'axios';
-import navbar from './nav.vue'
+import navbar from './nav.vue';
 import { useRouter } from 'vue-router';
 
-const router = useRouter()
+const router = useRouter();
 
-const PuntosEntrega = ref([])
+const PuntosEntrega = ref([]);
 const archivoImagen = ref(null);
 const imagenPreview = ref(null);
-
 
 const props = defineProps({
     id: {
@@ -24,8 +23,9 @@ const formulario = reactive({
     descripcion: "",
     precio: 0,
     stock_total: 0,
-    id_puntoentrega: ""
-})
+    id_puntoentrega: "",
+    imagen: null
+});
 
 const seleccionarArchivo = (e) => {
     const file = e.target.files[0];
@@ -36,23 +36,22 @@ const seleccionarArchivo = (e) => {
 }
 
 const CargarProducto = async () => {
-    const producto = await axios.get('http://localhost:8080/api/productos/' + props.id)
-    const datosproducto = producto.data;
-
-    Object.assign(formulario, datosproducto)
-
-    imagenPreview.value = null;
-    archivoImagen.value = null;
-
+    try {
+        const respuesta = await axios.get(`http://localhost:8080/api/productos/${props.id}`);
+        Object.assign(formulario, respuesta.data);
+        imagenPreview.value = null;
+        archivoImagen.value = null;
+    } catch (error) {
+        console.error("Error cargando producto:", error);
+    }
 }
-
-const emits = defineEmits(['editar']);
 
 const editarProducto = async () => {
     const token = localStorage.getItem('token');
 
     const data = new FormData();
-    data.append('_method', 'PUT'); // per a que laravel eu trate com un PUT
+    // Laravel requiere _method PUT cuando se envía FormData via POST
+    data.append('_method', 'PUT');
     data.append('nombre_producto', formulario.nombre_producto);
     data.append('descripcion', formulario.descripcion || '');
     data.append('precio', formulario.precio);
@@ -63,35 +62,41 @@ const editarProducto = async () => {
         data.append('imagen', archivoImagen.value);
     }
 
-    // fem un post per a que laravel trate be en el archiu
-    const editar = await axios.post('http://localhost:8080/api/productos/' + props.id, data, {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
-        }
-    })
+    try {
+        const respuesta = await axios.post(`http://localhost:8080/api/productos/${props.id}`, data, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data'
+            }
+        });
 
-    if (editar.status === 200) {
-        router.push('/cuenta')
+        if (respuesta.status === 200 || respuesta.status === 204) {
+            router.push('/cuenta');
+        }
+    } catch (error) {
+        console.error("Error al editar:", error);
     }
 }
 
 const CargarPuntos = async () => {
     const token = localStorage.getItem('token');
-    const resposta = await axios.get('http://localhost:8080/api/puntosuser', {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-        }
-    })
-    PuntosEntrega.value = resposta.data;
+    try {
+        const resposta = await axios.get(`http://localhost:8080/api/puntosuser`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            }
+        });
+        PuntosEntrega.value = resposta.data;
+    } catch (error) {
+        console.error("Error cargando puntos:", error);
+    }
 }
 
 onMounted(() => {
     CargarProducto();
     CargarPuntos();
-})
-
+});
 </script>
 
 <template>
@@ -103,12 +108,14 @@ onMounted(() => {
             <form @submit.prevent="editarProducto">
                 <div class="grupo-campo">
                     <label for="nombre">Nombre producto</label>
-                    <input v-model="formulario.nombre_producto" type="text" id="nombre">
+                    <input v-model="formulario.nombre_producto" type="text" id="nombre"
+                        placeholder="Ej: Manzanas Orgánicas">
                 </div>
 
                 <div class="grupo-campo">
-                    <label for="descripcion">Descripcion del producto</label>
-                    <input v-model="formulario.descripcion" type="text" id="descripcion">
+                    <label for="descripcion">Descripción del producto</label>
+                    <input v-model="formulario.descripcion" type="text" id="descripcion"
+                        placeholder="Breve descripción...">
                 </div>
 
                 <div class="grupo-campo">
@@ -127,54 +134,67 @@ onMounted(() => {
                     <input v-model="formulario.precio" type="decimal" id="precio">
                 </div>
 
-                <div class="grupo-campo">
-                    <label for="stock">Stock del producto</label>
-                    <input v-model="formulario.stock_total" type="number" id="stock">
+                    <div class="grupo-campo">
+                        <label for="stock">Stock disponible</label>
+                        <input v-model="formulario.stock_total" type="number" id="stock">
+                    </div>
                 </div>
 
                 <div class="grupo-campo">
-                    <label for="imagen">Imagen del producto (opcional)</label>
+                    <label>Imagen del producto</label>
 
                     <div class="preview-container" v-if="imagenPreview || formulario.imagen">
-                        <img :src="imagenPreview || `http://localhost:8080/storage/${formulario.imagen}`"
-                            alt="Vista previa" class="foto-preview" />
-                        <p class="texto-ayuda">{{ imagenPreview ? 'Nueva imagen seleccionada' : 'Imagen actual' }}</p>
+                        <img :src="imagenPreview || `http://localhost:8080/storage/${formulario.imagen}`" alt="Vista previa"
+                            class="foto-preview" />
+                        <p class="texto-ayuda-foto">{{ imagenPreview ? 'Nueva imagen seleccionada' : 'Imagen actual' }}
+                        </p>
                     </div>
 
                     <div class="zona-upload">
-                        <input type="file" @change="seleccionarArchivo" id="imagen" accept="image/*" class="input-file-oculto">
+                        <input type="file" @change="seleccionarArchivo" id="imagen" accept="image/*"
+                            class="input-file-oculto">
                         <div class="diseno-upload">
                             <span class="icono-nube">↑</span>
-                            <p>Haz clic para subir o arrastra una imagen</p>
+                            <p>Haz clic para cambiar la imagen</p>
                             <small>PNG, JPG o WEBP (máx. 5MB)</small>
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" class="boton-actualizar">Actualizar</button>
+                <button type="submit" class="boton-actualizar">Actualizar Producto</button>
             </form>
         </div>
     </div>
 </template>
 
 <style scoped>
+input,
+select,
+textarea,
+button {
+    font-family: inherit;
+}
+
 .contenedor-edicion {
     display: flex;
     justify-content: center;
-    padding: 60px 20px;
+    /* Añadimos padding superior extra para evitar que el navbar tape el contenido */
+    padding: 80px 20px 40px;
     background-color: #f9f9f9;
     min-height: 100vh;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    box-sizing: border-box;
 }
 
 .tarjeta-formulario {
     background: #ffffff;
     width: 100%;
-    max-width: 650px; /* Un poco más ancha como en la imagen */
-    padding: 40px;
+    max-width: 650px;
+    padding: 32px;
     border-radius: 12px;
     border: 1px solid #edf2f7;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    height: fit-content;
 }
 
 .titulo-principal {
@@ -189,26 +209,35 @@ onMounted(() => {
     margin-bottom: 20px;
 }
 
+.dos-columnas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
 label {
     display: block;
-    font-size: 13.5px;
-    font-weight: 500;
+    font-size: 14px;
+    font-weight: 600;
     color: #4A5568;
     margin-bottom: 8px;
 }
 
-input, select {
+input,
+select {
     width: 100%;
-    padding: 11px 14px;
+    padding: 12px 14px;
     background-color: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     font-size: 14px;
     transition: all 0.2s ease;
     box-sizing: border-box;
+    color: #2d3748;
 }
 
-input:focus, select:focus {
+input:focus,
+select:focus {
     outline: none;
     border-color: #4CA626;
     background-color: #ffffff;
@@ -217,22 +246,29 @@ input:focus, select:focus {
 
 .ayuda-texto {
     font-size: 12px;
-    color: #A0AEC0;
-    margin-top: 4px;
+    color: #718096;
+    margin-top: 6px;
 }
 
-/* Estilos para la zona de carga de imagen */
+.texto-ayuda-foto {
+    font-size: 12px;
+    color: #4CA626;
+    font-weight: 500;
+    margin-top: 8px;
+}
+
 .zona-upload {
     position: relative;
     border: 2px dashed #E2E8f0;
     border-radius: 10px;
-    height: 160px;
+    padding: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     background-color: #fff;
     transition: all 0.2s;
+    min-height: 120px;
 }
 
 .zona-upload:hover {
@@ -242,6 +278,8 @@ input:focus, select:focus {
 
 .input-file-oculto {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     opacity: 0;
@@ -257,31 +295,23 @@ input:focus, select:focus {
 .icono-nube {
     font-size: 24px;
     display: block;
-    margin-bottom: 8px;
-}
-
-.diseno-upload p {
-    font-size: 14px;
-    font-weight: 500;
     margin-bottom: 4px;
-}
-
-.diseno-upload small {
-    font-size: 11px;
-    color: #A0AEC0;
 }
 
 .preview-container {
     margin-bottom: 15px;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .foto-preview {
-    width: 120px;
-    height: 120px;
+    width: 140px;
+    height: 140px;
     object-fit: cover;
-    border-radius: 8px;
-    border: 2px solid #edf2f7;
+    border-radius: 12px;
+    border: 3px solid #f0f4f8;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .boton-actualizar {
@@ -290,10 +320,35 @@ input:focus, select:focus {
     margin-top: 10px;
     border-radius: 8px;
     font-weight: 700;
-    font-size: 15px;
+    font-size: 16px;
     cursor: pointer;
     border: none;
     color: white;
     background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
+    transition: transform 0.1s active, opacity 0.2s;
+}
+
+.boton-actualizar:hover {
+    opacity: 0.95;
+    box-shadow: 0 4px 12px rgba(76, 166, 38, 0.2);
+}
+
+.boton-actualizar:active {
+    transform: scale(0.98);
+}
+
+@media (max-width: 480px) {
+    .contenedor-edicion {
+        padding-top: 70px;
+    }
+
+    .tarjeta-formulario {
+        padding: 20px;
+    }
+
+    .dos-columnas {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
 }
 </style>

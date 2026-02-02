@@ -14,6 +14,7 @@ class CompraVentaController extends Controller
         $compraVentaValidada = $request->validate([
             'id_vendedor' => 'required|exists:usuarios,id',
             'id_punto' => 'required|exists:puntos_entrega,id',
+            'fecha_prevista' => 'required|date',
             'cantidad' => "required|integer|min:1|lte:{$producto->stock_real}",
         ]);
 
@@ -73,9 +74,9 @@ class CompraVentaController extends Controller
 
     public function misCompras() {
         $compras = CompraVenta::where('id_comprador', Auth::id())
-                        ->with('producto')
-                        ->orderBy('created_at', 'desc')
-                        ->get();
+            ->with('producto')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return response()->json($compras);
     }
