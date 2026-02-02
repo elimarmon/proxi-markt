@@ -1,5 +1,6 @@
 <script setup>
-import { reactive, onMounted, ref } from 'vue';
+import SolicitarCompra from './SolicitarCompra.vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import navbar from './nav.vue' // Asegúrate que el nombre del archivo sea exacto (Nav.vue o nav.vue)
 import { useRouter } from 'vue-router';
@@ -80,6 +81,11 @@ const editarProducto = async () => {
     } catch (error) {
         console.error("Error al editar:", error);
     }
+    axios.post(`http://localhost:8080/api/compraventa/${props.id}`, payload, { 
+        headers: { 
+            'Authorization': `Bearer ${token}`
+        } 
+    });
 }
 
 const CargarPuntos = async () => {
@@ -166,11 +172,18 @@ onMounted(() => {
                 <button type="submit" class="boton-actualizar">Actualizar Producto</button>
             </form>
         </div>
+      </div>
     </div>
+
+    <div class="description-section">
+      <h3>Descripción</h3>
+      <p>{{ producto.descripcion }}</p>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-/* Reset de fuentes para elementos de formulario */
+
 input, select, textarea, button {
     font-family: inherit;
 }
@@ -197,16 +210,17 @@ input, select, textarea, button {
     height: fit-content;
 }
 
-.titulo-principal {
-    color: #4CA626;
-    font-size: 24px;
-    margin-bottom: 30px;
-    font-weight: bold;
-    text-align: center;
+.subtitulo {
+  color: #666666;
+  margin-bottom: 30px;
 }
 
-.grupo-campo {
-    margin-bottom: 20px;
+.product-detail-card {
+  display: flex;
+  flex-direction: row; 
+  gap: 40px;
+  background: transparent; 
+  margin-bottom: 40px;
 }
 
 .dos-columnas {
@@ -257,7 +271,6 @@ select:focus {
     margin-top: 8px;
 }
 
-/* Zona de Carga */
 .zona-upload {
     position: relative;
     border: 2px dashed #E2E8f0;
@@ -272,9 +285,10 @@ select:focus {
     min-height: 120px;
 }
 
-.zona-upload:hover {
-    background-color: #f9fafb;
-    border-color: #4CA626;
+.detail-item {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
 }
 
 .input-file-oculto {
@@ -287,9 +301,20 @@ select:focus {
     z-index: 2;
 }
 
-.diseno-upload {
-    text-align: center;
-    color: #718096;
+.boton-primario {
+  background: linear-gradient(to right, #5cb82a, #008f4c);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
 .icono-nube {
