@@ -6,9 +6,9 @@ import ChatDetalle from "./chat.vue";
 
 const chats = ref([]);
 const chatSeleccionadoId = ref(null);
-const idUsuarioLogueado = ref(null); // Guardamos quién eres tú
+const idUsuarioLogueado = ref(null); 
 
-// 1. Obtenemos tu ID para saber si eres el comprador o vendedor
+// saber si eres comprador o vendedor
 const obtenerDatosUsuario = async () => {
     try {
         const token = localStorage.getItem('token');
@@ -21,19 +21,20 @@ const obtenerDatosUsuario = async () => {
     }
 };
 
+// esta funcio es pa pasarli al fill quin chat has seleccionat
 const chatActivo = computed(() => {
     return chats.value.find(c => c.id === chatSeleccionadoId.value);
 });
 
-// 2. EL IF QUE NECESITABAS: Calculamos quién es la otra persona
+// comprobar qui es qui (vendedor, comprador)
 const idReceptorDinamico = computed(() => {
     if (!chatActivo.value || !idUsuarioLogueado.value) return null;
 
     if (chatActivo.value.id_vendedor === idUsuarioLogueado.value) {
-        // Si mi ID es el del vendedor, el receptor es el comprador
+        // si el id del vendedor del chat es el meu, jo soc el vendedor
         return chatActivo.value.id_comprador;
     } else {
-        // Si no soy el vendedor, el receptor es el vendedor
+        // Si no soc el comprador
         return chatActivo.value.id_vendedor;
     }
 });
@@ -72,6 +73,9 @@ onMounted(() => {
             </div>
 
             <div class="ventana-mensajes">
+                <!-- si es selecciona un chat i el usuari esta logejat
+                 enviem al component fill el qui el recibix, 
+                 el producte, y el id de la persona logejada   -->
                 <ChatDetalle 
                     v-if="chatActivo && idUsuarioLogueado" 
                     :id_receptor="idReceptorDinamico" 
@@ -89,19 +93,22 @@ onMounted(() => {
 
 
 <style scoped>
-.contenedor-pagina{
+.contenedor-pagina {
     padding: 50px;
     padding-top: 130px;
+    height: 100vh; 
+    box-sizing: border-box;
+    background-color: #f5f5f5; /* Un fondo sutil para que resalte el layout */
 }
 
 #layout-chat {
     display: grid;
     grid-template-columns: 350px 1fr; 
-    height: 75vh;
+    height: 75vh; 
     background: #ffffff;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
-    overflow: hidden;
+    overflow: hidden; 
     max-width: 95%;
     margin: 20px auto;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
@@ -111,84 +118,50 @@ onMounted(() => {
     border-right: 1px solid #f0f0f0;
     overflow-y: auto;
     background: #fdfdfd;
+    padding: 15px;      
+    display: flex;
+    flex-direction: column;
+    gap: 12px;          
 }
 
 .item-chat {
-    padding: 18px;
-    border-bottom: 1px solid #f5f5f5;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.2s ease;
+    background-color: white;
 }
 
 .item-chat:hover {
-    background: #f1f8e9;
+    background-color: #f9f9f9;
+    border-color: #ddd;
 }
 
 .item-chat.activo {
-    background: #e8f5e9;
-    border-left: 5px solid #4ca626;
+    background-color: #4ca626;
+    border-color: #4ca626;
+    color: white;
 }
 
 .item-chat h3 {
+    margin: 0 0 5px 0;
     font-size: 1rem;
-    color: #333;
-    margin-bottom: 4px;
 }
 
 .item-chat p {
+    margin: 0;
     font-size: 0.85rem;
-    color: #777;
+    opacity: 0.8;
 }
 
 .ventana-mensajes {
     display: flex;
     flex-direction: column;
     background: #ffffff;
+    height: 100%; 
+    overflow: hidden;
     position: relative;
-}
-
-.header-chat {
-    padding: 15px 25px;
-    background: #fafafa;
-    border-bottom: 1px solid #eeeeee;
-}
-
-.header-chat h2 {
-    font-size: 1.1rem;
-    color: #4ca626;
-}
-
-.caja-mensajes {
-    flex: 1;
-    padding: 25px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background-image: linear-gradient(to bottom, #ffffff, #f9f9f9);
-}
-
-.burbuja {
-    max-width: 65%;
-    padding: 12px 16px;
-    border-radius: 18px;
-    font-size: 0.95rem;
-    line-height: 1.4;
-    position: relative;
-}
-
-.propio {
-    align-self: flex-end;
-    background: #4ca626;
-    color: white;
-    border-bottom-right-radius: 4px;
-}
-
-.ajeno {
-    align-self: flex-start;
-    background: #f1f1f1;
-    color: #444;
-    border-bottom-left-radius: 4px;
 }
 
 .vacio {
@@ -196,8 +169,6 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     height: 100%;
-    color: #bbbbbb;
-    font-style: italic;
-    text-align: center;
+    color: #999;
 }
 </style>

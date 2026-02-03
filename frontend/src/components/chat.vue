@@ -1,55 +1,135 @@
 <script setup>
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, onUnmounted, nextTick } from "vue";
 import axios from "axios";
 
-// id_receptor es el ID de la otra persona (calculado por el padre)
+// id_receptor es la persona que rep el mensatge
 const props = defineProps(['id_receptor', 'id_producto', 'chatid', 'mi_id']);
 const mensajes = ref([]);
 const nuevoMensaje = ref("");
+let polling = null;
 
+const bajarmensajes = ref(null);
+
+//funcio de formatear fecha
+const formatearFecha = (fechaRaw) => {
+    //si no nia fecha acaba la funcio
+    if (!fechaRaw) return "";
+
+    // es crea un objecte tipo fecha per al formato
+    const fecha = new Date(fechaRaw);
+
+    // li donem el formato que volem que es mostre
+    return new Intl.DateTimeFormat('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(fecha);
+};
+
+const hacerScrollAlFinal = async () => {
+    //espera a que vue acabe de renderizar els mensatges
+    await nextTick();
+    //comproba que la referencia al contenedor existix
+    if (bajarmensajes.value) {
+        //fa el moviment del scroll
+        bajarmensajes.value.scrollTo({
+            //baixa hasta baix del contenedor de mensatges
+            top: bajarmensajes.value.scrollHeight,
+            behavior: 'instant' // fa que no hi haja animacio de baixar
+        });
+    }
+};
+// obtindre tots els mensatges del chat de les persones
 const cargarMensajes = async () => {
+    //si no hi ha id de chat para la funcio
     if (!props.chatid) return;
     try {
         const token = localStorage.getItem('token');
         const res = await axios.get(`http://localhost:8080/api/chat/${props.chatid}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
+
+        //comparar si els mensatges han aumentat
+        const MensajesNuevos = res.data.mensajes.length !== mensajes.value.length;
+
+        //actualizem la llista de mensatges
         mensajes.value = res.data.mensajes;
+
+        //si nian mensatges nous baixem el scroll
+        if (MensajesNuevos) {
+            hacerScrollAlFinal();
+        }
     } catch (e) {
         console.error("Error al cargar mensajes:", e);
     }
 };
 
 const enviarMensaje = async () => {
+    // per a que el mensatge este bonico sense espais inneccesaris
     if (!nuevoMensaje.value.trim()) return;
     try {
         const token = localStorage.getItem('token');
+
+        //peticio al backend
         await axios.post('http://localhost:8080/api/enviarmensaje', {
-            id_chat: props.chatid,
-            id_vendedor: props.id_receptor, // Enviamos el mensaje al "otro"
-            id_producto: props.id_producto,
-            contenido: nuevoMensaje.value
+            id_chat: props.chatid,   // id del chat actual
+            id_vendedor: props.id_receptor, // a qui li arriba el mensatge
+            id_producto: props.id_producto, // el producte del que estem parlant
+            contenido: nuevoMensaje.value   // el mensatge que senvia
         }, { headers: { Authorization: `Bearer ${token}` } });
-        
+
+        //netejar el mensatge
         nuevoMensaje.value = "";
-        cargarMensajes(); 
+
+        //tornar a carregar els mensatges per a que el nou aparega
+        cargarMensajes();
     } catch (e) {
         console.error("Error al enviar mensaje:", e);
     }
 };
 
-// Si el usuario cambia de chat en la lista, recargamos los mensajes
-watch(() => props.chatid, cargarMensajes);
+const iniciarPolling = () => {
+    //si ja hi habia un polling funcionant el para
+    if (polling) clearInterval(polling);
 
-onMounted(cargarMensajes);
+    //crea un interval y ejecuta la funcio cada 2 segons
+    polling = setInterval(() => {
+        cargarMensajes();
+    }, 2000);
+};
+
+//vigila si la variable cambia
+watch(() => props.chatid, () => {
+    //borra els mensajes vells
+    cargarMensajes();
+    //para el polling vell i comença uno nou
+    iniciarPolling();
+});
+
+
+onMounted(() => {
+    cargarMensajes();
+    iniciarPolling();
+});
+
+// tancar el polling per a que no este tot el rato recargant
+// sense que estigues en la pagina del chat
+onUnmounted(() => {
+    if (polling) clearInterval(polling);
+});
+
 </script>
 
 <template>
     <div class="chat-hijo">
-        <div class="caja-mensajes">
-            <div v-for="m in mensajes" :key="m.id" 
-                 :class="['burbuja', m.id_envio === props.mi_id ? 'propio' : 'ajeno']">
-                {{ m.contenido }}
+        <div class="caja-mensajes" ref="bajarmensajes">
+            <div v-for="m in mensajes" :key="m.id"
+                :class="['burbuja', m.id_envio === props.mi_id ? 'propio' : 'ajeno']">
+                <!-- açi lo que fem es que si el id del que envia el mensatge no es el
+                 que ta la sesio inicia es pinta a un costat o al altre -->
+                <div class="contenido">{{ m.contenido }}</div>
+
+                <div class="hora">{{ formatearFecha(m.created_at) }}</div>
+
             </div>
         </div>
         <div class="input-area">
@@ -63,13 +143,12 @@ onMounted(cargarMensajes);
 .chat-hijo {
     display: flex;
     flex-direction: column;
-    height: 100%; /* Ocupa todo el espacio que le da el padre */
+    height: 100%;
     background-color: #ffffff;
 }
 
-/* Área de los mensajes con scroll */
 .caja-mensajes {
-    flex: 1; /* Empuja el input hacia abajo */
+    flex: 1;
     padding: 20px;
     overflow-y: auto;
     display: flex;
@@ -78,7 +157,6 @@ onMounted(cargarMensajes);
     background-color: #fcfcfc;
 }
 
-/* Burbujas de mensaje */
 .burbuja {
     max-width: 70%;
     padding: 10px 15px;
@@ -93,7 +171,6 @@ onMounted(cargarMensajes);
     background-color: #4ca626;
     color: white;
     border-bottom-right-radius: 4px;
-    box-shadow: 0 2px 4px rgba(76, 166, 38, 0.2);
 }
 
 .ajeno {
@@ -103,7 +180,6 @@ onMounted(cargarMensajes);
     border-bottom-left-radius: 4px;
 }
 
-/* Área de entrada de texto fija abajo */
 .input-area {
     padding: 15px 20px;
     background-color: #ffffff;
@@ -119,8 +195,6 @@ onMounted(cargarMensajes);
     border: 1px solid #dddddd;
     border-radius: 25px;
     outline: none;
-    font-size: 0.9rem;
-    transition: border-color 0.3s;
 }
 
 .input-area input:focus {
@@ -135,20 +209,35 @@ onMounted(cargarMensajes);
     border-radius: 20px;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.3s;
 }
 
-.input-area button:hover {
-    background-color: #3d8a1e;
-}
-
-/* Scrollbar estética */
 .caja-mensajes::-webkit-scrollbar {
     width: 6px;
 }
 
 .caja-mensajes::-webkit-scrollbar-thumb {
-    background-color: #cccccc;
+    background-color: #ddd;
     border-radius: 10px;
+}
+
+.burbuja {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.hora {
+    font-size: 0.7rem;
+    margin-top: 4px;
+    opacity: 0.7;
+    align-self: flex-end;
+}
+
+.propio .hora {
+    color: #e0e0e0;
+}
+
+.ajeno .hora {
+    color: #888;
 }
 </style>

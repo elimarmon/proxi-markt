@@ -25,6 +25,7 @@ class ChatController extends Controller
     {
         // la magia de laravel, porta tots els mensatges relacionats al chat i 
         // tambe porta informacio del producte
+        // posem comprador y vendedor perque la tabla chat te estes dos columnes
         $chat = Chat::with('mensajes.emisor', 'producto', 'comprador', 'vendedor')->findOrFail($id);
         
         // per a que ningun usuario sense loguejar puga vore els mensatges
