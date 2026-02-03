@@ -20,10 +20,13 @@ const inicializarMapa = async () => {
 
     const centroInicial = [39.032719, -0.215864];
 
-    map = L.map('map').setView(centroInicial, 13);
+    map = L.map('map', {
+        minZoom:3,
+    }).setView(centroInicial, 13);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
+        minzoom: 3,
         attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 

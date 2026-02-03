@@ -27,10 +27,13 @@ const GuardarPuntoEntrega = async () => {
 
     await nextTick();
 
-    map = L.map('map').setView([39.032719, -0.215864], 13);
+    map = L.map('map', {
+        miZoom: 3,
+    }).setView([39.032719, -0.215864], 13);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
+        minZoom: 3,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 

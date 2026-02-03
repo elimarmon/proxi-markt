@@ -113,9 +113,13 @@ const inicializarMapa = async () => {
         ubicacionUsuario.value = { lat, lng };
 
         if (!map) {
-            map = L.map('map').setView([lat, lng], 13);
+            map = L.map('map', {
+                minZoom: 3,
+            }).setView([lat, lng], 13);
+
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
+                minZoom: 3,
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
             
