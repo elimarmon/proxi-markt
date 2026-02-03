@@ -1,8 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use Illuminate\Database\QueryException;
+use Exception;
 use Illuminate\Http\Request;
 use App\Models\CompraVenta;
 use App\Models\Producto;
@@ -37,7 +36,7 @@ class CompraVentaController extends Controller
                 'data' => $compraVentaValidada
             ], 201);
 
-        } catch (QueryException $err) {
+        } catch (Exception $err) {
             DB::rollBack();
             return response()->json(['message' => $err->getMessage()], 500);
         }
@@ -83,14 +82,14 @@ class CompraVentaController extends Controller
 
         switch ($compraventa->estado) {
             case 'completado':
-                $producto->update(['stock_reserva' => 0]);
+                $producto->decrement('stock_reserva', $compraventa->cantidad);
                 $producto->decrement('stock_total', $compraventa->cantidad);
                 break;
             case 'cancelado':
-                $producto->update(['stock_reserva' => 0]);
+                $producto->decrement('stock_reserva', $compraventa->cantidad);
                 break;
             default:
-                return response()->json(['message' => 'Estado de transacción erróneo.']);
+                throw new Exception('Estado de transacción erróneo o no procesable.');
         }
     }
 
@@ -105,7 +104,7 @@ class CompraVentaController extends Controller
             $this->completarVenta($compraventa);
             DB::commit();
             return response()->json(['message' => 'Actualización de stock correcta.'], 201) ; 
-        } catch (QueryException $err) {
+        } catch (Exception $err) {
             DB::rollback();
             return response()->json(['message' => $err->getMessage()]);
         }
