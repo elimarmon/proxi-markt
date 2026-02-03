@@ -83,19 +83,34 @@ class CompraVentaController extends Controller
 
     public function misVentas() {
         $ventas = CompraVenta::where('id_vendedor', Auth::id())
-                        ->with(['producto', 'comprador'])
-                        ->orderBy('created_at', 'desc')
-                        ->get();
+            ->with(['producto', 'comprador'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return response()->json($ventas);
     }
 
-    public function misComandas($id) {
-        $compra = CompraVenta::with(['producto', 'usuario'])->find($id);
-        if (!$compra) {
-            return response()->json(['message' => 'Solicitud de compra no encontrada'], 404);
-        }
+    public function misComandas() {
 
-        return response()->json($compra, 200);
+        $userId = Auth::id();
+        $comandas = CompraVenta::where('id_comprador', '=', $userId)->orWhere('id_vendedor', '=', Auth::id())
+            ->where('estado', '=', 'pendiente')->orWhere('estado', '=', 'en curso')
+            ->with(['producto', 'comprador', 'vendedor'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'comprador' => true,
+            'cantidad_encontrada' => $comandas->count(),
+            'datos' => $comandas
+        ], 200);
+    }
+
+    public function actualizarEstado(Request $request, Compraventa $compraventa) {
+        $request->validate([
+            'estado' => 'required|string|in:pendiente,en curso,cancelado,completado'
+        ]);
+
+        $compraventa->update(['estado' => $request->estado]);
     }
 }

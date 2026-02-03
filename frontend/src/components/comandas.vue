@@ -3,50 +3,65 @@
     <div class="contenedor-pagina">
         <div id="contenedor-titulo">
             <h1 class="titulo">Comandas</h1>
-            <p class="subtitulo">Gestiona las solicitudes de compra de tus productos</p>
+            <p class="subtitulo">
+                Gestiona las solicitudes de compra de tus productos
+            </p>
         </div>
         <div class="contenedor-comandas">
-            <img src="../assets/iconos/stock.png" alt="Comandas pendientes" class="icono">
+            <img src="../assets/iconos/stock.png" alt="Comandas pendientes" class="icono" />
             <h3>Comandas pendientes</h3>
-            <p>3 pendientes</p>
+            <p>{{ comandas.length }} pendientes</p>
 
-            <div class="comanda">
-                <img src="../assets/fotos-prueba/tomate.webp" alt="foto-producto" class="foto-producto">
-                <h3>Tomates ecológicos</h3>
-                <p id="estado">Pendiente de Aprobación</p>
+            <p v-if="cargando">Cargando comandas...</p>
+
+            <div v-if="!cargando && comandas.length === 0" class="sin-comandas-texto">
+                <p>No hay comandas pendientes</p>
+            </div>
+
+            <div v-for="comanda in comandas" :key="comanda.id" class="comanda">
+                <img :src="getUrlImagen(comanda.producto?.imagen)" alt="foto-producto" class="foto-producto" />
+
+                <h3>
+                    {{ comanda.producto?.nombre_producto || "Producto desconocido" }}
+                </h3>
+
+                <p id="estado">{{ comanda.estado }}</p>
+
                 <div id="precio-total">
-                    <p>17.50€</p>
+                    <p>{{ comanda.precio_total }}€</p>
                     <p>Total</p>
                 </div>
 
                 <div id="cantidad">
-                    <img src="../assets/iconos/stock.png" alt="icono-cantidad" class="icono">
-                    <p>Cantidad: 5</p>
+                    <img src="../assets/iconos/stock.png" alt="icono-cantidad" class="icono" />
+                    <p>Cantidad: {{ comanda.cantidad }}</p>
                 </div>
 
                 <div id="horario">
-                    <img src="../assets/iconos/calendario.png" alt="icono-calendario" class="icono">
-                    <p>19/1/2026</p>
+                    <img src="../assets/iconos/calendario.png" alt="icono-calendario" class="icono" />
+                    <p>{{ comanda.fecha_prevista }}</p>
                 </div>
 
                 <div id="usuario">
-                    <img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-cuenta" class="icono">
-                    <p>Juan Carlos Martínez</p>
+                    <img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-cuenta" class="icono" />
+                    <p>
+                        {{ comanda.comprador?.nombre_usuario || "Usuario desconocido" }}
+                    </p>
                 </div>
 
                 <div class="mensaje-comprador">
-                    <img src="../assets/iconos/chat-comanda.png" alt="icono-chat" class="icono">
-                    <p>Mensaje del comprador:</p>
-                    <p>...</p>
+                    <img src="../assets/iconos/chat-comanda.png" alt="icono-chat" class="icono" />
+                    <p>Nota del pedido:</p>
+                    <p>{{ comanda.mensaje || "No especificado" }}</p>
                 </div>
 
-                <button>
-                    <img src="../assets/iconos/aceptar.png" alt="icono-aceptar" class="icono">
+                <button v-if="!comprador" @click="actualizarComanda(comanda.id, 'en curso')" class="aceptar">
+                    <img src="../assets/iconos/aceptar.png" alt="icono-aceptar" class="icono" />
                     Aceptar comanda
                 </button>
 
-                <button>
-                    <img src="../assets/iconos/rechazar.png" alt="icono-rechazar" class="icono">
+                <button class="rechazar" @click="actualizarComanda(comanda.id, 'cancelado')">
+                    <img src="../assets/iconos/rechazar.png" alt="icono-rechazar" class="icono" />
                     Rechazar comanda
                 </button>
             </div>
@@ -57,10 +72,58 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import { useRouter } from "vue-router";
 import navbar from "./nav.vue";
 
-const router = useRouter();
+const comandas = ref([]);
+const cargando = ref(true);
+const comprador = ref(false);
+const token = localStorage.getItem("token");
+
+const obtenerComandas = async () => {
+    try {
+        const response = await axios.get("http://localhost:8080/api/miscomandas", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+        });
+
+        comprador.value = response.data.comprador;
+        comandas.value = response.data.datos;
+    } catch (error) {
+        console.error("Error:", error);
+    } finally {
+        cargando.value = false;
+    }
+};
+
+const actualizarComanda = async (id, nuevoEstado) => {
+    try {
+        await axios.put(`http://localhost:8080/api/miscomandas/${id}`,
+            {
+                estado: nuevoEstado
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json"
+                }
+            });
+        obtenerComandas();
+    } catch (err) {
+        alert("Algo ha ido mal.");
+        console.error(err);
+    }
+}
+
+onMounted(() => {
+    obtenerComandas();
+});
+
+const getUrlImagen = (rutaRelativa) => {
+    return rutaRelativa ? `http://localhost:8080/storage/${rutaRelativa}` : "http://localhost:8080/storage/productos/default.png";
+};
 </script>
 
 <style scoped>
@@ -68,7 +131,7 @@ const router = useRouter();
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', 'Arial';
+    font-family: "Segoe UI", "Arial";
 }
 
 body {
@@ -87,7 +150,7 @@ body {
 
 .titulo {
     font-family: sans-serif;
-    color: #4CA626;
+    color: #4ca626;
     margin-bottom: 10px;
     font-weight: bold;
 }
@@ -122,8 +185,8 @@ body {
 
 .contenedor-comandas>p:nth-of-type(1) {
     float: right;
-    background-color: #FFEADA;
-    color: #FF7519;
+    background-color: #ffeada;
+    color: #ff7519;
     padding: 10px 20px;
     border-radius: 8px;
     font-weight: bold;
@@ -131,12 +194,12 @@ body {
 }
 
 .comanda {
-    background: #FFFFFF;
+    background: #ffffff;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     padding: 15px 30px;
     border: 1px solid #eaeaea;
-    border-left: 7px solid #FF7519;
+    border-left: 7px solid #ff7519;
     margin-top: 25px;
     display: grid;
     grid-template-columns: 130px 1fr auto;
@@ -160,18 +223,31 @@ body {
     width: fit-content;
     font-size: 15px;
     background: #fff4e6;
-    color: #FF7519;
+    color: #ff7519;
     padding: 2px 6px;
     border-radius: 4px;
     align-self: start;
     margin-top: 5px;
 }
 
+.sin-comandas-texto {
+    text-align: center;
+    margin-top: 50px;
+    color: #999999;
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    padding: 30px;
+    border: 1px solid #eeeeee;
+    border-radius: 12px;
+    background-color: #fafafa;
+}
+
 .comanda>p:nth-of-type(2) {
     display: inline-flex;
     align-items: center;
-    background-color: #ffEADA;
-    color: #FF7519;
+    background-color: #ffeada;
+    color: #ff7519;
     padding: 6px 15px;
     border-radius: 20px;
     font-size: 0.9rem;
@@ -180,19 +256,6 @@ body {
     grid-column: 2;
     grid-row: 2;
     align-self: start;
-}
-
-.sin-comandas-texto {
-  text-align: center;
-  margin-top: 50px;
-  color: #999999;
-  font-size: 1.2rem;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  padding: 30px;
-  border: 1px solid #eeeeee;
-  border-radius: 12px;
-  background-color: #fafafa;
 }
 
 .comanda>p:nth-of-type(2)::before {
@@ -231,7 +294,7 @@ body {
     align-items: center;
     color: #333333;
     font-size: 0.95rem;
-    background: #FFFFFF;
+    background: #ffffff;
 }
 
 #cantidad {
@@ -257,7 +320,7 @@ body {
 .mensaje-comprador {
     grid-column: 1 / span 3;
     grid-row: 4;
-    background-color: #F0F7FF;
+    background-color: #f0f7ff;
     padding: 20px;
     border-radius: 10px;
     margin-top: 10px;
@@ -272,7 +335,7 @@ body {
 
 .mensaje-comprador p:nth-child(2) {
     display: inline-block;
-    color: #007BFF;
+    color: #007bff;
     font-weight: bold;
     margin-bottom: 8px;
 }
@@ -304,34 +367,29 @@ body {
     height: 25px;
 }
 
-.comanda>button:nth-of-type(1) {
+.aceptar {
     grid-column: 1 / -1;
     width: calc(50% - 10px);
     justify-self: start;
-    background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
+    background: linear-gradient(90deg, #4ca626 0%, #009b58 100%);
     color: white;
     border: none;
 }
 
-.comanda>button:nth-of-type(1):hover {
-    background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
-
+.aceptar:hover {
+    background: linear-gradient(90deg, #008f4c 0%, rgb(1, 104, 59) 100%);
 }
 
-.comanda>button:nth-of-type(1) .icono {
-    filter: brightness(0) invert(1);
-}
-
-.comanda>button:nth-of-type(2) {
+.rechazar {
     grid-column: 1 / -1;
     width: calc(50% - 10px);
     justify-self: end;
     background-color: white;
-    color: #E74C3C;
-    border: 2px solid #E74C3C;
+    color: #e74c3c;
+    border: 2px solid #e74c3c;
 }
 
-.comanda>button:nth-of-type(2):hover {
-    background-color: #FFDDDD;
+.rechazar:hover {
+    background-color: #ffdddd;
 }
 </style>

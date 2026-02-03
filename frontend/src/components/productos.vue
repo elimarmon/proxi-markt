@@ -2,17 +2,61 @@
 import { ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
 import navbar from "./nav.vue";
-// import TarjetaProducto from "@/components/TarjetaProducto.vue";
 import MostrarProductos from './MostrarProductosMain.vue';
 
 const productos = ref([]);
-const radioActual = ref(Number(localStorage.getItem('distancia_guardada')) || 10);
+const radioActual = ref(
+    localStorage.getItem('distancia_guardada') === 'Infinity' 
+    ? Infinity 
+    : (Number(localStorage.getItem('distancia_guardada')) || 10)
+);
 
+const datosUsuario = ref(null);
 const categoriasSeleccionadas = ref([]);
 const menuAbierto = ref(false);
+const cargando = ref(false);
+const textoBusqueda = ref("");
+
+/**
+ * Obtiene los datos del usuario para tener las coordenadas de referencia
+ */
+const obtenerDatosUsuario = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+        const res = await axios.get('http://localhost:8080/api/datosuser', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        datosUsuario.value = res.data;
+    } catch (e) {
+        console.error("Error al obtener ubicación del usuario", e);
+    }
+};
+
+/**
+ * Calcula la distancia real en KM. 
+ */
+const calcularDistanciaReal = (latV, lngV) => {
+    if (!datosUsuario.value || !datosUsuario.value.latitud || !latV || !lngV) {
+        return 999999; 
+    }
+    
+    const miLat = parseFloat(datosUsuario.value.latitud);
+    const miLng = parseFloat(datosUsuario.value.longitud);
+    const vLat = parseFloat(latV);
+    const vLng = parseFloat(lngV);
+
+    const p = Math.PI / 180;
+    const c = Math.cos;
+    const a = 0.5 - c((vLat - miLat) * p) / 2 +
+              c(miLat * p) * c(vLat * p) * (1 - c((vLng - miLng) * p)) / 2;
+    
+    return 12742 * Math.asin(Math.sqrt(a));
+};
 
 const manejarCambioRadio = (nuevoRadio) => {
     radioActual.value = nuevoRadio;
+    localStorage.setItem('distancia_guardada', nuevoRadio);
     mostrarProductos();
 };
 
@@ -23,75 +67,107 @@ const categorias = computed(() => {
 });
 
 const mostrarProductos = async () => {
-    const response = await axios.get("http://localhost:8080/api/productos", {
-        params: {
-            km: radioActual.value
-        }
-    });
-    productos.value = response.data;
-    console.log(response);
+    cargando.value = true;
+    const token = localStorage.getItem('token');
+    const radioParaAPI = radioActual.value === Infinity ? 99999 : radioActual.value;
+
+    try {
+        const response = await axios.get("http://localhost:8080/api/productos", {
+            params: { km: radioParaAPI },
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            }
+        });
+        productos.value = response.data;
+    } catch (error) {
+        console.error("Error al cargar productos:", error);
+    } finally {
+        cargando.value = false;
+    }
 };
 
-  const textoBusqueda = ref("");
+/**
+ * PROPIEDAD COMPUTADA MAESTRA
+ * Ahora incluye el filtro de distancia para que el contador sea real
+ */
+const productosFiltrados = computed(() => {
+    return productos.value.filter(p => {
+        const coincideTexto = !textoBusqueda.value || 
+            p.nombre_producto.toLowerCase().includes(textoBusqueda.value.toLowerCase());
+        
+        const coincideCategoria = categoriasSeleccionadas.value.length === 0 || 
+            categoriasSeleccionadas.value.includes(p.categoria?.nombre_categoria);
+        
+        const dist = calcularDistanciaReal(p.punto_entrega?.latitud, p.punto_entrega?.longitud);
+        const coincideRadio = radioActual.value === Infinity || dist <= radioActual.value;
 
-  const productosFiltrados = computed(() => {
-    return productos.value.filter(p => 
-      (!textoBusqueda.value || p.nombre_producto.toLowerCase().includes(textoBusqueda.value.toLowerCase())) &&
-      (categoriasSeleccionadas.value.length === 0 || categoriasSeleccionadas.value.includes(p.categoria?.nombre_categoria))
-    );
+        return coincideTexto && coincideCategoria && coincideRadio;
+    });
 });
 
 const toggleMenu = () => {
     menuAbierto.value = !menuAbierto.value;
 }
 
-onMounted(() => {
+onMounted(async () => {
+    await obtenerDatosUsuario();
     mostrarProductos();
 });
 </script>
 
 <template>
     <navbar @cambiar-radio="manejarCambioRadio"></navbar>
-  
+
     <div class="contenedor-pagina">
-      <div class="zona-fija">
-        <h1 class="titulo-verde">Productos Frescos y Locales</h1>
-        <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual }} km)</p>
+        <div class="zona-fija">
+            <h1 class="titulo-verde">Productos Frescos y Locales</h1>
+            <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual === Infinity ? '∞' : radioActual }} km)</p>
 
-        <div class="card-busqueda">
-          <div id="buscador">
-            <div class="caja-busqueda">
-              <img src="../assets/iconos/buscar.png" alt="lupa" class="icono-pequeno" />
-              <input v-model="textoBusqueda" class="input-texto" type="text" placeholder="Buscar productos frescos..."/>
+            <div class="card-busqueda">
+                <div id="buscador">
+                    <div class="caja-busqueda">
+                        <img src="../assets/iconos/buscar.png" alt="lupa" class="icono-pequeno" />
+                        <input v-model="textoBusqueda" class="input-texto" type="text"
+                            placeholder="Buscar productos frescos..." />
+                    </div>
+
+                    <div class="caja-filtro-especial">
+                        <button class="boton-secundario"
+                            :class="{ 'activo': menuAbierto || categoriasSeleccionadas.length > 0 }"
+                            @click="toggleMenu">
+                            <img src="../assets/iconos/filtro.png" alt="filtro" class="icono-pequeno" />
+                            <span>
+                                {{ categoriasSeleccionadas.length > 0 ? `Filtros (${categoriasSeleccionadas.length})` :
+                                    'Filtros' }}
+                            </span>
+                        </button>
+
+                        <div v-if="menuAbierto" class="menu-checkboxes">
+                            <label v-for="cat in categorias" :key="cat" class="fila-opcion">
+                                <input type="checkbox" :value="cat" v-model="categoriasSeleccionadas">
+                                <span class="nombre-cat">{{ cat }}</span>
+                            </label>
+                        </div>
+
+                    </div>
+                </div>
+                <p class="informacion-resultados">
+                    {{ productosFiltrados.length }} productos encontrados
+                    <span class="texto-verde">
+                        ({{ radioActual === Infinity ? 'sin límite' : 'en un radio de ' + radioActual + ' km' }})
+                    </span>
+                </p>
             </div>
-
-            <div class="caja-filtro-especial">
-              <button 
-                class="boton-secundario" 
-                :class="{ 'activo': menuAbierto || categoriasSeleccionadas.length > 0 }"
-                @click="toggleMenu"
-              >
-                <img src="../assets/iconos/filtro.png" alt="filtro" class="icono-pequeno"/>
-                <span>
-                  {{ categoriasSeleccionadas.length > 0 ? `Filtros (${categoriasSeleccionadas.length})` : 'Filtros' }}
-                </span>
-              </button>
-
-              <div v-if="menuAbierto" class="menu-checkboxes">
-                <label v-for="cat in categorias" :key="cat" class="fila-opcion">
-                  <input type="checkbox" :value="cat" v-model="categoriasSeleccionadas">
-                  <span class="nombre-cat">{{ cat }}</span>
-                </label>
-              </div>
-
-            </div> 
-          </div> <p class="informacion-resultados"> 
-            {{ productosFiltrados.length }} productos encontrados <span class="texto-verde">(en un radio de {{ radioActual }} km)</span>
-          </p>
         </div>
-
-    </div>
-        <MostrarProductos :productos="productosFiltrados" :radioMaximo="radioActual"></MostrarProductos>
+        
+        <div v-if="cargando" style="text-align: center; padding: 20px;">
+            <p>Cargando productos...</p>
+        </div>
+        <MostrarProductos v-else-if="productosFiltrados.length >= 1" :productos="productosFiltrados" :radioMaximo="radioActual"></MostrarProductos>
+        <div v-else class="mensaje-ayuda">
+            <p>No se han encontrado productos.</p>
+        </div>
     </div>
 </template>
 
@@ -139,6 +215,17 @@ body {
     padding-left: max(40px, calc((100% - 1200px) / 2 + 40px));
     padding-right: max(40px, calc((100% - 1200px) / 2 + 40px));
     box-sizing: border-box;
+}
+
+.mensaje-ayuda, .mensaje-informativo {
+    margin: 40px auto;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    font-size: 1.1rem;
+    padding: 20px;
+    background: #fdfdfd;
+    border-radius: 8px;
 }
 
 .card-busqueda {

@@ -52,6 +52,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/miscompras', [CompraVentaController::class, 'misCompras']);
     Route::get('/misventas', [CompraVentaController::class, 'misVentas']);
     Route::get('/miscomandas/{id}', [CompraVentaController::class, 'misComandas']);
+    Route::get('/miscomandas', [CompraVentaController::class, 'misComandas']);
+    Route::put("/miscomandas/{compraventa}", [CompraVentaController::class, 'actualizarEstado']);
 
     // Rutas de chat
 
@@ -61,4 +63,5 @@ Route::middleware('auth:sanctum')->group(function () {
     // Rutas de mensajes
 
     Route::post('/enviarmensaje', [MensajesController::class, 'store']);
+
 });
