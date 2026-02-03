@@ -83,9 +83,9 @@ class CompraVentaController extends Controller
 
     public function misVentas() {
         $ventas = CompraVenta::where('id_vendedor', Auth::id())
-                        ->with(['producto', 'comprador'])
-                        ->orderBy('created_at', 'desc')
-                        ->get();
+            ->with(['producto', 'comprador'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return response()->json($ventas);
     }
@@ -94,14 +94,22 @@ class CompraVentaController extends Controller
 
         $userId = Auth::id();
         $comandas = CompraVenta::where('id_comprador', $userId)
-        ->with(['producto', 'comprador'])
-        ->orderBy('created_at', 'desc')
-        ->get();
+            ->with(['producto', 'comprador'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return response()->json([
-        'comprador' => true,
-        'cantidad_encontrada' => $comandas->count(),
-        'datos' => $comandas
-    ], 200);
+            'comprador' => true,
+            'cantidad_encontrada' => $comandas->count(),
+            'datos' => $comandas
+        ], 200);
+    }
+
+    public function actualizarEstado(Request $request, Compraventa $compraventa) {
+        $request->validate([
+            'estado' => 'required|string|in:pendiente,en curso,cancelado,completado'
+        ]);
+
+        $compraventa->update(['estado' => $request->estado]);
     }
 }

@@ -1,4 +1,4 @@
-site_name: Proxi Markt Documentation
+site_name: Proxi Markt
 site_description: Documentación de la base de datos y sistema de Proxi Markt
 
 # Extensiones de Markdown
@@ -22,8 +22,9 @@ markdown_extensions:
 nav:
   - Inicio: index.md
   - Iniciar proyecto: documentacion_iniciar_proyecto.md
-  - Base de Datos: documentacio_bd.md
+  - Base de datos: documentacio_bd.md
   - Prototipo: documentacion_prototipo.md
+  - Documentación código: documentacion_codigo.md
 
 # Plugins adicionales
 plugins:

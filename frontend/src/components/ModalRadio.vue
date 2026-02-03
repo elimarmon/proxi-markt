@@ -15,7 +15,6 @@ const etiquetas = computed(() => [
   { valor: maximoSlider.value, texto: 'Sin límite' }
 ]);
 
-
 const normalizarEntrada = (valor) => {
   if (valor === Infinity || valor >= maximoSlider.value) return maximoSlider.value;
   if (valor <= 1) return 0;
