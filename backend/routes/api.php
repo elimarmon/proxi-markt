@@ -49,4 +49,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/miscompras', [CompraVentaController::class, 'misCompras']);
     Route::get('/misventas', [CompraVentaController::class, 'misVentas']);
     Route::get('/miscomandas', [CompraVentaController::class, 'misComandas']);
+    Route::put("/miscomandas/{compraventa}", [CompraVentaController::class, 'actualizarEstado']);
 });
