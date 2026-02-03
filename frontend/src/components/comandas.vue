@@ -110,6 +110,7 @@ const actualizarComanda = async (id, nuevoEstado) => {
                     Accept: "application/json"
                 }
             });
+        obtenerComandas();
     } catch (err) {
         alert("Algo ha ido mal.");
         console.error(err);
