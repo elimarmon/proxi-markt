@@ -7,9 +7,9 @@ use Illuminate\Http\Request;
 
 class ChatController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $usuarioId = auth()->id();
+        $usuarioId = $request->user()->id;
 
         // esta funcio el que fa es mostrar tots els teus chats
         return Chat::where('id_comprador', $usuarioId)
@@ -25,7 +25,7 @@ class ChatController extends Controller
     {
         // la magia de laravel, porta tots els mensatges relacionats al chat i 
         // tambe porta informacio del producte
-        $chat = Chat::with('mensajes.emisor', 'producto')->findOrFail($id);
+        $chat = Chat::with('mensajes.emisor', 'producto', 'comprador', 'vendedor')->findOrFail($id);
         
         // per a que ningun usuario sense loguejar puga vore els mensatges
         if (auth()->id() !== $chat->id_comprador && auth()->id() !== $chat->id_vendedor) {

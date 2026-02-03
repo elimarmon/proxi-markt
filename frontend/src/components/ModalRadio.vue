@@ -6,7 +6,7 @@ const emitir = defineEmits(['cerrar', 'confirmar']);
 
 const radioTemporal = ref(propiedades.distanciaInicial || 10);
 const minimo = 1;
-const maximo = 50;
+const maximo = 5000;
 
 const tamanoFondo = computed(() => {
   const porcentaje = ((radioTemporal.value - minimo) * 100) / (maximo - minimo);

@@ -10,7 +10,7 @@ class Chat extends Model
 
     public function mensajes()
     {
-        return $this->hasMany(Mensaje::class, 'id_chat');
+        return $this->hasMany(Mensajes::class, 'id_chat');
     }
 
     public function producto()
