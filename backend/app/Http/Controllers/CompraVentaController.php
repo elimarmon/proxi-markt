@@ -93,8 +93,9 @@ class CompraVentaController extends Controller
     public function misComandas() {
 
         $userId = Auth::id();
-        $comandas = CompraVenta::where('id_comprador', $userId)
-            ->with(['producto', 'comprador'])
+        $comandas = CompraVenta::where('id_comprador', '=', $userId)->orWhere('id_vendedor', '=', Auth::id())
+            ->where('estado', '=', 'pendiente')->orWhere('estado', '=', 'en curso')
+            ->with(['producto', 'comprador', 'vendedor'])
             ->orderBy('created_at', 'desc')
             ->get();
 
