@@ -1,3 +1,45 @@
+<script setup>
+import { ref, onMounted } from "vue";
+import axios from "axios";
+import navbar from "./nav.vue";
+
+const productosUser = ref([]);
+const misCompras = ref([]);
+const misVentas = ref([]);
+
+const getConfig = () => {
+    const token = localStorage.getItem('token');
+    return {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+        }
+    };
+};
+
+const cargarProductosUser = async () => {
+    
+    const response = await axios.get(`http://localhost:8080/api/usuarios/${userId}/productos`, getConfig());
+    productosUser.value = response.data;
+};
+
+const obtenerCompras = async () => {
+    const response = await axios.get('http://localhost:8080/api/mis-compras', getConfig());
+    misCompras.value = response.data;
+};
+
+const obtenerVentas = async () => {
+    const response = await axios.get('http://localhost:8080/api/mis-ventas', getConfig());
+    misVentas.value = response.data;
+};
+
+onMounted(() => {
+    cargarProductosUser();
+    obtenerCompras();
+    obtenerVentas();
+});
+</script>
+
 <template>
     <navbar></navbar>
     <div class="contenedor-pagina">
@@ -9,13 +51,13 @@
         <div class="cajas-informacion-uno">
             <div class="caja">
                 <h3>Mis productos</h3>
-                <p>{{ ProductosUser.length }}</p>
+                <p>{{ productosUser.length }}</p>
                 <img src="../assets/iconos/brote.png" class="icono" />
             </div>
 
             <div class="caja">
                 <h3>Stock total</h3>
-                <p>{{ProductosUser.reduce((total, producto) => total + (producto.stock_total || 0), 0)}}</p>
+                <p>{{productosUser.reduce((total, producto) => total + (producto.stock_total || 0), 0)}}</p>
                 <img src="../assets/iconos/ingresos.png" />
             </div>
 
@@ -59,8 +101,8 @@
                 <img src="../assets/iconos/disponibles.png" class="icono" />
                 <h3>Productos disponibles</h3>
 
-                <div v-if="ProductosUser.length > 0" class="lista-scroll">
-                    <div class="producto-disponible" v-for="producto in ProductosUser" :key="producto.id">
+                <div v-if="productosUser.length > 0" class="lista-scroll">
+                    <div class="producto-disponible" v-for="producto in productosUser" :key="producto.id">
                         <img :src="producto.imagen ? `http://localhost:8080/storage/${producto.imagen}` : 'https://via.placeholder.com/150'"
                             class="imagen-producto">
                         <p id="nombre-producto">{{ producto.nombre_producto }}</p>
@@ -95,50 +137,6 @@
         </div>
     </div>
 </template>
-
-<script setup>
-import { ref, onMounted } from "vue";
-import axios from "axios";
-import { useRouter } from "vue-router";
-import navbar from "./nav.vue";
-
-const router = useRouter();
-
-const ProductosUser = ref([]);
-const misCompras = ref([]);
-const misVentas = ref([]);
-
-const getConfig = () => {
-    const token = localStorage.getItem('token');
-    return {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-        }
-    };
-};
-
-const CargarProductosUser = async () => {
-    const response = await axios.get('http://localhost:8080/api/productosuser', getConfig());
-    ProductosUser.value = response.data;
-};
-
-const obtenerCompras = async () => {
-    const response = await axios.get('http://localhost:8080/api/mis-compras', getConfig());
-    misCompras.value = response.data;
-};
-
-const obtenerVentas = async () => {
-    const response = await axios.get('http://localhost:8080/api/mis-ventas', getConfig());
-    misVentas.value = response.data;
-};
-
-onMounted(() => {
-    CargarProductosUser();
-    obtenerCompras();
-    obtenerVentas();
-});
-</script>
 
 <style scoped>
 * {
