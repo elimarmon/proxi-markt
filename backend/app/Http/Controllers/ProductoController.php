@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
 use App\Models\Producto;
+use App\Models\PuntoEntrega;
+use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
 class ProductoController extends Controller
@@ -14,17 +15,6 @@ class ProductoController extends Controller
      */
     public function index() {
         $productos = Producto::with(['categoria', 'usuario', 'punto_entrega'])->get();
-
-        return response()->json($productos);
-    }
-
-    public function productosPorUsuario(Request $request) {
-        $user = $request->user();
-
-        $productos = Producto::with('categoria')
-            ->where('id_usuario', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
 
         return response()->json($productos);
     }
@@ -112,15 +102,26 @@ class ProductoController extends Controller
 
     }
 
-    public function obtenerProductospunto($id) {
+    public function productosPorUsuario(Request $request, User $usuario) {
+        $user = $request->user();
+
+        $productos = Producto::with('categoria')
+            ->where('id_usuario', $usuario->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($productos);
+    }
+
+    public function obtenerProductosPunto(PuntoEntrega $punto) {
         $productos = Producto::with(['categoria', 'punto_entrega'])
-            ->where('id_puntoentrega', $id)
+            ->where('id_puntoentrega', $punto->id)
             ->get();
 
         if ($productos->isEmpty()) {
             return response()->json([
                 'status' => false,
-                'message' => 'No hay productos para este punto de entrega o el punto no existe.'
+                'message' => 'No hay productos para este punto de entrega.'
             ], 404);
         }
 
