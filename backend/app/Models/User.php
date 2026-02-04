@@ -24,6 +24,12 @@ class User extends Authenticatable
         'latitud'
     ];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'contrasenya'
+    ];
+
     //esta es la columna clave que el createtoken es fija
     public function getAuthPassword()
     {
