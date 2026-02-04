@@ -21,7 +21,7 @@ const seleccionarPunto = async (idPunto) => {
     mensajeEstado.value = "Cargando...";
 
     try {
-        const response = await axios.get(`http://localhost:8080/api/productosporpunto/${idPunto}`);
+        const response = await axios.get(`http://localhost:8080/api/puntos/${idPunto}/productos`);
 
         if (response.data.status && response.data.productos) {
             const data = response.data.productos;
