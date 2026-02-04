@@ -23,8 +23,6 @@ const eleccionActual = ref('productos');
 const guardarPuntoEntrega = async () => {
     activarMapa.value = true;
 
-
-
     if (map) {
         map.remove();
     }
@@ -102,7 +100,6 @@ const guardarPuntoEntrega = async () => {
     }
     map.off('click');
     map.on('click', onMapClick);
-
 }
 
 const crearPunto = async () => {
