@@ -1,28 +1,27 @@
-import login from "../views/login.vue";
+import Login from "../views/Login.vue";
 import { createRouter, createWebHistory } from "vue-router";
-import productos from '../components/productos.vue';
-import dashboard from '../components/dashboard.vue';
-import comandas from '../components/comandas.vue';
-import miCuenta from '../components/miCuenta.vue';
-import Ubicacion from '../components/ubicacion.vue';
-import publicar from '../components/publicar.vue';
+import Productos from '../components/Productos.vue';
+import Dashboard from '../components/Dashboard.vue';
+import Comandas from '../components/Comandas.vue';
+import MiCuenta from '../components/MiCuenta.vue';
+import Ubicacion from '../components/Ubicacion.vue';
+import Publicar from '../components/Publicar.vue';
 import mensaje from '../components/mensaje.vue';
-import mapa from '../components/mapa.vue';
+import Mapa from '../components/Mapa.vue';
 import DetalleProducto from "../components/DetalleProducto.vue";
-import principal from '../components/principal.vue';
+import Principal from '../components/Principal.vue';
 import EditarProducto from "../components/EditarProducto.vue";
-import MostrarProductosMain from "../components/MostrarProductosMain.vue";
 
 const routes = [
     {
         path: "/",
         name: "principal",
-        component: principal
+        component: Principal
     },
     {
         path: "/login",
         name: "login",
-        component: login,
+        component: Login,
     },
     {
         path: "/productos/:id",
@@ -33,7 +32,7 @@ const routes = [
     {
         path: '/dashboard',
         name: 'dashboard',
-        component: dashboard
+        component: Dashboard
     },
     {
         path: '/ubicacion',
@@ -43,7 +42,7 @@ const routes = [
     {
         path: '/productos',
         name: 'productos',
-        component: productos
+        component: Productos
     },
     {
         path: '/productos/:id/editar',
@@ -59,17 +58,17 @@ const routes = [
     {
         path: '/comandas',
         name: 'comandas',
-        component: comandas
+        component: Comandas
     },
     {
         path: '/publicar',
         name: 'publicar',
-        component: publicar
+        component: Publicar
     },
     {
         path: '/cuenta',
         name: 'cuenta',
-        component: miCuenta
+        component: MiCuenta
     },
     {
         path: '/ubicacion',
@@ -79,7 +78,7 @@ const routes = [
     {
         path: '/mapa',
         name: 'mapa',
-        component: mapa
+        component: Mapa
     }
 ];
 
