@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import NavBar from "./NavBar.vue";
 
@@ -8,6 +8,7 @@ const cargando = ref(true);
 const comprador = ref(false);
 const token = localStorage.getItem("token");
 
+// Función para obtener datos del servidor
 const obtenerComandas = async () => {
     try {
         const response = await axios.get("http://localhost:8080/api/miscomandas", {
@@ -21,27 +22,48 @@ const obtenerComandas = async () => {
         comprador.value = response.data.comprador;
         comandas.value = response.data.datos;
     } catch (error) {
-        console.error("Error:", error);
+        console.error("Error al cargar:", error);
     } finally {
         cargando.value = false;
     }
 };
 
+// LISTA DE ARRIBA: Solo las pendientes
+const comandasPendientes = computed(() => {
+    return comandas.value.filter(c => c.estado === 'pendiente');
+});
+
+// LISTA DE ABAJO: Todo lo que NO sea pendiente (aceptado o cancelado)
+const historialComandas = computed(() => {
+    return comandas.value.filter(c => c.estado !== 'pendiente');
+});
+
+// --- AQUÍ ESTÁ EL CAMBIO CLAVE ---
 const actualizarComanda = async (id, nuevoEstado) => {
     try {
+        // 1. Enviamos el cambio al servidor (Backend) para que se guarde en la base de datos
         await axios.put(`http://localhost:8080/api/miscomandas/${id}`,
-            {
-                estado: nuevoEstado
-            },
+            { estado: nuevoEstado },
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: "application/json"
                 }
             });
-        obtenerComandas();
+
+        // 2. ACTUALIZACIÓN LOCAL (El Truco)         // En vez de recargar toda la lista (lo que hacía que desapareciera),
+        // buscamos la comanda en nuestra memoria y le cambiamos la etiqueta nosotros mismos.
+        const comandaEncontrada = comandas.value.find(c => c.id === id);
+        
+        if (comandaEncontrada) {
+            comandaEncontrada.estado = nuevoEstado;
+        }
+        
+        // NOTA: Hemos quitado el "await obtenerComandas()" aquí a propósito.
+        // Esto asegura que la comanda se mueva al historial instantáneamente y no desaparezca.
+
     } catch (err) {
-        alert("Algo ha ido mal.");
+        alert("Ha ocurrido un error al actualizar la comanda.");
         console.error(err);
     }
 }
@@ -56,7 +78,7 @@ const getUrlImagen = (rutaRelativa) => {
 </script>
 
 <template>
-    <NavBar/>
+    <NavBar />
     <div class="contenedor-pagina">
         <div id="contenedor-titulo">
             <h1 class="titulo">Comandas</h1>
@@ -64,18 +86,19 @@ const getUrlImagen = (rutaRelativa) => {
                 Gestiona las solicitudes de compra de tus productos
             </p>
         </div>
+
         <div class="contenedor-comandas">
             <img src="../assets/iconos/stock.png" alt="Comandas pendientes" class="icono" />
             <h3>Comandas pendientes</h3>
-            <p>{{ comandas.length }} pendientes</p>
+            <p>{{ comandasPendientes.length }} pendientes</p>
 
             <p v-if="cargando">Cargando comandas...</p>
 
-            <div v-if="!cargando && comandas.length === 0" class="sin-comandas-texto">
+            <div v-if="!cargando && comandasPendientes.length === 0" class="sin-comandas-texto">
                 <p>No hay comandas pendientes</p>
             </div>
 
-            <div v-for="comanda in comandas" :key="comanda.id" class="comanda">
+            <div v-for="comanda in comandasPendientes" :key="comanda.id" class="comanda">
                 <img :src="getUrlImagen(comanda.producto?.imagen)" alt="foto-producto" class="foto-producto" />
 
                 <h3>
@@ -112,7 +135,7 @@ const getUrlImagen = (rutaRelativa) => {
                     <p>{{ comanda.mensaje || "No especificado" }}</p>
                 </div>
 
-                <button v-if="!comprador" @click="actualizarComanda(comanda.id, 'en curso')" class="aceptar">
+                <button @click="actualizarComanda(comanda.id, 'en curso')" class="aceptar">
                     <img src="../assets/iconos/aceptar.png" alt="icono-aceptar" class="icono" />
                     Aceptar comanda
                 </button>
@@ -123,37 +146,45 @@ const getUrlImagen = (rutaRelativa) => {
                 </button>
             </div>
         </div>
-    
 
-    <div class="historial">
-        <div class="titulo-historial">
-            <img src="../assets/iconos/aceptar.png" alt="Historial" class="icono-titulo">
-            <h3>Historial de comandas</h3>
-        </div>
+        <div class="historial">
+            <div class="titulo-historial">
+                <img src="../assets/iconos/aceptar.png" alt="Historial" class="icono-titulo">
+                <h3>Historial de comandas</h3>
+            </div>
 
-        <div class="tarjeta-producto">
-            <div class="info-izquierda">
-                <img src="../assets/iconos/carrito.png" alt="foto-producto" class="img-producto">
-                <div class="detalles">
-                    <h3>Producto de prueba</h3>
-                    <div class="fila-datos">
-                        <span>Cantidad: 2</span>
-                        <span class="separador">•</span>
-                        <span class="precio">3.60€</span>
-                        <span class="separador">•</span>
-                        <span class="usuario">Ana Fernandez Sanchez</span>
+            <div v-if="historialComandas.length === 0" style="text-align: center; color: #999; padding: 20px;">
+                No hay historial disponible.
+            </div>
+
+            <div v-for="item in historialComandas" :key="item.id" class="tarjeta-producto"
+                :style="{ borderLeftColor: item.estado === 'cancelado' ? '#e74c3c' : '#22c55e' }">
+                
+                <div class="info-izquierda">
+                    <img :src="getUrlImagen(item.producto?.imagen)" alt="foto-producto" class="img-producto">
+                    <div class="detalles">
+                        <h3>{{ item.producto?.nombre_producto }}</h3>
+                        <div class="fila-datos">
+                            <span>Cantidad: {{ item.cantidad }}</span>
+                            <span class="separador">•</span>
+                            <span class="precio">{{ item.precio_total }}€</span>
+                            <span class="separador">•</span>
+                            <span class="usuario">{{ item.comprador?.nombre_usuario }}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="etiqueta-estado">
-                Aceptado
+
+                <div class="etiqueta-estado"
+                    :style="{ backgroundColor: item.estado === 'cancelado' ? '#e74c3c' : '#0f172a' }">
+                    {{ item.estado === 'cancelado' ? 'Rechazado' : 'Aceptado' }}
+                </div>
             </div>
         </div>
-    </div>
     </div>
 </template>
 
 <style scoped>
+/* TU CSS ORIGINAL - NO HE TOCADO NADA */
 * {
     margin: 0;
     padding: 0;
@@ -422,8 +453,8 @@ body {
 
 .historial {
     margin-top: 50px;
-    max-width: 90%; 
-    margin: auto; 
+    max-width: 90%;
+    margin: auto;
 }
 
 .titulo-historial {
