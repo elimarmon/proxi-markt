@@ -1,122 +1,63 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
+import { useAuth } from '@/composables/useAuth';
 
 const props = defineProps({
     productos: {
         type: Array,
-        default: () => []
-    },
-    radioMaximo: {
-        type: Number,
-        default: 10
+        required: true
     }
 });
 
-
-const miUsuario = ref(null);
-const productoubicacion = ref(null);
-
-const productosFiltrados = computed(() => {
-    if (!props.productos) return [];
-    return props.productos.filter(producto => {
-        const distancia = calcularKm(
-            producto.punto_entrega?.latitud,
-            producto.punto_entrega?.longitud
-        );
-
-        if (distancia === '--') return false;
-        return parseFloat(distancia) <= props.radioMaximo;
-    });
-});
-
-const obtenerMiUbicacion = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    try {
-        const usuario = await axios.get('http://localhost:8080/api/datosuser', {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
-        });
-
-        const productosResp = await axios.get('http://localhost:8080/api/productos', {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
-        });
-
-        miUsuario.value = usuario.data;
-        productoubicacion.value = productosResp.data;
-
-    } catch (error) {
-        console.error("Error cargando datos:", error);
-    }
-}
-
-onMounted(() => {
-    obtenerMiUbicacion();
-});
+const { usuario } = useAuth();
 
 const calcularKm = (latVendedor, lngVendedor) => {
+    if (!usuario.value?.latitud || !latVendedor || !lngVendedor) return '--';
 
-    if (!miUsuario.value || !miUsuario.value.latitud) {
-        return '--';
-    }
-
-    if (!latVendedor || !lngVendedor) {
-        return '--';
-    }
-
-    const miLat = parseFloat(miUsuario.value.latitud);
-    const miLng = parseFloat(miUsuario.value.longitud);
-
-    const vendLat = parseFloat(latVendedor);
-    const vendLng = parseFloat(lngVendedor);
+    const miLat = parseFloat(usuario.value.latitud);
+    const miLng = parseFloat(usuario.value.longitud);
+    const vLat = parseFloat(latVendedor);
+    const vLng = parseFloat(lngVendedor);
 
     const p = Math.PI / 180;
     const c = Math.cos;
-    const a = 0.5 - c((vendLat - miLat) * p) / 2 +
-        c(miLat * p) * c(vendLat * p) * (1 - c((vendLng - miLng) * p)) / 2;
+    const a = 0.5 - c((vLat - miLat) * p) / 2 +
+        c(miLat * p) * c(vLat * p) * (1 - c((vLng - miLng) * p)) / 2;
 
     return (12742 * Math.asin(Math.sqrt(a))).toFixed(1);
-}
+};
 </script>
 
 <template>
     <div class="contenedor-seccion-productos">
-        <div v-if="productosFiltrados && productosFiltrados.length > 0" class="grid-productos">
-            <div v-for="producto in productosFiltrados" :key="producto.id" class="carta-producto">
+        <div v-if="productos && productos.length > 0" class="grid-productos">
+            <div v-for="producto in productos" :key="producto.id" class="carta-producto">
                 <router-link :to="{ name: 'detalle-productos', params: { id: producto.id } }" class="carta-link">
 
                     <div class="imagen-contenedor">
                         <img :src="producto.imagen ? `http://localhost:8080/storage/${producto.imagen}` : 'https://via.placeholder.com/400x300'"
                             alt="Imagen producto" class="imagen-producto">
-                        <span class="categoria">{{ producto.categoria.nombre_categoria || 'Sin categoría' }}</span>
+                        <span class="categoria">{{ producto.categoria?.nombre_categoria || 'Sin categoría' }}</span>
                     </div>
 
                     <div class="detalles-producto">
                         <h4 class="nombre">{{ producto.nombre_producto }}</h4>
                         <p class="precio">{{ producto.precio }}€</p>
-
                         <p class="descripcion">{{ producto.descripcion }}</p>
 
                         <div class="informacion">
                             <div class="objeto">
                                 <img class="icono" src="../assets/iconos/casa.png" alt="granja">
                                 <span class="texto-gris">
-                                    {{ producto.punto_entrega.nombre_punto }}
+                                    {{ producto.punto_entrega?.nombre_punto || 'Punto no definido' }}
                                 </span>
                             </div>
 
                             <div class="objeto">
-                                <img class="icono" src="../assets/iconos/ubicacion.png" alt="direccion"> <span
-                                    class="texto-azul">A {{
-                                        calcularKm(producto.punto_entrega?.latitud, producto.punto_entrega?.longitud) }} km
-                                    de ti</span>
+                                <img class="icono" src="../assets/iconos/ubicacion.png" alt="direccion">
+                                <span class="texto-azul">
+                                    A {{ calcularKm(producto.punto_entrega?.latitud, producto.punto_entrega?.longitud)
+                                    }} km de ti
+                                </span>
                             </div>
 
                             <div class="objeto">
@@ -129,6 +70,10 @@ const calcularKm = (latVendedor, lngVendedor) => {
                     </div>
                 </router-link>
             </div>
+        </div>
+
+        <div v-else class="carta-vacia">
+            <p>No hay productos disponibles en este radio.</p>
         </div>
     </div>
 </template>

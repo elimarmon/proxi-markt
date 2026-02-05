@@ -2,34 +2,51 @@
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { ref, nextTick, onMounted } from 'vue'
+import { useAuth } from '@/composables/useAuth.js';
 import axios from 'axios'
-import navbar from './nav.vue'
-import MostrarProductos from './mostrarProductos.vue'
+import NavBar from './NavBar.vue'
+import MostrarProductos from './MostrarProductos.vue'
 
 let map;
-
 const activarMapa = ref(false)
-
-const nombreCalle = ref('');
-const latitud = ref(0)
-const longitud = ref(0)
+const direccion = ref('');
+const latitud = ref(null)
+const longitud = ref(null)
 const nombrePunto = ref('')
-const PuntosEntrega = ref([])
-const DatosUser = ref([])
-const ProductosUser = ref([])
+const puntosEntrega = ref([])
+const { usuario, fetchUsuario } = useAuth();
+const productosUser = ref([])
 const eleccionActual = ref('productos');
 
-console.log(PuntosEntrega)
+// console.log(puntosEntrega)
 
-const GuardarPuntoEntrega = async () => {
+const guardarPuntoEntrega = async () => {
     activarMapa.value = true;
 
+    if (map) {
+        map.remove();
+    }
 
     await nextTick();
 
+    if (usuario.value.latitud && usuario.value.longitud) {
+        latitud.value = usuario.value.latitud;
+        longitud.value = usuario.value.longitud;
+        direccion.value = usuario.value.direccion;
+    }
+
+    const centroInicial = (latitud.value && longitud.value)
+        ? [latitud.value, longitud.value]
+        : [39.032719, -0.215864];
+
+    direccion.value = "";
+    nombrePunto.value = "";
+    latitud.value = null;
+    longitud.value = null;
+
     map = L.map('map', {
         miZoom: 3,
-    }).setView([39.032719, -0.215864], 13);
+    }).setView(centroInicial, 8); // empezar con la localización del usuario
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -37,148 +54,166 @@ const GuardarPuntoEntrega = async () => {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
-    for (let i = 0; i < PuntosEntrega.value.length; i++) {
-        const longitud = parseFloat(PuntosEntrega.value[i].longitud)
-        const latitud = parseFloat(PuntosEntrega.value[i].latitud)
-        const marker = L.marker([latitud, longitud]).addTo(map).bindPopup(PuntosEntrega.value[i].nombre_punto);
+    for (let i = 0; i < puntosEntrega.value.length; i++) {
+        const longitud = parseFloat(puntosEntrega.value[i].longitud)
+        const latitud = parseFloat(puntosEntrega.value[i].latitud)
+        L.marker([latitud, longitud]).addTo(map).bindPopup(puntosEntrega.value[i].nombre_punto);
     }
 
-    var markerseleccion = L.marker([0, 0]).addTo(map);
+    let marcadorTemporal = L.marker(centroInicial, { opacity: 0 }).addTo(map);
 
     async function onMapClick(e) {
         latitud.value = e.latlng.lat;
         longitud.value = e.latlng.lng;
 
-        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitud.value}&lon=${longitud.value}`;
         try {
-            const response = await fetch(url);
-            const data = await response.json();
+            const response = await axios.get("https://nominatim.openstreetmap.org/reverse", {
+                params: {
+                    format: 'jsonv2',
+                    lat: latitud.value,
+                    lon: longitud.value
+                }
+            });
 
-            console.log(data);
+            const address = response.data.address;
 
-            nombreCalle.value = data.address.road || data.display_name
+            // los optional chaining para que no se rompa si se hace click en el mar
+            direccion.value = [
+                address?.road,
+                address?.city || address?.town || address?.village,
+                address?.postcode,
+                address?.country
+            ]
 
-            markerseleccion
+            direccion.value = direccion.value.filter(Boolean).join(", ");
+            console.log("Valor de direccion:", `"${direccion.value}"`);
+            marcadorTemporal
                 .setLatLng(e.latlng)
-                .bindPopup("Estas en " + nombreCalle.value)
+                .setOpacity(1)
+                .bindPopup("Ubicación seleccionada")
                 .openPopup();
-        } catch (error) {
 
+        } catch (error) {
+            alert("Punto no válido.")
+            console.error(error.message);
         }
     }
+    map.off('click');
     map.on('click', onMapClick);
-
 }
 
-const CrearPunto = async () => {
+const crearPunto = async () => {
     const token = localStorage.getItem('token');
-    const Datos = {
+    const datos = {
         latitud: latitud.value,
         longitud: longitud.value,
         nombre_punto: nombrePunto.value,
-        direccion_punto: nombreCalle.value
+        direccion_punto: direccion.value
     }
     try {
-        await axios.post('http://localhost:8080/api/insertarpunto', Datos, {
+        const response = await axios.post('http://localhost:8080/api/puntos', datos, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
             }
         });
-        alert('creado')
-        location.reload();
+
+        const nuevoPunto = {
+            id: response.data.id,
+            nombre_punto: nombrePunto.value,
+            direccion_punto: direccion.value,
+            latitud: latitud.value,
+            longitud: longitud.value
+        };
+
+        alert('Punto creado correctamente.')
+        puntosEntrega.value.push(nuevoPunto);
     } catch (error) {
         console.error("Error del servidor:", error.response ? error.response.data : error.message);
-
-        const mensajeError = error.response?.data?.message || "Error desconocido";
-        alert('Fallo al crear: ' + mensajeError);
+        alert('Fallo al crear punto de entrega.');
     }
 }
 
-const CargarPuntos = async () => {
+const cargarPuntos = async () => {
     const token = localStorage.getItem('token');
-    const resposta = await axios.get('http://localhost:8080/api/puntosuser', {
+    const resposta = await axios.get(`http://localhost:8080/api/usuarios/${usuario.value.id}/puntos`, {
         headers: {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json'
         }
     })
-    PuntosEntrega.value = resposta.data;
+    puntosEntrega.value = resposta.data;
 }
 
-const EsconderMapa = () => {
+const esconderMapa = () => {
     activarMapa.value = false
 }
 
-const DatosUsuario = async () => {
-    const token = localStorage.getItem('token');
-    const Usuario = await axios.get('http://localhost:8080/api/datosuser', {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-        }
-    })
-    DatosUser.value = Usuario.data;
-    console.log("Datos del usuario", DatosUser.value)
-}
-
-const EliminarPunto = async (id) => {
+const eliminarPunto = async (id) => {
     if (!confirm('¿Estás seguro de que quieres eliminar este punto de entrega?')) return;
 
     const token = localStorage.getItem('token');
     try {
-        await axios.delete(`http://localhost:8080/api/deletepunto/${id}`, {
+        await axios.delete(`http://localhost:8080/api/puntos/${id}`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
             }
         });
         alert('Punto eliminado correctamente');
-        PuntosEntrega.value = PuntosEntrega.value.filter(p => p.id !== id);
-        location.reload();
+        puntosEntrega.value = puntosEntrega.value.filter(p => p.id !== id);
+        if (activarMapa.value) {
+            guardarPuntoEntrega();
+        }
     } catch (error) {
         console.error("Error al eliminar:", error);
-        alert('No se pudo eliminar el punto');
+        alert('No se pudo eliminar el punto.');
     }
 }
 
-const CargarProductosUser = async () => {
+const cargarProductosUser = async () => {
     const token = localStorage.getItem('token');
-    const productos = await axios.get('http://localhost:8080/api/productosuser', {
+    const productos = await axios.get(`http://localhost:8080/api/usuarios/${usuario.value.id}/productos`, {
         headers: {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json'
         }
     })
 
-    ProductosUser.value = productos.data;
+    productosUser.value = productos.data;
 }
 
-const EliminarProducto = async (id) => {
+const eliminarProducto = async (id) => {
     const token = localStorage.getItem('token');
 
-    const eliminar = await axios.delete('http://localhost:8080/api/productos/' + id, {
+    const response = await axios.delete('http://localhost:8080/api/productos/' + id, {
         headers: {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json'
         }
-    }
-    )
-    if (eliminar.status === 200) {
-        alert('producto eliminado correctamente')
-        location.reload();
+    });
+
+    if (response.status === 200) {
+        alert('Producto eliminado correctamente');
+        productosUser.value = productosUser.value.filter(p => p.id !== id);
     }
 }
 
-onMounted(() => {
-    CargarPuntos();
-    DatosUsuario();
-    CargarProductosUser();
+const irAlPunto = (punto) => {
+    const lat = parseFloat(punto.latitud);
+    const lng = parseFloat(punto.longitud);
+    map.flyTo([lat, lng], 10);
+}
+
+onMounted(async () => {
+    await fetchUsuario();
+    cargarPuntos();
+    cargarProductosUser();
 });
 
 </script>
 <template>
-    <navbar></navbar>
+    <NavBar/>
     <div class="contenedor-pagina">
         <div class="contenedor-titulo">
             <h1 class="titulo">Mi Cuenta</h1>
@@ -190,20 +225,20 @@ onMounted(() => {
                 <h3>Mi Perfil</h3><br>
                 <div class="info-usuario">
                     <p><span><img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-usuario"
-                                class="icono">Nombre:</span> {{ DatosUser.nombre_usuario || 'Cargando...' }}</p>
+                                class="icono">Nombre:</span> {{ usuario.nombre_usuario || 'Cargando...' }}</p>
                     <p><span><img src="../assets/iconos/correo.png" alt="icono-email" class="icono">Email:</span> {{
-                        DatosUser.email }}</p>
+                        usuario.email }}</p>
                     <p><span><img src="../assets/iconos/ubicacion.png" alt="icono-direccion"
-                                class="icono">Dirección:</span> {{ DatosUser.direccion || 'No definida' }}</p>
+                                class="icono">Dirección:</span> {{ usuario.direccion || 'No definida' }}</p>
                     <hr>
                     <p class="valoracion"><span><img src="../assets/iconos/valoraciones-icono.png"
                                 alt="icono-valoracion" class="icono">Valoración:</span> <span class="puntuacion">{{
-                                    DatosUser.puntuacio || '5.0' }}</span></p>
+                                    usuario.puntuacio || '5.0' }}</span></p>
                 </div>
             </div>
 
             <div class="contenedor-accion-superior">
-                <button @click="GuardarPuntoEntrega" class="botones-perfil">
+                <button @click="guardarPuntoEntrega" class="botones-perfil">
                     Crear nuevo punto de entrega
                 </button>
                 <router-link to="/ubicacion" class="botones-perfil">
@@ -218,8 +253,8 @@ onMounted(() => {
                     <div class="controles-mapa">
                         <input v-model="nombrePunto" placeholder="Nombre del punto (Ej: Casa)">
                         <div class="botones-flex">
-                            <button @click="CrearPunto" class="boton-confirmar">Guardar</button>
-                            <button @click="EsconderMapa" class="boton-cancelar">Cerrar</button>
+                            <button :disabled="!direccion" @click="crearPunto" class="boton-confirmar">Guardar</button>
+                            <button @click="esconderMapa" class="boton-cancelar">Cerrar</button>
                         </div>
                     </div>
                 </div>
@@ -227,12 +262,13 @@ onMounted(() => {
                 <div class="tus-puntos-existentes">
                     <h3>Tus puntos de entrega actuales</h3>
                     <div class="grid-puntos-mini">
-                        <div v-for="punto in PuntosEntrega" :key="punto.id" class="card-punto-mini">
+                        <div v-for="punto in puntosEntrega" @click="irAlPunto(punto)" :key="punto.id"
+                            class="card-punto-mini">
                             <div class="info-mini">
                                 <strong>{{ punto.nombre_punto }}</strong>
                                 <p>{{ punto.direccion_punto }}</p>
                             </div>
-                            <button @click="EliminarPunto(punto.id)" class="boton-borrar">Borrar</button>
+                            <button @click.stop="eliminarPunto(punto.id)" class="boton-borrar">Borrar</button>
                         </div>
                     </div>
                 </div>
@@ -244,7 +280,7 @@ onMounted(() => {
                         <button :class="{ active: eleccionActual === 'productos' }"
                             @click="eleccionActual = 'productos'">
                             <img src="../assets/iconos/productos_stock.png" alt="caja-stock" class="iconoSubNav">Mis
-                            Productos ({{ ProductosUser.length }})
+                            Productos ({{ productosUser.length }})
                         </button>
                     </li>
                     <li>
@@ -268,8 +304,8 @@ onMounted(() => {
             </div>
 
             <div class="contenedor-secciones-datos">
-                <MostrarProductos v-if="eleccionActual === 'productos'" :productos="ProductosUser"
-                    @borrar="EliminarProducto" />
+                <MostrarProductos v-if="eleccionActual === 'productos'" :productos="productosUser"
+                    @borrar="eliminarProducto" />
             </div>
         </div>
     </div>
@@ -438,6 +474,15 @@ hr {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.card-punto-mini:hover {
+    background-color: #f0fdf4;
+    border-color: #4CA626;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .boton-borrar {
@@ -480,6 +525,8 @@ hr {
 .botones-flex {
     display: flex;
     gap: 10px;
+    margin-bottom: 10px;
+    align-self: flex-end;
 }
 
 .boton-confirmar {
@@ -495,9 +542,17 @@ hr {
     background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
 }
 
-.boton-cancelar {
+.boton-confirmar:disabled {
     background: #ccc;
-    color: white;
+    /* El color que tiene actualmente tu botón cancelar */
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.boton-cancelar {
+    background: #fee2e2;
+    color: #ef4444;
     border: none;
     padding: 10px 15px;
     border-radius: 6px;
@@ -548,6 +603,30 @@ hr {
     background-color: white;
     color: #000;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.controles-mapa input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #374151;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+/* Efecto cuando el usuario va a escribir */
+.controles-mapa input:focus {
+    border-color: #4CA626;
+    box-shadow: 0 0 0 3px rgba(76, 166, 38, 0.1);
+}
+
+/* Estilo para el placeholder (el texto de ayuda) */
+.controles-mapa input::placeholder {
+    color: #9ca3af;
 }
 
 @media (max-width: 600px) {

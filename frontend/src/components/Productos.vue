@@ -1,56 +1,38 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
-import navbar from "./nav.vue";
+import NavBar from "./NavBar.vue";
+import { useAuth } from '@/composables/useAuth';
 import MostrarProductos from './MostrarProductosMain.vue';
 
 const productos = ref([]);
 const radioActual = ref(
-    localStorage.getItem('distancia_guardada') === 'Infinity' 
-    ? Infinity 
-    : (Number(localStorage.getItem('distancia_guardada')) || 10)
+    localStorage.getItem('distancia_guardada') === 'Infinity'
+        ? Infinity
+        : (Number(localStorage.getItem('distancia_guardada')) || 10)
 );
-
-const datosUsuario = ref(null);
+const { usuario, fetchUsuario } = useAuth();
 const categoriasSeleccionadas = ref([]);
 const menuAbierto = ref(false);
 const cargando = ref(false);
 const textoBusqueda = ref("");
 
-/**
- * Obtiene los datos del usuario para tener las coordenadas de referencia
- */
-const obtenerDatosUsuario = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    try {
-        const res = await axios.get('http://localhost:8080/api/datosuser', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        datosUsuario.value = res.data;
-    } catch (e) {
-        console.error("Error al obtener ubicación del usuario", e);
-    }
-};
-
-/**
- * Calcula la distancia real en KM. 
- */
+// TODO: se calculan distancias en el padre y en el hijo-> intentar simplificarlo
 const calcularDistanciaReal = (latV, lngV) => {
-    if (!datosUsuario.value || !datosUsuario.value.latitud || !latV || !lngV) {
-        return 999999; 
+    if (!usuario.value || !usuario.value.latitud || !latV || !lngV) {
+        return 999999;
     }
-    
-    const miLat = parseFloat(datosUsuario.value.latitud);
-    const miLng = parseFloat(datosUsuario.value.longitud);
+
+    const miLat = parseFloat(usuario.value.latitud);
+    const miLng = parseFloat(usuario.value.longitud);
     const vLat = parseFloat(latV);
     const vLng = parseFloat(lngV);
 
     const p = Math.PI / 180;
     const c = Math.cos;
     const a = 0.5 - c((vLat - miLat) * p) / 2 +
-              c(miLat * p) * c(vLat * p) * (1 - c((vLng - miLng) * p)) / 2;
-    
+        c(miLat * p) * c(vLat * p) * (1 - c((vLng - miLng) * p)) / 2;
+
     return 12742 * Math.asin(Math.sqrt(a));
 };
 
@@ -87,18 +69,14 @@ const mostrarProductos = async () => {
     }
 };
 
-/**
- * PROPIEDAD COMPUTADA MAESTRA
- * Ahora incluye el filtro de distancia para que el contador sea real
- */
 const productosFiltrados = computed(() => {
     return productos.value.filter(p => {
-        const coincideTexto = !textoBusqueda.value || 
+        const coincideTexto = !textoBusqueda.value ||
             p.nombre_producto.toLowerCase().includes(textoBusqueda.value.toLowerCase());
-        
-        const coincideCategoria = categoriasSeleccionadas.value.length === 0 || 
+
+        const coincideCategoria = categoriasSeleccionadas.value.length === 0 ||
             categoriasSeleccionadas.value.includes(p.categoria?.nombre_categoria);
-        
+
         const dist = calcularDistanciaReal(p.punto_entrega?.latitud, p.punto_entrega?.longitud);
         const coincideRadio = radioActual.value === Infinity || dist <= radioActual.value;
 
@@ -111,18 +89,18 @@ const toggleMenu = () => {
 }
 
 onMounted(async () => {
-    await obtenerDatosUsuario();
+    await fetchUsuario();
     mostrarProductos();
 });
 </script>
 
 <template>
-    <navbar @cambiar-radio="manejarCambioRadio"></navbar>
-
+    <NavBar @cambiar-radio="manejarCambioRadio"/>
     <div class="contenedor-pagina">
         <div class="zona-fija">
             <h1 class="titulo-verde">Productos Frescos y Locales</h1>
-            <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual === Infinity ? '∞' : radioActual }} km)</p>
+            <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual === Infinity ?
+                '∞' : radioActual }} km)</p>
 
             <div class="card-busqueda">
                 <div id="buscador">
@@ -160,11 +138,11 @@ onMounted(async () => {
                 </p>
             </div>
         </div>
-        
+
         <div v-if="cargando" style="text-align: center; padding: 20px;">
             <p>Cargando productos...</p>
         </div>
-        <MostrarProductos v-else-if="productosFiltrados.length >= 1" :productos="productosFiltrados" :radioMaximo="radioActual"></MostrarProductos>
+        <MostrarProductos v-else-if="productosFiltrados.length >= 1" :productos="productosFiltrados"/>
         <div v-else class="mensaje-ayuda">
             <p>No se han encontrado productos.</p>
         </div>
@@ -217,7 +195,8 @@ body {
     box-sizing: border-box;
 }
 
-.mensaje-ayuda, .mensaje-informativo {
+.mensaje-ayuda,
+.mensaje-informativo {
     margin: 40px auto;
     text-align: center;
     color: #999;
