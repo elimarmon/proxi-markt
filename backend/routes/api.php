@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PuntoEntregaController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\MensajesController;
+use App\Http\Controllers\ValoracionController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -75,5 +76,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Rutas de mensajes
 
     Route::post('/enviarmensaje', [MensajesController::class, 'store']);
+
+    // Rutas de valoraciones
+
+    Route::post('/valoraciones/{compraventa}', [ValoracionController::class, 'store']);
 
 });
