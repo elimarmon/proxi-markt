@@ -3,50 +3,52 @@ import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import Navbar from './nav.vue'
 import { useRouter } from 'vue-router';
+import { useAuth } from '@/composables/useAuth';
 
 const router = useRouter()
 
-const PuntosEntrega = ref([])
-const Categorias = ref([])
-
-const nombre_producto = ref('');
+const puntosEntrega = ref([])
+const categorias = ref([])
+const nombreProducto = ref('');
 const descripcion = ref('');
 const precio = ref(0);
 const stock = ref(0);
-const puntoentrega = ref('');
+const puntoEntrega = ref('');
 const categoria = ref('');
 const imagen = ref(null);
+const cargando = ref(false);
+const { usuario, fetchUsuario } = useAuth();
 
-const FormularioIncompleto = computed(() => {
-    return nombre_producto.value.trim() === '' ||
+const formularioIncompleto = computed(() => {
+    return nombreProducto.value.trim() === '' ||
         descripcion.value.trim() === '' ||
         precio.value <= 0 ||
         stock.value <= 0 ||
         categoria.value === '' ||
-        puntoentrega.value === '' ||
-        PuntosEntrega.value.length === 0;
+        puntoEntrega.value === '' ||
+        puntosEntrega.value.length === 0;
 });
 
-const GuardarImagen = (event) => {
+const guardarImagen = (event) => {
     imagen.value = event.target.files[0];
 }
 
-const InsertarProducto = async () => {
+const insertarProducto = async () => {
     const token = localStorage.getItem('token');
     try {
         const datos = new FormData();
-        datos.append('nombre_producto', nombre_producto.value);
+        datos.append('nombre_producto', nombreProducto.value);
         datos.append('descripcion', descripcion.value);
         datos.append('precio', precio.value);
         datos.append('stock_total', stock.value);
         datos.append('id_categoria', categoria.value);
-        datos.append('id_puntoentrega', puntoentrega.value);
+        datos.append('id_puntoentrega', puntoEntrega.value);
 
         if (imagen.value) {
             datos.append('imagen', imagen.value);
         }
 
-        const respuesta = await axios.post('http://localhost:8080/api/publicarproducto', datos, {
+        const respuesta = await axios.post('http://localhost:8080/api/productos', datos, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'multipart/form-data',
@@ -64,22 +66,37 @@ const InsertarProducto = async () => {
     }
 }
 
-const CargarPuntos = async () => {
+const cargarPuntos = async () => {
+
+    cargando.value = true;
+
     const token = localStorage.getItem('token');
-    const resposta = await axios.get('http://localhost:8080/api/puntosuser', {
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    PuntosEntrega.value = resposta.data;
+
+    try {
+        const resposta = await axios.get(`http://localhost:8080/api/usuarios/${usuario.value.id}/puntos`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'applicacion/json'
+            }
+        });
+        puntosEntrega.value = resposta.data;
+    } catch (err) {
+        alert("Error cargando puntos de entrega.");
+        console.error(err.message);
+    } finally {
+        cargando.value = false;
+    }
 }
 
-const CargarCategorias = async () => {
+const cargarCategorias = async () => {
     const resposta = await axios.get('http://localhost:8080/api/categorias');
-    Categorias.value = resposta.data;
+    categorias.value = resposta.data;
 }
 
-onMounted(() => {
-    CargarPuntos();
-    CargarCategorias();
+onMounted(async () => {
+    await fetchUsuario();
+    cargarPuntos();
+    cargarCategorias();
 });
 </script>
 
@@ -94,10 +111,10 @@ onMounted(() => {
         <div class="tarjeta-formulario">
             <h3 class="header-interno">Publicar nuevo producto</h3>
 
-            <form @submit.prevent="InsertarProducto">
+            <form @submit.prevent="insertarProducto">
                 <div class="campo">
                     <label>Nombre del producto</label>
-                    <input v-model="nombre_producto" type="text" placeholder="Ej: Tomates orgánicos" required>
+                    <input v-model="nombreProducto" type="text" placeholder="Ej: Tomates orgánicos" required>
                 </div>
 
                 <div class="campo">
@@ -121,7 +138,7 @@ onMounted(() => {
                     <label>Categoría</label>
                     <select v-model="categoria" required>
                         <option value="" disabled>Selecciona una categoría</option>
-                        <option v-for="cat in Categorias" :key="cat.id" :value="cat.id">
+                        <option v-for="cat in categorias" :key="cat.id" :value="cat.id">
                             {{ cat.nombre_categoria }}
                         </option>
                     </select>
@@ -129,21 +146,25 @@ onMounted(() => {
 
                 <div class="campo">
                     <label>Punto de entrega</label>
-                    <select v-if="PuntosEntrega.length > 0" v-model="puntoentrega" required>
+                    <p class="ayuda-texto" v-if="cargando">Cargando puntos...</p>
+                    <p class="ayuda-texto" v-else-if="!cargando && puntosEntrega.length > 0">Indica dónde el comprador
+                        podrá recoger el producto</p>
+
+                    <select v-if="puntosEntrega.length > 0" v-model="puntoEntrega" required>
                         <option value="" disabled>Ej: Mercado de Santa Caterina</option>
-                        <option v-for="punto in PuntosEntrega" :key="punto.id" :value="punto.id">
+                        <option v-for="punto in puntosEntrega" :key="punto.id" :value="punto.id">
                             {{ punto.nombre_punto }}
                         </option>
                     </select>
-                    <p class="ayuda-texto" v-if="PuntosEntrega.length > 0">Indica dónde el comprador podrá recoger el
-                        producto</p>
-                    <p v-else class="error-texto">* Debes crear al menos un punto de entrega en tu perfil.</p>
+
+                    <p v-else-if="!cargando && puntosEntrega.lengt == 0" class="error-texto">* Debes crear al menos un
+                        punto de entrega en tu perfil.</p>
                 </div>
 
                 <div class="campo">
                     <label>Imagen del producto (opcional)</label>
                     <div class="zona-upload">
-                        <input type="file" @change="GuardarImagen" accept="image/*" class="input-file-oculto">
+                        <input type="file" @change="guardarImagen" accept="image/*" class="input-file-oculto">
                         <div class="diseno-upload">
                             <span class="icono-nube">↑</span>
                             <p>Haz clic para subir o arrastra una imagen</p>
@@ -159,7 +180,7 @@ onMounted(() => {
 
                 <div class="acciones">
                     <button type="button" class="boton-cancelar" @click="$router.go(-1)">Cancelar</button>
-                    <button type="submit" class="boton-publicar" :disabled="FormularioIncompleto">Publicar
+                    <button type="submit" class="boton-publicar" :disabled="formularioIncompleto">Publicar
                         producto</button>
                 </div>
             </form>
