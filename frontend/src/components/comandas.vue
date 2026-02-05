@@ -1,5 +1,5 @@
 <template>
-    <navbar></navbar>
+    <NavBar />
     <div class="contenedor-pagina">
         <div id="contenedor-titulo">
             <h1 class="titulo">Comandas</h1>
@@ -67,12 +67,38 @@
             </div>
         </div>
     </div>
+
+    <div class="historial">
+        <div class="titulo-historial">
+            <img src="../assets/iconos/aceptar.png" alt="Historial" class="icono-titulo">
+            <h3>Historial de comandas</h3>
+        </div>
+
+        <div class="tarjeta-producto">
+            <div class="info-izquierda">
+                <img src="../assets/iconos/carrito.png" alt="foto-producto" class="img-producto">
+                <div class="detalles">
+                    <h3>Producto de prueba</h3>
+                    <div class="fila-datos">
+                        <span>Cantidad: 2</span>
+                        <span class="separador">•</span>
+                        <span class="precio">3.60€</span>
+                        <span class="separador">•</span>
+                        <span class="usuario">Ana Fernandez Sanchez</span>
+                    </div>
+                </div>
+            </div>
+            <div class="etiqueta-estado">
+                Aceptado
+            </div>
+        </div>
+    </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import navbar from "./nav.vue";
+import NavBar from "./NavBar.vue";
 
 const comandas = ref([]);
 const cargando = ref(true);
@@ -391,5 +417,111 @@ body {
 
 .rechazar:hover {
     background-color: #ffdddd;
+}
+
+/* --- HISTORIAL --- */
+.historial {
+    margin-top: 50px;
+}
+
+.titulo-historial {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.titulo-historial h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.icono-titulo {
+    width: 25px;
+    height: 25px;
+}
+
+.tarjeta-producto {
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-left: 6px solid #22c55e;
+    border-radius: 8px;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.info-izquierda {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.img-producto {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.detalles h3 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.fila-datos {
+    font-size: 14px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.separador {
+    font-size: 10px;
+    color: #cbd5e1;
+}
+
+.precio {
+    color: #22c55e;
+    font-weight: 600;
+}
+
+.etiqueta-estado {
+    background-color: #0f172a;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .comanda-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .comanda-actions {
+        flex-direction: column;
+    }
+
+    .empty-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .badge-pendientes-empty {
+        margin-left: 0;
+    }
 }
 </style>
