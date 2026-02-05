@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import navbar from "./nav.vue";
+import NavBar from "./NavBar.vue";
 
 const productosUser = ref([]);
 const misCompras = ref([]);
@@ -41,7 +41,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <navbar></navbar>
+    <NavBar/>
     <div class="contenedor-pagina">
         <div id="contenedor-titulo">
             <h1 class="titulo">Dashboard</h1>

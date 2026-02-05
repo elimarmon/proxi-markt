@@ -1,5 +1,5 @@
 <template>
-  <navbar></navbar>
+  <NavBar/>
   <div class="contenedor-pagina">
     <div id="contenedor-titulo">
       <h1 class="titulo">Mensajes</h1>
@@ -24,7 +24,7 @@
 import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
-import navbar from "./nav.vue";
+import NavBar from "./NavBar.vue";
 
 const router = useRouter();
 const mensajes = ref([]);

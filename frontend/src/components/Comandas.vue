@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import navbar from "./nav.vue";
+import NavBar from "./NavBar.vue";
 
 const comandas = ref([]);
 const cargando = ref(true);
@@ -56,7 +56,7 @@ const getUrlImagen = (rutaRelativa) => {
 </script>
 
 <template>
-    <navbar></navbar>
+    <NavBar/>
     <div class="contenedor-pagina">
         <div id="contenedor-titulo">
             <h1 class="titulo">Comandas</h1>

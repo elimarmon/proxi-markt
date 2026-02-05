@@ -4,8 +4,8 @@ import 'leaflet/dist/leaflet.css'
 import { ref, nextTick, onMounted } from 'vue'
 import { useAuth } from '@/composables/useAuth.js';
 import axios from 'axios'
-import navbar from './nav.vue'
-import MostrarProductos from './mostrarProductos.vue'
+import NavBar from './NavBar.vue'
+import MostrarProductos from './MostrarProductos.vue'
 
 let map;
 const activarMapa = ref(false)
@@ -213,7 +213,7 @@ onMounted(async () => {
 
 </script>
 <template>
-    <navbar></navbar>
+    <NavBar/>
     <div class="contenedor-pagina">
         <div class="contenedor-titulo">
             <h1 class="titulo">Mi Cuenta</h1>

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
-import Navbar from './nav.vue'
+import Navbar from './NavBar.vue'
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
 

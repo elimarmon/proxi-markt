@@ -3,7 +3,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { ref, onMounted, nextTick } from "vue";
 import axios from "axios";
-import navbar from "./nav.vue";
+import NavBar from "./NavBar.vue";
 import MostrarProductosMain from './MostrarProductosMain.vue';
 
 let map = null;
@@ -141,7 +141,7 @@ onMounted(() => {
 
 <template>
     <!-- Escuchamos el evento que emite el Navbar -->
-    <navbar @cambiar-radio="actualizarPuntos"></navbar>
+    <NavBar @cambiar-radio="actualizarPuntos"/>
     
     <div class="contenedor-pagina">
         <div id="contenedor-titulo">

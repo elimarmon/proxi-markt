@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
-import navbar from "./nav.vue";
+import NavBar from "./NavBar.vue";
 import { useAuth } from '@/composables/useAuth';
 import MostrarProductos from './MostrarProductosMain.vue';
 
@@ -95,7 +95,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <navbar @cambiar-radio="manejarCambioRadio"></navbar>
+    <NavBar @cambiar-radio="manejarCambioRadio"/>
     <div class="contenedor-pagina">
         <div class="zona-fija">
             <h1 class="titulo-verde">Productos Frescos y Locales</h1>
