@@ -10,6 +10,7 @@ const producto = ref(null);
 const obtenerProducto = async () => {
     const response = await axios.get(`http://localhost:8080/api/productos/${props.id}`);
     producto.value = response.data;
+    console.log(producto.value)
 }
 
 const token = localStorage.getItem('token');
@@ -25,7 +26,22 @@ const crearCompraventa = (datosCompra) => {
     }
 
     try {
-        axios.post(`http://localhost:8080/api/compraventa/${props.id}`, payload, { headers: { 'Authorization': `Bearer ${token}` } })
+        if(datosCompra.mensaje){
+            const datoschat = {
+                id_vendedor: producto.value.id_usuario,
+                id_producto: producto.value.id,
+                contenido: datosCompra.mensaje
+                
+            }
+            axios.post('http://localhost:8080/api/enviarmensaje', datoschat, {
+                headers: { 'Authorization': `Bearer ${token}`
+                }
+            })
+        }
+        axios.post(`http://localhost:8080/api/compraventa/${props.id}`, payload, { 
+            headers: { 'Authorization': `Bearer ${token}` 
+            } 
+        })
         alert("Solicitud correcta");
     } catch (err) {
         alert("Solicitud incorrecta");

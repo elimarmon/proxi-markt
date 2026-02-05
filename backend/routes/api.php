@@ -5,6 +5,9 @@ use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\CompraVentaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PuntoEntregaController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\MensajesController;
+
 use Illuminate\Support\Facades\Route;
 
 // Rutas de puntos de entrega
@@ -60,6 +63,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post("/compraventa/{producto}", [CompraVentaController::class, 'store']);
     Route::get('/miscompras', [CompraVentaController::class, 'misCompras']);
     Route::get('/misventas', [CompraVentaController::class, 'misVentas']);
+    Route::get('/miscomandas/{id}', [CompraVentaController::class, 'misComandas']);
     Route::get('/miscomandas', [CompraVentaController::class, 'misComandas']);
     Route::put("/miscomandas/{compraventa}", [CompraVentaController::class, 'actualizarEstado']);
+
+    // Rutas de chat
+
+    Route::get('/mischats', [ChatController::class, 'index']);
+    Route::get('/chat/{id}',[ChatController::class, 'show']);
+
+    // Rutas de mensajes
+
+    Route::post('/enviarmensaje', [MensajesController::class, 'store']);
+
 });
