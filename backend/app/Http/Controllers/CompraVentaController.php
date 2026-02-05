@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Exception;
 use Illuminate\Http\Request;
 use App\Models\CompraVenta;
 use App\Models\Producto;
@@ -36,39 +36,9 @@ class CompraVentaController extends Controller
                 'data' => $compraVentaValidada
             ], 201);
 
-        } catch (\Exception $e) {
+        } catch (Exception $err) {
             DB::rollBack();
-            return response()->json(['message' => $e->getMessage()], 500);
-        }
-    }
-
-    /**
-     * Finalizar una venta (Cuando el comprador recoge el producto)
-     */
-    public function completarVenta($id) {
-        $venta = CompraVenta::findOrFail($id);
-
-        if ($venta->estado !== 'pendiente' && $venta->estado !== 'en curso') {
-            return response()->json(['message' => 'La venta no se puede completar'], 400);
-        }
-
-        try {
-            DB::beginTransaction();
-
-            // 1. Cambiar estado
-            $venta->update(['estado' => 'completado']);
-
-            // 2. Descontar del Stock Total definitivamente
-            $producto = $venta->producto;
-            $producto->decrement('stock_total', $venta->cantidad);
-            $producto->decrement('stock_reserva', $venta->cantidad);
-
-            DB::commit();
-            return response()->json(['message' => 'Venta finalizada y stock descontado']);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Error al completar la venta'], 500);
+            return response()->json(['message' => $err->getMessage()], 500);
         }
     }
 
@@ -106,11 +76,37 @@ class CompraVentaController extends Controller
         ], 200);
     }
 
+    public function completarVenta(Compraventa $compraventa) {
+
+        $producto = $producto = Producto::find($compraventa->id_producto);
+
+        switch ($compraventa->estado) {
+            case 'completado':
+                $producto->decrement('stock_reserva', $compraventa->cantidad);
+                $producto->decrement('stock_total', $compraventa->cantidad);
+                break;
+            case 'cancelado':
+                $producto->decrement('stock_reserva', $compraventa->cantidad);
+                break;
+            default:
+                throw new Exception('Estado de transacción erróneo o no procesable.');
+        }
+    }
+
     public function actualizarEstado(Request $request, Compraventa $compraventa) {
         $request->validate([
             'estado' => 'required|string|in:pendiente,en curso,cancelado,completado'
         ]);
-
-        $compraventa->update(['estado' => $request->estado]);
+        
+        try {
+            DB::beginTransaction();
+            $compraventa->update(['estado' => $request->estado]);
+            $this->completarVenta($compraventa);
+            DB::commit();
+            return response()->json(['message' => 'Actualización de stock correcta.'], 201) ; 
+        } catch (Exception $err) {
+            DB::rollback();
+            return response()->json(['message' => $err->getMessage()]);
+        }
     }
 }

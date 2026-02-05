@@ -1,3 +1,45 @@
+<script setup>
+import { ref } from "vue";
+import axios from "axios";
+
+const form = ref({
+    nombre_usuario: "",
+    email: "",
+    contrasenya: "",
+    telefono: ""
+});
+
+const enviarInfo = async () => {
+
+    const { nombre_usuario, email, contrasenya, telefono } = form.value;
+
+    if (!nombre_usuario || !email || !contrasenya || !telefono) {
+        alert("Rellena los campos obligatorios.");
+        return;
+    }
+
+    try {
+        console.log("Enviando registro: ", form.value);
+
+        const registrar = await axios.post("http://localhost:8080/api/register", form.value);
+
+        if (registrar.status === 201) {
+            alert("Cuenta creada con éxito");
+
+            form.value = {
+                nombre_usuario: "",
+                email: "",
+                contrasenya: "",
+                telefono: ""
+            };
+        }
+    } catch (error) {
+        console.error("Error en la petición:", error);
+        alert("Hubo un error al conectar con el servidor");
+    }
+};
+</script>
+
 <template>
     <div class="form-card">
         <h3>Crear Cuenta</h3>
@@ -24,49 +66,6 @@
         </form>
     </div>
 </template>
-
-<script setup>
-import { ref } from "vue";
-import axios from "axios";
-
-const form = ref({
-    nombre_usuario: "",
-    email: "",
-    contrasenya: "",
-    telefono: ""
-});
-
-const enviarInfo = async () => {
-
-    const { nombre_usuario, email, contrasenya, telefono } = form.value;
-
-    if (!nombre_usuario || !email || !contrasenya || !telefono) {
-        alert("Rellena los campos obligatorios");
-        return;
-    }
-
-    try {
-        console.log("Enviando registro: ", form.value);
-
-        const registrar = await axios.post("http://localhost:8080/api/register", form.value);
-
-        if (registrar.status === 201) {
-            alert("Cuenta creada con éxito");
-
-            form.value = {
-                nombre_usuario: "",
-                email: "",
-                contrasenya: "",
-                telefono: ""
-            };
-        }
-    } catch (error) {
-        console.error("Error en la petición:", error);
-        alert("Hubo un error al conectar con el servidor");
-    }
-
-};
-</script>
 
 <style scoped>
 * {

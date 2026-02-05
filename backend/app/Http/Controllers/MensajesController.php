@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Chat;
-use App\Models\Mensaje;
+use App\Models\Mensajes;
 use App\Events\MessageSent;
 use Illuminate\Http\Request;
 
-class MensajeController extends Controller
+class MensajesController extends Controller
 {
     public function store(Request $request)
     {
@@ -17,19 +17,35 @@ class MensajeController extends Controller
             'contenido' => 'required|string'
         ]);
 
-        $id_comprador = auth()->id();
+        $authId = $request->user()->id; 
+        $receptorId = $request->id_vendedor; 
+        $productoId = $request->id_producto;
 
-        // esta funcio el que fa es que si no existix un chat
-        // el crea automaticament
-        $chat = Chat::firstOrCreate([
-            'id_comprador' => $id_comprador,
-            'id_vendedor'  => $request->id_vendedor,
-            'id_producto'  => $request->id_producto,
-        ]);
+        // aço es per a la diferenciacio de rols per al chat
+        $chat = Chat::where('id_producto', $productoId)
+            ->where(function ($query) use ($authId, $receptorId) {
+                $query->where(function ($q) use ($authId, $receptorId) {
+                    // tu eres el comprador y ell el vendedor
+                    $q->where('id_comprador', $authId)->where('id_vendedor', $receptorId);
+                })->orWhere(function ($q) use ($authId, $receptorId) {
+                    // tu eres el vendedor y ell el comprador
+                    $q->where('id_comprador', $receptorId)->where('id_vendedor', $authId);
+                });
+            })->first();
 
-        $mensaje = Mensaje::create([
+            // si no existix el chat el creem
+        if (!$chat) {
+            $chat = Chat::create([
+                'id_comprador' => $authId,
+                'id_vendedor'  => $receptorId,
+                'id_producto'  => $productoId,
+            ]);
+        }
+
+        // creem el mensaje
+        $mensaje = Mensajes::create([
             'id_chat'   => $chat->id,
-            'id_envio'  => $id_comprador,
+            'id_envio'  => $authId,
             'contenido' => $request->contenido,
         ]);
 

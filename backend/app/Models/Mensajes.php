@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Mensaje extends Model
+class Mensajes extends Model
 {
     protected $table = 'mensajes';
     protected $fillable = ['id_chat', 'id_envio', 'contenido'];

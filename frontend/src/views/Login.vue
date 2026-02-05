@@ -1,3 +1,11 @@
+<script setup>
+    import { ref } from 'vue';
+    import LoginForm from '../components/Login.vue'; 
+    import RegisterForm from '../components/Registro.vue';
+
+    const eleccionActual = ref('login');
+</script>
+
 <template>
   <div class="login-contenedor" :class="{ 'centrado': eleccionActual === 'login' }">
     <div class="contenido-responsive">
@@ -32,14 +40,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-    import { ref } from 'vue';
-    import LoginForm from '../components/login.vue'; 
-    import RegisterForm from '../components/registro.vue';
-
-    const eleccionActual = ref('login');
-</script>
 
 <style scoped>
 body, html {

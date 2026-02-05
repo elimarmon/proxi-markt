@@ -3,7 +3,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { ref, onMounted, nextTick } from "vue";
 import axios from "axios";
-import navbar from "./nav.vue";
+import NavBar from "./NavBar.vue";
 import MostrarProductosMain from './MostrarProductosMain.vue';
 
 let map = null;
@@ -21,7 +21,7 @@ const seleccionarPunto = async (idPunto) => {
     mensajeEstado.value = "Cargando...";
 
     try {
-        const response = await axios.get(`http://localhost:8080/api/productosporpunto/${idPunto}`);
+        const response = await axios.get(`http://localhost:8080/api/puntos/${idPunto}/productos`);
 
         if (response.data.status && response.data.productos) {
             const data = response.data.productos;
@@ -113,9 +113,13 @@ const inicializarMapa = async () => {
         ubicacionUsuario.value = { lat, lng };
 
         if (!map) {
-            map = L.map('map').setView([lat, lng], 13);
+            map = L.map('map', {
+                minZoom: 3,
+            }).setView([lat, lng], 13);
+
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
+                minZoom: 3,
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
             
@@ -137,7 +141,7 @@ onMounted(() => {
 
 <template>
     <!-- Escuchamos el evento que emite el Navbar -->
-    <navbar @cambiar-radio="actualizarPuntos"></navbar>
+    <NavBar @cambiar-radio="actualizarPuntos"/>
     
     <div class="contenedor-pagina">
         <div id="contenedor-titulo">

@@ -5,26 +5,28 @@ use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\CompraVentaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PuntoEntregaController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\MensajesController;
+
 use Illuminate\Support\Facades\Route;
 
 // Rutas de puntos de entrega
 
-Route::get('/puntos_radio/{radio}', [PuntoEntregaController::class, 'puntos_radio']);
+Route::get('/puntos_radio/{radio}', [PuntoEntregaController::class, 'puntosRadio']);
+Route::get('/puntos/{punto}/productos', [ProductoController::class, 'obtenerProductosPunto']);
 
-// Rutas de productos
+// Rutas de productos públicas
 
 Route::get('/productos', [ProductoController::class, 'index']);
-Route::post("/productos", [ProductoController::class, "store"]);
 Route::get('/productos/{id}', [ProductoController::class, 'show']);
-Route::put('/productos/{id}', [ProductoController::class, 'update']);
-Route::get('/productosporpunto/{id}', [ProductoController::class, 'obtenerProductospunto']);
+
 
 // Rutas de categorías
 
 Route::get('/categorias', [CategoriaController::class, 'index']);
-Route::post("/categorias", [CategoriaController::class, "store"]);
+Route::post("/categorias", [CategoriaController::class, "store"]); // se debería envolver en autenticación basada en rol administrador
 
-// Rutas de usuarios
+// Rutas de usuarios públicas
 
 Route::post('/register', [AuthController::class, 'createUser'])
     ->name('register');
@@ -34,20 +36,44 @@ Route::post('/login', [AuthController::class, 'loginUser'])
 // Rutas protegidas
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/puntosuser', [PuntoEntregaController::class, 'puntosPorVendedor']);
-    Route::post('/insertarpunto', [PuntoEntregaController::class, 'store']);
-    Route::get('/datosuser', [UserController::class, 'unUsuario']);
-    Route::put('/ubicacionusuario', [UserController::class, 'updateLocation']);
-    Route::delete('/deletepunto/{id}', [PuntoEntregaController::class, 'destroy']);
-    Route::post('/publicarproducto', [ProductoController::class, 'store']);
-    Route::get('/productosuser', [ProductoController::class, 'productosPorUsuario']);
-    Route::delete('/productos/{id}', [ProductoController::class, 'destroy']);
+
+    // Rutas productos protegidas
+
+    Route::apiResource('productos', ProductoController::class)->only([
+        'store', 'update', 'destroy'
+    ]);
     
+    // siguiendo estructura apirest que se lee: de los usuarios, el que conincida con este id, dame los productos
+    // se mantiene el método en el controlador de productos porque es lo que se desea obtener
+    Route::get('/usuarios/{usuario}/productos', [ProductoController::class, 'productosPorUsuario']); 
+    
+    // Rutas para puntos protegidas
+
+    Route::get('/usuarios/{usuario}/puntos', [PuntoEntregaController::class, 'puntosPorVendedor']);
+    Route::post('/puntos', [PuntoEntregaController::class, 'store']);
+    Route::delete('/puntos/{id}', [PuntoEntregaController::class, 'destroy']);
+
+    // Rutas para usuarios protegidas
+
+    Route::get('/datosuser', [UserController::class, 'unUsuario']);
+    Route::put('/usuarios/{usuario}/ubicacion', [UserController::class, 'updateLocation']);
+
     // Rutas de compraventa
 
     Route::post("/compraventa/{producto}", [CompraVentaController::class, 'store']);
     Route::get('/miscompras', [CompraVentaController::class, 'misCompras']);
     Route::get('/misventas', [CompraVentaController::class, 'misVentas']);
+    Route::get('/miscomandas/{id}', [CompraVentaController::class, 'misComandas']);
     Route::get('/miscomandas', [CompraVentaController::class, 'misComandas']);
     Route::put("/miscomandas/{compraventa}", [CompraVentaController::class, 'actualizarEstado']);
+
+    // Rutas de chat
+
+    Route::get('/mischats', [ChatController::class, 'index']);
+    Route::get('/chat/{id}',[ChatController::class, 'show']);
+
+    // Rutas de mensajes
+
+    Route::post('/enviarmensaje', [MensajesController::class, 'store']);
+
 });

@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, onMounted, ref } from 'vue';
 import axios from 'axios';
-import navbar from './nav.vue';
+import NavBar from './NavBar.vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -100,7 +100,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <navbar></navbar>
+    <NavBar/>
     <div class="contenedor-edicion">
         <div class="tarjeta-formulario">
             <h1 class="titulo-principal">Edición de producto</h1>
