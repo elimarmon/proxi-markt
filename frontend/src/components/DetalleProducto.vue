@@ -2,7 +2,7 @@
 import SolicitarCompra from './SolicitarCompra.vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import Navbar from "@/components/nav.vue";
+import NavBar from "@/components/NavBar.vue";
 
 const props = defineProps(['id']);
 const producto = ref(null);
@@ -53,7 +53,7 @@ onMounted(() => obtenerProducto());
 </script>
 
 <template>
-    <navbar />
+    <NavBar />
     <div class="contenedor-pagina" v-if="producto">
         <div class="header-compacto">
             <h1 class="titulo-verde">{{ producto.nombre_producto }}</h1>

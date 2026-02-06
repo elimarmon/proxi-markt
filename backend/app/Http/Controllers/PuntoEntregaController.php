@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PuntoEntrega;
+use App\Models\User;
 use App\Http\Requests\PuntosEntregaRequest;
 
 class PuntoEntregaController extends Controller
@@ -17,9 +18,8 @@ class PuntoEntregaController extends Controller
     /**
      * Listar puntos de entrega de un vendedor específico
      */
-    public function puntosPorVendedor(Request $request) {
-        $user = $request->user();
-        $puntos = PuntoEntrega::where('id_usuario', $user->id)->get();
+    public function puntosPorVendedor(Request $request, User $usuario) {
+        $puntos = PuntoEntrega::where('id_usuario', $usuario->id)->get();
         return response()->json($puntos);
     }
 
@@ -64,7 +64,7 @@ class PuntoEntregaController extends Controller
         return response()->json(['message' => 'Punto de entrega eliminado']);
     }
 
-    public function puntos_radio(Request $request, $radio) {
+    public function puntosRadio(Request $request, $radio) {
         $latUsuario = $request->query('lat');
         $lngUsuario = $request->query('lng');
         $radioTierra = 6371;

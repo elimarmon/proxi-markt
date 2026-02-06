@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
-import navbar from "./nav.vue";
+import NavBar from "./NavBar.vue";
 import ChatDetalle from "./chat.vue"; 
 
 const chats = ref([]);
@@ -58,7 +58,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <navbar></navbar>
+    <NavBar/>
     <div class="contenedor-pagina">
         <div id="layout-chat">
             <div class="lista-chats">

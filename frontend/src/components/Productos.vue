@@ -1,7 +1,8 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
-import navbar from "./nav.vue";
+import NavBar from "./NavBar.vue";
+import { useAuth } from '@/composables/useAuth';
 import MostrarProductos from './MostrarProductosMain.vue';
 
 const productos = ref([]);
@@ -10,8 +11,7 @@ const radioActual = ref(
         ? Infinity
         : (Number(localStorage.getItem('distancia_guardada')) || 10)
 );
-
-const datosUsuario = ref(null);
+const { usuario, fetchUsuario } = useAuth();
 const categoriasSeleccionadas = ref([]);
 const menuAbierto = ref(false);
 const cargando = ref(false);
@@ -19,32 +19,14 @@ const textoBusqueda = ref("");
 const pagination = ref({});
 const paginaActual = ref(1);
 
-/**
- * Obtiene los datos del usuario para tener las coordenadas de referencia
- */
-const obtenerDatosUsuario = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    try {
-        const res = await axios.get('http://localhost:8080/api/datosuser', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        datosUsuario.value = res.data;
-    } catch (e) {
-        console.error("Error al obtener ubicación del usuario", e);
-    }
-};
-
-/**
- * Calcula la distancia real en KM. 
- */
+// TODO: se calculan distancias en el padre y en el hijo-> intentar simplificarlo
 const calcularDistanciaReal = (latV, lngV) => {
-    if (!datosUsuario.value || !datosUsuario.value.latitud || !latV || !lngV) {
+    if (!usuario.value || !usuario.value.latitud || !latV || !lngV) {
         return 999999;
     }
 
-    const miLat = parseFloat(datosUsuario.value.latitud);
-    const miLng = parseFloat(datosUsuario.value.longitud);
+    const miLat = parseFloat(usuario.value.latitud);
+    const miLng = parseFloat(usuario.value.longitud);
     const vLat = parseFloat(latV);
     const vLng = parseFloat(lngV);
 
@@ -116,14 +98,13 @@ const toggleMenu = () => {
 }
 
 onMounted(async () => {
-    await obtenerDatosUsuario();
+    await fetchUsuario();
     mostrarProductos();
 });
 </script>
 
 <template>
-    <navbar @cambiar-radio="manejarCambioRadio"></navbar>
-
+    <NavBar @cambiar-radio="manejarCambioRadio"/>
     <div class="contenedor-pagina">
         <div class="zona-fija">
             <h1 class="titulo-verde">Productos Frescos y Locales</h1>

@@ -1,5 +1,62 @@
+<script setup>
+import { ref, onMounted } from "vue";
+import axios from "axios";
+import NavBar from "./NavBar.vue";
+
+const comandas = ref([]);
+const cargando = ref(true);
+const comprador = ref(false);
+const token = localStorage.getItem("token");
+
+const obtenerComandas = async () => {
+    try {
+        const response = await axios.get("http://localhost:8080/api/miscomandas", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+        });
+
+        comprador.value = response.data.comprador;
+        comandas.value = response.data.datos;
+    } catch (error) {
+        console.error("Error:", error);
+    } finally {
+        cargando.value = false;
+    }
+};
+
+const actualizarComanda = async (id, nuevoEstado) => {
+    try {
+        await axios.put(`http://localhost:8080/api/miscomandas/${id}`,
+            {
+                estado: nuevoEstado
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json"
+                }
+            });
+        obtenerComandas();
+    } catch (err) {
+        alert("Algo ha ido mal.");
+        console.error(err);
+    }
+}
+
+onMounted(() => {
+    obtenerComandas();
+});
+
+const getUrlImagen = (rutaRelativa) => {
+    return rutaRelativa ? `http://localhost:8080/storage/${rutaRelativa}` : "http://localhost:8080/storage/productos/default.png";
+};
+</script>
+
 <template>
-    <navbar></navbar>
+    <NavBar/>
     <div class="contenedor-pagina">
         <div id="contenedor-titulo">
             <h1 class="titulo">Comandas</h1>
@@ -68,63 +125,6 @@
         </div>
     </div>
 </template>
-
-<script setup>
-import { ref, onMounted } from "vue";
-import axios from "axios";
-import navbar from "./nav.vue";
-
-const comandas = ref([]);
-const cargando = ref(true);
-const comprador = ref(false);
-const token = localStorage.getItem("token");
-
-const obtenerComandas = async () => {
-    try {
-        const response = await axios.get("http://localhost:8080/api/miscomandas", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: "application/json",
-                "Content-Type": "application/json",
-            },
-        });
-
-        comprador.value = response.data.comprador;
-        comandas.value = response.data.datos;
-    } catch (error) {
-        console.error("Error:", error);
-    } finally {
-        cargando.value = false;
-    }
-};
-
-const actualizarComanda = async (id, nuevoEstado) => {
-    try {
-        await axios.put(`http://localhost:8080/api/miscomandas/${id}`,
-            {
-                estado: nuevoEstado
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/json"
-                }
-            });
-        obtenerComandas();
-    } catch (err) {
-        alert("Algo ha ido mal.");
-        console.error(err);
-    }
-}
-
-onMounted(() => {
-    obtenerComandas();
-});
-
-const getUrlImagen = (rutaRelativa) => {
-    return rutaRelativa ? `http://localhost:8080/storage/${rutaRelativa}` : "http://localhost:8080/storage/productos/default.png";
-};
-</script>
 
 <style scoped>
 * {

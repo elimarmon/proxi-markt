@@ -1,25 +1,3 @@
-<template>
-    <div id="iniciarSesion" class="form-card">
-        <h3>Iniciar Sesión</h3>
-        <p class="subtitle">Accede a tu cuenta de ProxiMarkt</p>
-
-        <form @submit.prevent="enviarInfo">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input v-model="form.email" type="email" name="email" id="email" placeholder="tu@email.com" />
-            </div>
-
-            <div class="form-group">
-                <label for="contrasenya">Contraseña</label>
-                <input v-model="form.contrasenya" type="password" name="contrasenya" id="contrasenya"
-                    placeholder="••••••••" />
-            </div>
-
-            <button type="submit" class="boton-submit">Iniciar Sesión</button>
-        </form>
-    </div>
-</template>
-
 <script setup>
 import { ref } from 'vue';
 import axios from 'axios';
@@ -46,7 +24,7 @@ const enviarInfo = async () => {
         if (login.status === 200) {
             const token = login.data.token;
             localStorage.setItem('token', token);
-            console.log("Token guardado con éxito");
+            // console.log("Token guardado con éxito");
 
             if (login.data.user.direccion === null) {
                 router.push('/ubicacion');
@@ -62,6 +40,28 @@ const enviarInfo = async () => {
     }
 }
 </script>
+
+<template>
+    <div id="iniciarSesion" class="form-card">
+        <h3>Iniciar Sesión</h3>
+        <p class="subtitle">Accede a tu cuenta de ProxiMarkt</p>
+
+        <form @submit.prevent="enviarInfo">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input v-model="form.email" type="email" name="email" id="email" placeholder="tu@email.com" />
+            </div>
+
+            <div class="form-group">
+                <label for="contrasenya">Contraseña</label>
+                <input v-model="form.contrasenya" type="password" name="contrasenya" id="contrasenya"
+                    placeholder="••••••••" />
+            </div>
+
+            <button type="submit" class="boton-submit">Iniciar Sesión</button>
+        </form>
+    </div>
+</template>
 
 <style scoped>
 * {

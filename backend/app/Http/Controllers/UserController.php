@@ -11,12 +11,9 @@ class UserController extends Controller
         return $request->user();
     }
 
-    public function updateLocation(Request $request)
+    public function updateLocation(Request $request, User $usuario)
     {
-
-        $user = User::find($request->user()->id);
-        
-        $user->update([
+        $usuario->update([
             'direccion' => $request->direccion,
             'latitud'   => $request->latitud,
             'longitud'  => $request->longitud,
@@ -24,7 +21,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'Usuario actualizado correctamente',
-            'user' => $user
+            'user' => $usuario
         ], 201);
     }
 }
