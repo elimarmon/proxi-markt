@@ -32,7 +32,8 @@ const cargarProductosUser = async () => {
     if (!userId.value) return;
     try {
         const response = await axios.get(`http://localhost:8080/api/usuarios/${userId.value}/productos`, getConfig());
-        productosUser.value = response.data;
+        productosUser.value = response.data.data;
+        console.log(response.data);
     } catch (error) {
         console.error("Error cargando productos:", error);
     }
@@ -58,6 +59,7 @@ const productosOrdenados = computed(() => {
 
 onMounted(() => {
     obtenerUsuario();
+    console.log(productosUser.value);
     obtenerCompras();
     obtenerVentas();
 });

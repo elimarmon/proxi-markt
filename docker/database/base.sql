@@ -45,15 +45,12 @@ CREATE TABLE productos (
     stock_reserva INT NOT NULL DEFAULT 0,
     stock_real INT AS (stock_total - stock_reserva) STORED,
     imagen VARCHAR(255),
-    estado ENUM(
-        'agotado',
-        'disponible'
-    ) DEFAULT 'disponible',
+    estado ENUM('agotado', 'disponible') DEFAULT 'disponible',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_categoria) REFERENCES categorias (id),
-    Foreign Key (id_usuario) REFERENCES usuarios(id),
-    Foreign Key (id_puntoentrega) REFERENCES puntos_entrega(id)
+    FOREIGN KEY (id_usuario) REFERENCES usuarios (id),
+    FOREIGN KEY (id_puntoentrega) REFERENCES puntos_entrega (id)
 );
 
 CREATE TABLE chats (
@@ -91,8 +88,8 @@ CREATE TABLE compraventas (
     id_vendedor INT,
     id_punto INT,
     cantidad INT NOT NULL,
-    precio DECIMAL(10,2) NOT NULL,
-    precio_total DECIMAL(10,2) AS (precio * cantidad) STORED,
+    precio DECIMAL(10, 2) NOT NULL,
+    precio_total DECIMAL(10, 2) AS (precio * cantidad) STORED,
     fecha_prevista DATE,
     estado ENUM(
         'pendiente',
@@ -113,16 +110,12 @@ CREATE TABLE valoraciones (
     id_venta INT,
     id_resenyador INT,
     id_resenyado INT,
-    valoracion ENUM('1', '2', '3', '4', '5') NOT NULL,
+    valoracion TINYINT NOT NULL,
     comentario TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_venta) REFERENCES compraventas (id),
     FOREIGN KEY (id_resenyador) REFERENCES usuarios (id),
     FOREIGN KEY (id_resenyado) REFERENCES usuarios (id),
-    UNIQUE (
-        id_venta,
-        id_resenyador,
-        id_resenyado
-    )
+    UNIQUE (id_venta, id_resenyador)
 );

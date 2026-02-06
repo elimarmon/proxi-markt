@@ -12,13 +12,15 @@ class ChatController extends Controller
         $usuarioId = $request->user()->id;
 
         // esta funcio el que fa es mostrar tots els teus chats
-        return Chat::where('id_comprador', $usuarioId)
-            ->orWhere('id_vendedor', $usuarioId)
-            ->with(['producto', 'comprador', 'vendedor', 'mensajes' => function($q) {
-                // i esta funcio el que fa es mostrar el ultim mensatge que sa enviat en eixe chat
-                $q->latest()->limit(1); 
-            }])
-            ->get();
+        return Chat::where(function($query) use ($usuarioId) {
+            $query->where('id_comprador', $usuarioId)
+                ->orWhere('id_vendedor', $usuarioId);
+        })
+        ->with(['producto', 'comprador', 'vendedor', 'mensajes' => function($q) {
+            $q->latest()->limit(1); 
+        }])
+        ->orderBy('created_at', 'desc') 
+        ->get();
     }
 
     public function show($id)

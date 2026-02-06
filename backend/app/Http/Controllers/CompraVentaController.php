@@ -76,7 +76,7 @@ class CompraVentaController extends Controller
         ], 200);
     }
 
-    public function completarVenta(Compraventa $compraventa) {
+    public function completarVenta(CompraVenta $compraventa) {
 
         $producto = Producto::find($compraventa->id_producto);
 
@@ -93,7 +93,7 @@ class CompraVentaController extends Controller
         }
     }
 
-    public function actualizarEstado(Request $request, Compraventa $compraventa) {
+    public function actualizarEstado(Request $request, CompraVenta $compraventa) {
         $request->validate([
             'estado' => 'required|string|in:pendiente,en curso,cancelado,completado'
         ]);

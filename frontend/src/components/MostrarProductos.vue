@@ -4,13 +4,23 @@ const props = defineProps({
         type: Array,
         required: true,
         default: () => []
+    },
+    pagination: {
+        type: Object
+    },
+    paginaActual: {
+        type: Number
     }
 });
 
-const emit = defineEmits(['borrar']);
+const emit = defineEmits(['borrar', 'cambiarPagina']);
 
 const eliminarproducto = (id) => {
     emit('borrar', id)
+}
+
+const cambiarpagina = (pagina) => {
+    emit('cambiarPagina', pagina);
 }
 </script>
 
@@ -33,8 +43,8 @@ const eliminarproducto = (id) => {
                     </div>
                 </div>
                 <div class="acciones-producto">
-                    <router-link :to="{ name: 'editar_producto', params: { id: producto.id } }" class="btn-accion btn-editar"
-                        title="Editar producto">
+                    <router-link :to="{ name: 'editar_producto', params: { id: producto.id } }"
+                        class="btn-accion btn-editar" title="Editar producto">
                         Editar
                     </router-link>
                     <button @click="eliminarproducto(producto.id)" class="btn-accion btn-eliminar"
@@ -49,6 +59,13 @@ const eliminarproducto = (id) => {
         <div v-else class="card-vacia">
             No hay productos para mostrar en este momento.
         </div>
+    </div>
+    <div v-if="pagination.last_page > 1" class="paginacion">
+        <button :disabled="paginaActual === 1" @click="cambiarpagina(paginaActual - 1)"> Anterior </button>
+
+        <span>Página {{ paginaActual }} de {{ pagination.last_page }}</span>
+        <button :disabled="paginaActual === pagination.last_page" @click="cambiarpagina(paginaActual + 1)"> Siguiente
+        </button>
     </div>
 </template>
 
@@ -158,5 +175,27 @@ const eliminarproducto = (id) => {
 .btn-eliminar:hover {
     background-color: #ef4444;
     color: white;
+}
+
+.paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin: 20px 0px 40px 0px;
+    padding: 10px;
+}
+
+.paginacion button {
+    padding: 8px 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+}
+
+.paginacion button:disabled {
+    background: #eee;
+    cursor: not-allowed;
 }
 </style>
