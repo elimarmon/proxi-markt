@@ -2,11 +2,11 @@
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import NavBar from "./NavBar.vue";
-import ChatDetalle from "./chat.vue"; 
+import ChatDetalle from "./Chat.vue";
 
 const chats = ref([]);
 const chatSeleccionadoId = ref(null);
-const idUsuarioLogueado = ref(null); 
+const idUsuarioLogueado = ref(null);
 
 // saber si eres comprador o vendedor
 const obtenerDatosUsuario = async () => {
@@ -39,7 +39,7 @@ const idReceptorDinamico = computed(() => {
     }
 });
 
-const obtenerchats = async () => {
+const obtenerChats = async () => {
     try {
         const token = localStorage.getItem('token');
         const respuesta = await axios.get('http://localhost:8080/api/mischats', {
@@ -52,21 +52,21 @@ const obtenerchats = async () => {
 }
 
 onMounted(() => {
-    obtenerchats();
+    obtenerChats();
     obtenerDatosUsuario();
 });
 </script>
 
 <template>
-    <NavBar/>
+    <NavBar />
     <div class="contenedor-pagina">
         <div id="layout-chat">
             <div class="lista-chats">
-                <div v-for="chat in chats" :key="chat.id" 
-                     @click="chatSeleccionadoId = chat.id"
-                     :class="['item-chat', { activo: chatSeleccionadoId === chat.id }]">
+                <div v-for="chat in chats" :key="chat.id" @click="chatSeleccionadoId = chat.id"
+                    :class="['item-chat', { activo: chatSeleccionadoId === chat.id }]">
                     <h3>
-                        {{ chat.id_vendedor === idUsuarioLogueado ? chat.comprador.nombre_usuario : chat.vendedor.nombre_usuario }}
+                        {{ chat.id_vendedor === idUsuarioLogueado ? chat.comprador.nombre_usuario :
+                            chat.vendedor.nombre_usuario }}
                     </h3>
                     <p>{{ chat.producto.nombre_producto }}</p>
                 </div>
@@ -76,13 +76,8 @@ onMounted(() => {
                 <!-- si es selecciona un chat i el usuari esta logejat
                  enviem al component fill el qui el recibix, 
                  el producte, y el id de la persona logejada   -->
-                <ChatDetalle 
-                    v-if="chatActivo && idUsuarioLogueado" 
-                    :id_receptor="idReceptorDinamico" 
-                    :id_producto="chatActivo.id_producto" 
-                    :chatid="chatActivo.id"
-                    :mi_id="idUsuarioLogueado"
-                />
+                <ChatDetalle v-if="chatActivo && idUsuarioLogueado" :id_receptor="idReceptorDinamico"
+                    :id_producto="chatActivo.id_producto" :chatid="chatActivo.id" :mi_id="idUsuarioLogueado" />
                 <div v-else class="vacio">
                     <p>Selecciona una conversación</p>
                 </div>
@@ -96,32 +91,32 @@ onMounted(() => {
 .contenedor-pagina {
     padding: 50px;
     padding-top: 130px;
-    height: 100vh; 
+    height: 100vh;
     box-sizing: border-box;
-    background-color: #f5f5f5; /* Un fondo sutil para que resalte el layout */
+    background-color: #f5f5f5;
 }
 
 #layout-chat {
     display: grid;
-    grid-template-columns: 350px 1fr; 
-    height: 75vh; 
+    grid-template-columns: 350px 1fr;
+    height: 75vh;
     background: #ffffff;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
-    overflow: hidden; 
+    overflow: hidden;
     max-width: 95%;
     margin: 20px auto;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 .lista-chats {
     border-right: 1px solid #f0f0f0;
     overflow-y: auto;
     background: #fdfdfd;
-    padding: 15px;      
+    padding: 15px;
     display: flex;
     flex-direction: column;
-    gap: 12px;          
+    gap: 12px;
 }
 
 .item-chat {
@@ -159,7 +154,7 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     background: #ffffff;
-    height: 100%; 
+    height: 100%;
     overflow: hidden;
     position: relative;
 }
