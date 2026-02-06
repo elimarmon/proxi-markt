@@ -3,12 +3,14 @@ import { reactive, onMounted, ref } from 'vue';
 import axios from 'axios';
 import NavBar from './NavBar.vue';
 import { useRouter } from 'vue-router';
+import { useAuth } from '@/composables/useAuth';
 
 const router = useRouter();
 
 const PuntosEntrega = ref([]);
 const archivoImagen = ref(null);
 const imagenPreview = ref(null);
+const { usuario, fetchUsuario } = useAuth();
 
 const props = defineProps({
     id: {
@@ -35,7 +37,7 @@ const seleccionarArchivo = (e) => {
     }
 }
 
-const CargarProducto = async () => {
+const cargarProducto = async () => {
     try {
         const respuesta = await axios.get(`http://localhost:8080/api/productos/${props.id}`);
         Object.assign(formulario, respuesta.data);
@@ -78,10 +80,10 @@ const editarProducto = async () => {
     }
 }
 
-const CargarPuntos = async () => {
+const cargarPuntos = async () => {
     const token = localStorage.getItem('token');
     try {
-        const resposta = await axios.get(`http://localhost:8080/api/puntosuser`, {
+        const resposta = await axios.get(`http://localhost:8080/api/usuarios/${usuario.value.id}/puntos`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
@@ -93,14 +95,15 @@ const CargarPuntos = async () => {
     }
 }
 
-onMounted(() => {
-    CargarProducto();
-    CargarPuntos();
+onMounted(async () => {
+    if (!usuario.value?.id) await fetchUsuario();
+    cargarProducto();
+    cargarPuntos();
 });
 </script>
 
 <template>
-    <NavBar/>
+    <NavBar />
     <div class="contenedor-edicion">
         <div class="tarjeta-formulario">
             <h1 class="titulo-principal">Edición de producto</h1>
@@ -145,8 +148,8 @@ onMounted(() => {
                     <label>Imagen del producto</label>
 
                     <div class="preview-container" v-if="imagenPreview || formulario.imagen">
-                        <img :src="imagenPreview || `http://localhost:8080/storage/${formulario.imagen}`" alt="Vista previa"
-                            class="foto-preview" />
+                        <img :src="imagenPreview || `http://localhost:8080/storage/${formulario.imagen}`"
+                            alt="Vista previa" class="foto-preview" />
                         <p class="texto-ayuda-foto">{{ imagenPreview ? 'Nueva imagen seleccionada' : 'Imagen actual' }}
                         </p>
                     </div>
