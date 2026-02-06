@@ -105,7 +105,7 @@ const guardarUbicacion = async () => {
 
         if (respuesta.status >= 200 && respuesta.status < 300) {
             alert("Dirección actualizada correctamente.");
-            console.log("Respuesta:", respuesta.data);
+            // console.log("Respuesta:", respuesta.data);
             router.push('/cuenta');
         }
 
@@ -128,7 +128,7 @@ const cancelar = () => {
 }
 
 onMounted(async () => {
-    await fetchUsuario();
+    if (!usuario.value?.id) await fetchUsuario();
     inicializarMapa();
 });
 </script>
