@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import NavBar from "./NavBar.vue";
 import ValoracionForm from "./ValoracionForm.vue";
@@ -22,27 +22,37 @@ const obtenerComandas = async () => {
         });
         comandas.value = response.data.datos;
     } catch (error) {
-        console.error("Error:", error);
+        console.error("Error al cargar:", error);
     } finally {
         cargando.value = false;
     }
 };
 
+const comandasPendientes = computed(() => {
+    return comandas.value.filter(c => c.estado === 'pendiente');
+});
+
+const historialComandas = computed(() => {
+    return comandas.value.filter(c => c.estado !== 'pendiente');
+});
+
 const actualizarComanda = async (id, nuevoEstado) => {
     try {
         await axios.put(`http://localhost:8080/api/miscomandas/${id}`,
-            {
-                estado: nuevoEstado
-            },
+            { estado: nuevoEstado },
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: "application/json"
                 }
             });
-        obtenerComandas();
+        const comandaEncontrada = comandas.value.find(c => c.id === id);
+        
+        if (comandaEncontrada) {
+            comandaEncontrada.estado = nuevoEstado;
+        }
     } catch (err) {
-        alert("Algo ha ido mal.");
+        alert("Ha ocurrido un error al actualizar la comanda.");
         console.error(err);
     }
 }
@@ -87,18 +97,19 @@ const postValoracion = async (idCompraventa, datos) => {
                 Gestiona las solicitudes de compra de tus productos
             </p>
         </div>
+
         <div class="contenedor-comandas">
             <img src="../assets/iconos/stock.png" alt="Comandas pendientes" class="icono" />
             <h3>Comandas pendientes</h3>
-            <p>{{ comandas.length }} pendientes</p>
+            <p>{{ comandasPendientes.length }} pendientes</p>
 
             <p v-if="cargando">Cargando comandas...</p>
 
-            <div v-if="!cargando && comandas.length === 0" class="sin-comandas-texto">
+            <div v-if="!cargando && comandasPendientes.length === 0" class="sin-comandas-texto">
                 <p>No hay comandas pendientes</p>
             </div>
 
-            <div v-for="comanda in comandas" :key="comanda.id" class="comanda">
+            <div v-for="comanda in comandasPendientes" :key="comanda.id" class="comanda">
                 <img :src="getUrlImagen(comanda.producto?.imagen)" alt="foto-producto" class="foto-producto" />
 
                 <h3>
@@ -156,10 +167,45 @@ const postValoracion = async (idCompraventa, datos) => {
             </div>
             <ValoracionForm v-if="aValorar" :id="aValorar" @enviar-valoracion="postValoracion(aValorar, $event)" @cerrar="aValorar = null" />
         </div>
+
+        <div class="historial">
+            <div class="titulo-historial">
+                <img src="../assets/iconos/aceptar.png" alt="Historial" class="icono-titulo">
+                <h3>Historial de comandas</h3>
+            </div>
+
+            <div v-if="historialComandas.length === 0" style="text-align: center; color: #999; padding: 20px;">
+                No hay historial disponible.
+            </div>
+
+            <div v-for="item in historialComandas" :key="item.id" class="tarjeta-producto"
+                :style="{ borderLeftColor: item.estado === 'cancelado' ? '#e74c3c' : '#22c55e' }">
+                
+                <div class="info-izquierda">
+                    <img :src="getUrlImagen(item.producto?.imagen)" alt="foto-producto" class="img-producto">
+                    <div class="detalles">
+                        <h3>{{ item.producto?.nombre_producto }}</h3>
+                        <div class="fila-datos">
+                            <span>Cantidad: {{ item.cantidad }}</span>
+                            <span class="separador">•</span>
+                            <span class="precio">{{ item.precio_total }}€</span>
+                            <span class="separador">•</span>
+                            <span class="usuario">{{ item.comprador?.nombre_usuario }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="etiqueta-estado"
+                    :style="{ backgroundColor: item.estado === 'cancelado' ? '#e74c3c' : '#0f172a' }">
+                    {{ item.estado === 'cancelado' ? 'Rechazado' : 'Aceptado' }}
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <style scoped>
+
 * {
     margin: 0;
     padding: 0;
@@ -424,5 +470,117 @@ body {
 
 .rechazar:hover {
     background-color: #ffdddd;
+}
+
+.historial {
+    margin-top: 50px;
+    max-width: 90%;
+    margin: auto;
+}
+
+.titulo-historial {
+    margin-top: 50px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.titulo-historial h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.icono-titulo {
+    width: 25px;
+    height: 25px;
+}
+
+.tarjeta-producto {
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-left: 6px solid #22c55e;
+    border-radius: 8px;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.info-izquierda {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.img-producto {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.detalles h3 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.fila-datos {
+    font-size: 14px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.separador {
+    font-size: 10px;
+    color: #cbd5e1;
+}
+
+.precio {
+    color: #22c55e;
+    font-weight: 600;
+}
+
+.etiqueta-estado {
+    background-color: #0f172a;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .comanda-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .comanda-actions {
+        flex-direction: column;
+    }
+
+    .empty-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .badge-pendientes-empty {
+        margin-left: 0;
+    }
 }
 </style>
