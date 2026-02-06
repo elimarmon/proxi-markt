@@ -2,11 +2,14 @@
 import { ref, onMounted } from "vue";
 import axios from "axios";
 import NavBar from "./NavBar.vue";
+import ValoracionForm from "./ValoracionForm.vue";
+import { useAuth } from "@/composables/useAuth";
 
 const comandas = ref([]);
 const cargando = ref(true);
-const comprador = ref(false);
+const { usuario, fetchUsuario } = useAuth();
 const token = localStorage.getItem("token");
+const aValorar = ref(null);
 
 const obtenerComandas = async () => {
     try {
@@ -17,8 +20,6 @@ const obtenerComandas = async () => {
                 "Content-Type": "application/json",
             },
         });
-
-        comprador.value = response.data.comprador;
         comandas.value = response.data.datos;
     } catch (error) {
         console.error("Error:", error);
@@ -46,17 +47,39 @@ const actualizarComanda = async (id, nuevoEstado) => {
     }
 }
 
-onMounted(() => {
+const abrirModalValoracion = (id) => {
+    aValorar.value = id;
+};
+
+onMounted(async () => {
+    if (!usuario) await fetchUsuario();
     obtenerComandas();
 });
 
 const getUrlImagen = (rutaRelativa) => {
     return rutaRelativa ? `http://localhost:8080/storage/${rutaRelativa}` : "http://localhost:8080/storage/productos/default.png";
 };
+
+const postValoracion = async (idCompraventa, datos) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+        await axios.post(`http://localhost:8080/api/valoraciones/${idCompraventa}`, datos, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            }
+        });
+    } catch (err) {
+        alert("Algo ha ido mal.")
+        console.log(err);
+    }
+};
+
 </script>
 
 <template>
-    <NavBar/>
+    <NavBar />
     <div class="contenedor-pagina">
         <div id="contenedor-titulo">
             <h1 class="titulo">Comandas</h1>
@@ -105,23 +128,33 @@ const getUrlImagen = (rutaRelativa) => {
                         {{ comanda.comprador?.nombre_usuario || "Usuario desconocido" }}
                     </p>
                 </div>
-
+<!-- 
                 <div class="mensaje-comprador">
                     <img src="../assets/iconos/chat-comanda.png" alt="icono-chat" class="icono" />
                     <p>Nota del pedido:</p>
                     <p>{{ comanda.mensaje || "No especificado" }}</p>
-                </div>
+                </div> -->
 
-                <button v-if="!comprador" @click="actualizarComanda(comanda.id, 'en curso')" class="aceptar">
+                <button v-if="comanda.estado == 'completado'" class="aceptar"
+                    @click="abrirModalValoracion(comanda.id)">Valorar</button>
+                <button v-else-if="comanda.estado == 'en curso' && comanda['id_comprador'] !== usuario.id"
+                    class="aceptar" @click="actualizarComanda(comanda.id, 'completado')">
+                    <img src="../assets/iconos/aceptar.png" alt="icono-aceptar" class="icono" />
+                    Finalizar comanda
+                </button>
+                <button v-else-if="comanda['id_comprador'] !== usuario.id"
+                    @click="actualizarComanda(comanda.id, 'en curso')" class="aceptar">
                     <img src="../assets/iconos/aceptar.png" alt="icono-aceptar" class="icono" />
                     Aceptar comanda
                 </button>
 
-                <button class="rechazar" @click="actualizarComanda(comanda.id, 'cancelado')">
+                <button :disabled="comanda.estado == 'completado'" class="rechazar"
+                    @click="actualizarComanda(comanda.id, 'cancelado')">
                     <img src="../assets/iconos/rechazar.png" alt="icono-rechazar" class="icono" />
                     Rechazar comanda
                 </button>
             </div>
+            <ValoracionForm v-if="aValorar" :id="aValorar" @enviar-valoracion="postValoracion(aValorar, $event)" @cerrar="aValorar = null" />
         </div>
     </div>
 </template>
