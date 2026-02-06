@@ -35,7 +35,7 @@ const crearCompraventa = async (datosCompra) => {
                 contenido: datosCompra.mensaje
 
             }
-            await axios.post('http://localhost:8080/api/enviarmensaje', datosChat, {
+            await axios.post('http://localhost:8080/api/enviar-mensaje', datosChat, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

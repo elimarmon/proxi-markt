@@ -42,7 +42,7 @@ const idReceptorDinamico = computed(() => {
 const obtenerChats = async () => {
     try {
         const token = localStorage.getItem('token');
-        const respuesta = await axios.get('http://localhost:8080/api/mischats', {
+        const respuesta = await axios.get('http://localhost:8080/api/mis-chats', {
             headers: { Authorization: `Bearer ${token}` }
         });
         chats.value = respuesta.data;

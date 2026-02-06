@@ -70,7 +70,7 @@ const enviarMensaje = async () => {
         const token = localStorage.getItem('token');
 
         //peticio al backend
-        await axios.post('http://localhost:8080/api/enviarmensaje', {
+        await axios.post('http://localhost:8080/api/enviar-mensaje', {
             id_chat: props.chatid,   // id del chat actual
             id_vendedor: props.id_receptor, // a qui li arriba el mensatge
             id_producto: props.id_producto, // el producte del que estem parlant
