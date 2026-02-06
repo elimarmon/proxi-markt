@@ -3,19 +3,21 @@ import SolicitarCompra from './SolicitarCompra.vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import NavBar from "@/components/NavBar.vue";
+import { useAuth } from '@/composables/useAuth';
 
 const props = defineProps(['id']);
 const producto = ref(null);
+const { usuario, fetchUsuario } = useAuth();
 
 const obtenerProducto = async () => {
     const response = await axios.get(`http://localhost:8080/api/productos/${props.id}`);
     producto.value = response.data;
-    console.log(producto.value)
+    // console.log(producto.value)
 }
 
 const token = localStorage.getItem('token');
 
-const crearCompraventa = (datosCompra) => {
+const crearCompraventa = async (datosCompra) => {
     const payload = {
         id_producto: producto.value.id,
         id_vendedor: producto.value.id_usuario,
@@ -26,30 +28,35 @@ const crearCompraventa = (datosCompra) => {
     }
 
     try {
-        if(datosCompra.mensaje){
-            const datoschat = {
+        if (datosCompra.mensaje) {
+            const datosChat = {
                 id_vendedor: producto.value.id_usuario,
                 id_producto: producto.value.id,
                 contenido: datosCompra.mensaje
-                
+
             }
-            axios.post('http://localhost:8080/api/enviarmensaje', datoschat, {
-                headers: { 'Authorization': `Bearer ${token}`
+            await axios.post('http://localhost:8080/api/enviarmensaje', datosChat, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
                 }
             })
         }
-        axios.post(`http://localhost:8080/api/compraventa/${props.id}`, payload, { 
-            headers: { 'Authorization': `Bearer ${token}` 
-            } 
+        await axios.post(`http://localhost:8080/api/compraventa/${props.id}`, payload, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         })
         alert("Solicitud correcta");
     } catch (err) {
         alert("Solicitud incorrecta");
-        console.log(err);
+        console.error(err);
     }
 }
 
-onMounted(() => obtenerProducto());
+onMounted(async () => {
+    if (!usuario.value?.id) await fetchUsuario();
+    obtenerProducto()
+});
 </script>
 
 <template>
@@ -61,10 +68,8 @@ onMounted(() => obtenerProducto());
         </div>
 
         <div class="product-detail-card">
-            <!-- Sección Izquierda: Imagen + Descripción -->
             <div class="image-section">
                 <div class="image-wrapper">
-                    <!-- Categoría encima de la imagen -->
                     <span class="badge-overlay" v-if="producto.categoria">
                         {{ producto.categoria.nombre_categoria }}
                     </span>
@@ -77,7 +82,6 @@ onMounted(() => obtenerProducto());
                 </div>
             </div>
 
-            <!-- Sección Derecha: Información y Formulario -->
             <div class="info-section">
                 <div class="details-box">
                     <div class="detail-item">
@@ -96,7 +100,6 @@ onMounted(() => obtenerProducto());
                         <span>{{ producto.usuario.nombre_usuario }}</span>
                     </div>
 
-                    <!-- Precio en la parte inferior del cuadro -->
                     <div class="price-section">
                         <span class="label">Precio:</span>
                         <p class="price">{{ producto.precio }}€</p>
@@ -104,7 +107,8 @@ onMounted(() => obtenerProducto());
                 </div>
 
                 <div class="form-container">
-                    <SolicitarCompra :precio="producto.precio" @enviar-solicitud="crearCompraventa" />
+                    <SolicitarCompra :precio="producto.precio" :ids="[producto.id_vendedor, usuario.id]"
+                        @enviar-solicitud="crearCompraventa" />
                 </div>
             </div>
         </div>
@@ -115,7 +119,6 @@ onMounted(() => obtenerProducto());
 .contenedor-pagina {
     max-width: 1200px;
     margin: 0 auto;
-    /* Reducido para que quepa mejor en el viewport */
     padding: 90px 20px 20px;
     font-family: 'Segoe UI', 'Arial', sans-serif;
     min-height: 100vh;
@@ -163,7 +166,6 @@ onMounted(() => obtenerProducto());
 
 .image-wrapper img {
     width: 100%;
-    /* Altura máxima para no empujar la descripción fuera del viewport */
     max-height: 50vh;
     height: auto;
     object-fit: cover;
@@ -269,7 +271,10 @@ onMounted(() => obtenerProducto());
     .product-detail-card {
         gap: 20px;
     }
-    .titulo-verde { font-size: 1.6rem; }
+
+    .titulo-verde {
+        font-size: 1.6rem;
+    }
 }
 
 @media (max-width: 768px) {
