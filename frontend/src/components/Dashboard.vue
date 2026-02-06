@@ -1,11 +1,12 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import NavBar from "./NavBar.vue";
 
 const productosUser = ref([]);
 const misCompras = ref([]);
 const misVentas = ref([]);
+const userId = ref(null);
 
 const getConfig = () => {
     const token = localStorage.getItem('token');
@@ -17,24 +18,46 @@ const getConfig = () => {
     };
 };
 
+const obtenerUsuario = async () => {
+    try {
+        const response = await axios.get('http://localhost:8080/api/datosuser', getConfig());
+        userId.value = response.data.id;
+        cargarProductosUser(); 
+    } catch (error) {
+        console.error("Error obteniendo usuario:", error);
+    }
+};
+
 const cargarProductosUser = async () => {
-    
-    const response = await axios.get(`http://localhost:8080/api/usuarios/${userId}/productos`, getConfig());
-    productosUser.value = response.data;
+    if (!userId.value) return;
+    try {
+        const response = await axios.get(`http://localhost:8080/api/usuarios/${userId.value}/productos`, getConfig());
+        productosUser.value = response.data;
+    } catch (error) {
+        console.error("Error cargando productos:", error);
+    }
 };
 
 const obtenerCompras = async () => {
-    const response = await axios.get('http://localhost:8080/api/mis-compras', getConfig());
+    const response = await axios.get('http://localhost:8080/api/miscompras', getConfig());
     misCompras.value = response.data;
 };
 
 const obtenerVentas = async () => {
-    const response = await axios.get('http://localhost:8080/api/mis-ventas', getConfig());
+    const response = await axios.get('http://localhost:8080/api/misventas', getConfig());
     misVentas.value = response.data;
 };
 
+const comprasCompletadas = computed(() => {
+    return misCompras.value.filter(c => c.estado === 'completado');
+});
+
+const productosOrdenados = computed(() => {
+    return [...productosUser.value].sort((a, b) => a.id - b.id);
+});
+
 onMounted(() => {
-    cargarProductosUser();
+    obtenerUsuario();
     obtenerCompras();
     obtenerVentas();
 });
@@ -70,7 +93,7 @@ onMounted(() => {
             <div class="caja">
                 <h3>Ingresos</h3>
                 <p>{{misVentas.filter(venta => venta.estado === 'completado').reduce((total, venta) => total +
-                    (venta.cantidad_total * (venta.producto?.precio || 0)), 0).toFixed(2) }}€</p>
+                    (venta.cantidad * (venta.producto?.precio || 0)), 0).toFixed(2) }}€</p>
                 <img src="../assets/iconos/euro.png" />
             </div>
         </div>
@@ -88,13 +111,13 @@ onMounted(() => {
 
                         <p id="nombre-producto">{{ venta.producto?.nombre_producto || 'Producto no disponible' }}</p>
 
-                        <p id="precio">{{ (venta.cantidad_total * (venta.producto?.precio || 0)).toFixed(2) }}€</p>
+                        <p id="precio">{{ (venta.cantidad * (venta.producto?.precio || 0)).toFixed(2) }}€</p>
 
                         <p id="info">Comprador #{{ venta.id_comprador }}</p>
                         <p id="estado">{{ venta.estado }}</p>
                     </div>
                 </div>
-                <p class="no-producto" v-else>No tienes ventas aún.</p>
+                <p class="no-producto" v-else>No has vendido nada aún.</p>
             </div>
 
             <div class="productos">
@@ -102,7 +125,7 @@ onMounted(() => {
                 <h3>Productos disponibles</h3>
 
                 <div v-if="productosUser.length > 0" class="lista-scroll">
-                    <div class="producto-disponible" v-for="producto in productosUser" :key="producto.id">
+                    <div class="producto-disponible" v-for="producto in productosOrdenados" :key="producto.id">
                         <img :src="producto.imagen ? `http://localhost:8080/storage/${producto.imagen}` : 'https://via.placeholder.com/150'"
                             class="imagen-producto">
                         <p id="nombre-producto">{{ producto.nombre_producto }}</p>
@@ -110,7 +133,7 @@ onMounted(() => {
                         <p id="stock-disponible">{{ producto.stock_total }} disponibles</p>
                     </div>
                 </div>
-                <p class="no-producto" v-else>No has publicado productos.</p>
+                <p class="no-producto" v-else>No has publicado ningún productos aún.</p>
             </div>
         </div>
 
@@ -120,16 +143,15 @@ onMounted(() => {
                 <img src="../assets/iconos/stock.png" class="icono" />
                 <h3>Mis Compras</h3>
 
-                <div v-if="misCompras.length > 0" class="lista-scroll">
-                    <div class="compras-producto" v-for="compra in misCompras" :key="compra.id">
-
+                <div v-if="comprasCompletadas.length > 0" class="lista-scroll">
+                    <div class="compras-producto" v-for="compra in misCompras.filter(c => c.estado === 'completado')" :key="compra.id">
                         <img :src="compra.producto?.imagen ? `http://localhost:8080/storage/${compra.producto.imagen}` : 'https://via.placeholder.com/150'"
                             class="imagen-producto">
 
                         <p id="nombre-producto">{{ compra.producto?.nombre_producto || 'Producto no disponible' }}</p>
                         <p id="info">Vendedor #{{ compra.id_vendedor }}</p>
                         <p id="estado">{{ compra.estado }}</p>
-                        <p id="precio">{{ (compra.cantidad_total * (compra.producto?.precio || 0)).toFixed(2) }}€</p>
+                        <p id="precio">{{ (compra.cantidad * (compra.producto?.precio || 0)).toFixed(2) }}€</p>
                     </div>
                 </div>
                 <p class="no-producto" v-else>No has comprado nada aún.</p>

@@ -76,7 +76,7 @@ class CompraVentaController extends Controller
 
     public function completarVenta(CompraVenta $compraventa) {
 
-        $producto = $producto = Producto::find($compraventa->id_producto);
+        $producto = Producto::find($compraventa->id_producto);
 
         switch ($compraventa->estado) {
             case 'completado':
