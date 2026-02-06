@@ -8,7 +8,6 @@ const cargando = ref(true);
 const comprador = ref(false);
 const token = localStorage.getItem("token");
 
-// Función para obtener datos del servidor
 const obtenerComandas = async () => {
     try {
         const response = await axios.get("http://localhost:8080/api/miscomandas", {
@@ -28,20 +27,16 @@ const obtenerComandas = async () => {
     }
 };
 
-// LISTA DE ARRIBA: Solo las pendientes
 const comandasPendientes = computed(() => {
     return comandas.value.filter(c => c.estado === 'pendiente');
 });
 
-// LISTA DE ABAJO: Todo lo que NO sea pendiente (aceptado o cancelado)
 const historialComandas = computed(() => {
     return comandas.value.filter(c => c.estado !== 'pendiente');
 });
 
-// --- AQUÍ ESTÁ EL CAMBIO CLAVE ---
 const actualizarComanda = async (id, nuevoEstado) => {
     try {
-        // 1. Enviamos el cambio al servidor (Backend) para que se guarde en la base de datos
         await axios.put(`http://localhost:8080/api/miscomandas/${id}`,
             { estado: nuevoEstado },
             {
@@ -50,18 +45,11 @@ const actualizarComanda = async (id, nuevoEstado) => {
                     Accept: "application/json"
                 }
             });
-
-        // 2. ACTUALIZACIÓN LOCAL (El Truco)         // En vez de recargar toda la lista (lo que hacía que desapareciera),
-        // buscamos la comanda en nuestra memoria y le cambiamos la etiqueta nosotros mismos.
         const comandaEncontrada = comandas.value.find(c => c.id === id);
         
         if (comandaEncontrada) {
             comandaEncontrada.estado = nuevoEstado;
         }
-        
-        // NOTA: Hemos quitado el "await obtenerComandas()" aquí a propósito.
-        // Esto asegura que la comanda se mueva al historial instantáneamente y no desaparezca.
-
     } catch (err) {
         alert("Ha ocurrido un error al actualizar la comanda.");
         console.error(err);
@@ -184,7 +172,7 @@ const getUrlImagen = (rutaRelativa) => {
 </template>
 
 <style scoped>
-/* TU CSS ORIGINAL - NO HE TOCADO NADA */
+
 * {
     margin: 0;
     padding: 0;
