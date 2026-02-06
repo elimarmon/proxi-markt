@@ -2,7 +2,7 @@
 import SolicitarCompra from './SolicitarCompra.vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import Navbar from "@/components/NavBar.vue";
+import NavBar from "@/components/NavBar.vue";
 
 const props = defineProps(['id']);
 const producto = ref(null);

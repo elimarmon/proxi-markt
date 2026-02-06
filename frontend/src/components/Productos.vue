@@ -16,6 +16,8 @@ const categoriasSeleccionadas = ref([]);
 const menuAbierto = ref(false);
 const cargando = ref(false);
 const textoBusqueda = ref("");
+const pagination = ref({});
+const paginaActual = ref(1);
 
 // TODO: se calculan distancias en el padre y en el hijo-> intentar simplificarlo
 const calcularDistanciaReal = (latV, lngV) => {
@@ -48,20 +50,27 @@ const categorias = computed(() => {
     return unicas.sort();
 });
 
-const mostrarProductos = async () => {
+const mostrarProductos = async (pagina = 1) => {
     cargando.value = true;
     const token = localStorage.getItem('token');
     const radioParaAPI = radioActual.value === Infinity ? 99999 : radioActual.value;
 
     try {
         const response = await axios.get("http://localhost:8080/api/productos", {
-            params: { km: radioParaAPI },
+            params: {
+                km: radioParaAPI,
+                page: pagina
+            },
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
             }
         });
-        productos.value = response.data;
+        productos.value = response.data.data;
+        pagination.value = response.data;
+        paginaActual.value = response.data.current_page;
+
+
     } catch (error) {
         console.error("Error al cargar productos:", error);
     } finally {
@@ -142,10 +151,20 @@ onMounted(async () => {
         <div v-if="cargando" style="text-align: center; padding: 20px;">
             <p>Cargando productos...</p>
         </div>
-        <MostrarProductos v-else-if="productosFiltrados.length >= 1" :productos="productosFiltrados"/>
+        <MostrarProductos v-else-if="productosFiltrados.length >= 1" :productos="productosFiltrados"
+            :radioMaximo="radioActual"></MostrarProductos>
         <div v-else class="mensaje-ayuda">
             <p>No se han encontrado productos.</p>
         </div>
+    </div>
+    <div v-if="pagination.last_page > 1" class="paginacion">
+
+        <button :disabled="paginaActual === 1" @click="mostrarProductos(paginaActual - 1)"> Anterior </button>
+
+        <span>Página {{ paginaActual }} de {{ pagination.last_page }}</span>
+
+        <button :disabled="paginaActual === pagination.last_page" @click="mostrarProductos(paginaActual + 1)"> Siguiente
+        </button>
     </div>
 </template>
 
@@ -420,5 +439,27 @@ body {
     .menu-checkboxes {
         width: 100%;
     }
+}
+
+.paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin: 20px 0px 40px 0px;
+    padding: 10px;
+}
+
+.paginacion button {
+    padding: 8px 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+}
+
+.paginacion button:disabled {
+    background: #eee;
+    cursor: not-allowed;
 }
 </style>

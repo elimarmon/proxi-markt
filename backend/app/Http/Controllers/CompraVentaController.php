@@ -44,9 +44,9 @@ class CompraVentaController extends Controller
 
     public function misCompras() {
         $compras = CompraVenta::where('id_comprador', Auth::id())
-            ->with('producto')
+            ->with('producto', 'vendedor')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(3);
 
         return response()->json($compras);
     }
@@ -55,7 +55,7 @@ class CompraVentaController extends Controller
         $ventas = CompraVenta::where('id_vendedor', Auth::id())
             ->with(['producto', 'comprador'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(3);
 
         return response()->json($ventas);
     }
@@ -64,19 +64,17 @@ class CompraVentaController extends Controller
 
         $userId = Auth::id();
         $comandas = CompraVenta::where('id_comprador', '=', $userId)->orWhere('id_vendedor', '=', Auth::id())
-            ->where('estado', '=', 'pendiente')->orWhere('estado', '=', 'en curso')
             ->with(['producto', 'comprador', 'vendedor'])
             ->orderBy('created_at', 'desc')
             ->get();
 
         return response()->json([
-            'comprador' => true,
             'cantidad_encontrada' => $comandas->count(),
             'datos' => $comandas
         ], 200);
     }
 
-    public function completarVenta(Compraventa $compraventa) {
+    public function completarVenta(CompraVenta $compraventa) {
 
         $producto = $producto = Producto::find($compraventa->id_producto);
 
@@ -87,6 +85,10 @@ class CompraVentaController extends Controller
                 break;
             case 'cancelado':
                 $producto->decrement('stock_reserva', $compraventa->cantidad);
+                break;
+            case 'en curso':
+                break;
+            case 'pendiente':
                 break;
             default:
                 throw new Exception('Estado de transacción erróneo o no procesable.');
