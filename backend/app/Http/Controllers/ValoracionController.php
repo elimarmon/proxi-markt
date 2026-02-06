@@ -16,7 +16,8 @@ class ValoracionController extends Controller
         Valoracion::create([
             'id_resenyador' => $idEmisor,
             'id_resenyado' => $idReceptor,
-            'valoracio' => $request->valoracion,
+            'id_venta' => $compraventa->id,
+            'valoracion' => $request->valoracion,
             'comentario' => $request->comentario
         ]);
 
