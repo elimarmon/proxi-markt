@@ -13,7 +13,7 @@ class ProductoController extends Controller
      * Mostrar todos los productos disponibles (Para la tienda/mapa)
      */
     public function index() {
-        $productos = Producto::with(['categoria', 'usuario', 'punto_entrega'])->get();
+        $productos = Producto::with(['categoria', 'usuario', 'punto_entrega'])->paginate(9);
 
         return response()->json($productos);
     }
@@ -24,8 +24,8 @@ class ProductoController extends Controller
         $productos = Producto::with('categoria')
             ->where('id_usuario', $user->id)
             ->orderBy('created_at', 'desc')
-            ->get();
-
+            ->paginate(7);
+    
         return response()->json($productos);
     }
 

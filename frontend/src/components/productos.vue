@@ -6,9 +6,9 @@ import MostrarProductos from './MostrarProductosMain.vue';
 
 const productos = ref([]);
 const radioActual = ref(
-    localStorage.getItem('distancia_guardada') === 'Infinity' 
-    ? Infinity 
-    : (Number(localStorage.getItem('distancia_guardada')) || 10)
+    localStorage.getItem('distancia_guardada') === 'Infinity'
+        ? Infinity
+        : (Number(localStorage.getItem('distancia_guardada')) || 10)
 );
 
 const datosUsuario = ref(null);
@@ -16,6 +16,8 @@ const categoriasSeleccionadas = ref([]);
 const menuAbierto = ref(false);
 const cargando = ref(false);
 const textoBusqueda = ref("");
+const pagination = ref({});
+const paginaActual = ref(1);
 
 /**
  * Obtiene los datos del usuario para tener las coordenadas de referencia
@@ -38,9 +40,9 @@ const obtenerDatosUsuario = async () => {
  */
 const calcularDistanciaReal = (latV, lngV) => {
     if (!datosUsuario.value || !datosUsuario.value.latitud || !latV || !lngV) {
-        return 999999; 
+        return 999999;
     }
-    
+
     const miLat = parseFloat(datosUsuario.value.latitud);
     const miLng = parseFloat(datosUsuario.value.longitud);
     const vLat = parseFloat(latV);
@@ -49,8 +51,8 @@ const calcularDistanciaReal = (latV, lngV) => {
     const p = Math.PI / 180;
     const c = Math.cos;
     const a = 0.5 - c((vLat - miLat) * p) / 2 +
-              c(miLat * p) * c(vLat * p) * (1 - c((vLng - miLng) * p)) / 2;
-    
+        c(miLat * p) * c(vLat * p) * (1 - c((vLng - miLng) * p)) / 2;
+
     return 12742 * Math.asin(Math.sqrt(a));
 };
 
@@ -66,20 +68,27 @@ const categorias = computed(() => {
     return unicas.sort();
 });
 
-const mostrarProductos = async () => {
+const mostrarProductos = async (pagina = 1) => {
     cargando.value = true;
     const token = localStorage.getItem('token');
     const radioParaAPI = radioActual.value === Infinity ? 99999 : radioActual.value;
 
     try {
         const response = await axios.get("http://localhost:8080/api/productos", {
-            params: { km: radioParaAPI },
+            params: {
+                km: radioParaAPI,
+                page: pagina
+            },
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
             }
         });
-        productos.value = response.data;
+        productos.value = response.data.data;
+        pagination.value = response.data;
+        paginaActual.value = response.data.current_page;
+
+
     } catch (error) {
         console.error("Error al cargar productos:", error);
     } finally {
@@ -87,18 +96,14 @@ const mostrarProductos = async () => {
     }
 };
 
-/**
- * PROPIEDAD COMPUTADA MAESTRA
- * Ahora incluye el filtro de distancia para que el contador sea real
- */
 const productosFiltrados = computed(() => {
     return productos.value.filter(p => {
-        const coincideTexto = !textoBusqueda.value || 
+        const coincideTexto = !textoBusqueda.value ||
             p.nombre_producto.toLowerCase().includes(textoBusqueda.value.toLowerCase());
-        
-        const coincideCategoria = categoriasSeleccionadas.value.length === 0 || 
+
+        const coincideCategoria = categoriasSeleccionadas.value.length === 0 ||
             categoriasSeleccionadas.value.includes(p.categoria?.nombre_categoria);
-        
+
         const dist = calcularDistanciaReal(p.punto_entrega?.latitud, p.punto_entrega?.longitud);
         const coincideRadio = radioActual.value === Infinity || dist <= radioActual.value;
 
@@ -122,7 +127,8 @@ onMounted(async () => {
     <div class="contenedor-pagina">
         <div class="zona-fija">
             <h1 class="titulo-verde">Productos Frescos y Locales</h1>
-            <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual === Infinity ? '∞' : radioActual }} km)</p>
+            <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual === Infinity ?
+                '∞' : radioActual }} km)</p>
 
             <div class="card-busqueda">
                 <div id="buscador">
@@ -160,14 +166,24 @@ onMounted(async () => {
                 </p>
             </div>
         </div>
-        
+
         <div v-if="cargando" style="text-align: center; padding: 20px;">
             <p>Cargando productos...</p>
         </div>
-        <MostrarProductos v-else-if="productosFiltrados.length >= 1" :productos="productosFiltrados" :radioMaximo="radioActual"></MostrarProductos>
+        <MostrarProductos v-else-if="productosFiltrados.length >= 1" :productos="productosFiltrados"
+            :radioMaximo="radioActual"></MostrarProductos>
         <div v-else class="mensaje-ayuda">
             <p>No se han encontrado productos.</p>
         </div>
+    </div>
+    <div v-if="pagination.last_page > 1" class="paginacion">
+
+        <button :disabled="paginaActual === 1" @click="mostrarProductos(paginaActual - 1)"> Anterior </button>
+
+        <span>Página {{ paginaActual }} de {{ pagination.last_page }}</span>
+
+        <button :disabled="paginaActual === pagination.last_page" @click="mostrarProductos(paginaActual + 1)"> Siguiente
+        </button>
     </div>
 </template>
 
@@ -217,7 +233,8 @@ body {
     box-sizing: border-box;
 }
 
-.mensaje-ayuda, .mensaje-informativo {
+.mensaje-ayuda,
+.mensaje-informativo {
     margin: 40px auto;
     text-align: center;
     color: #999;
@@ -441,5 +458,27 @@ body {
     .menu-checkboxes {
         width: 100%;
     }
+}
+
+.paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin: 20px 0px 40px 0px;
+    padding: 10px;
+}
+
+.paginacion button {
+    padding: 8px 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+}
+
+.paginacion button:disabled {
+    background: #eee;
+    cursor: not-allowed;
 }
 </style>

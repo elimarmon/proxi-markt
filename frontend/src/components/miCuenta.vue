@@ -5,6 +5,7 @@ import { ref, nextTick, onMounted } from 'vue'
 import axios from 'axios'
 import navbar from './nav.vue'
 import MostrarProductos from './mostrarProductos.vue'
+import misventas from './misventas.vue'
 
 let map;
 
@@ -18,6 +19,8 @@ const PuntosEntrega = ref([])
 const DatosUser = ref([])
 const ProductosUser = ref([])
 const eleccionActual = ref('productos');
+const pagination = ref({});
+const paginaActual = ref(1);
 
 console.log(PuntosEntrega)
 
@@ -142,16 +145,21 @@ const EliminarPunto = async (id) => {
     }
 }
 
-const CargarProductosUser = async () => {
+const CargarProductosUser = async (pagina = 1) => {
     const token = localStorage.getItem('token');
     const productos = await axios.get('http://localhost:8080/api/productosuser', {
+        params: {
+            page: pagina
+        },
         headers: {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json'
         }
     })
 
-    ProductosUser.value = productos.data;
+    ProductosUser.value = productos.data.data;
+    pagination.value = productos.data;
+    paginaActual.value = productos.data.current_page;
 }
 
 const EliminarProducto = async (id) => {
@@ -268,8 +276,10 @@ onMounted(() => {
             </div>
 
             <div class="contenedor-secciones-datos">
-                <MostrarProductos v-if="eleccionActual === 'productos'" :productos="ProductosUser"
-                    @borrar="EliminarProducto" />
+                <MostrarProductos v-if="eleccionActual === 'productos'" :productos="ProductosUser" :pagination="pagination" :paginaActual="paginaActual"
+                    @borrar="EliminarProducto" @cambiarPagina="CargarProductosUser"/>
+                <misventas v-else-if="eleccionActual === 'compras'" :eleccion="eleccionActual" />
+                <misventas v-else-if="eleccionActual === 'ventas'" :eleccion="eleccionActual" />
             </div>
         </div>
     </div>
