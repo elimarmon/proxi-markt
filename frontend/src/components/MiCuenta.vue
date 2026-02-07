@@ -169,8 +169,8 @@ const eliminarPunto = async (id) => {
             guardarPuntoEntrega();
         }
     } catch (error) {
-        console.error("Error al eliminar:", error);
         alert('No se pudo eliminar el punto.');
+        console.error("Error al eliminar:", error);
     }
 }
 
@@ -184,7 +184,7 @@ const CargarProductosUser = async (pagina = 1) => {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json'
         }
-    })
+    });
 
     productosUser.value = productos.data.data;
     pagination.value = productos.data;
@@ -215,7 +215,7 @@ const irAlPunto = (punto) => {
 }
 
 onMounted(async () => {
-    await fetchUsuario();
+    if (!usuario.value?.id) await fetchUsuario();
     cargarPuntos();
     CargarProductosUser();
 });

@@ -3,7 +3,7 @@ import { ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
 import NavBar from "./NavBar.vue";
 import { useAuth } from '@/composables/useAuth';
-import MostrarProductos from './MostrarProductosMain.vue';
+import MostrarProductosMain from './MostrarProductosMain.vue';
 
 const productos = ref([]);
 const radioActual = ref(
@@ -98,13 +98,13 @@ const toggleMenu = () => {
 }
 
 onMounted(async () => {
-    await fetchUsuario();
+    if (!usuario.value?.id) await fetchUsuario();
     mostrarProductos();
 });
 </script>
 
 <template>
-    <NavBar @cambiar-radio="manejarCambioRadio"/>
+    <NavBar @cambiar-radio="manejarCambioRadio" />
     <div class="contenedor-pagina">
         <div class="zona-fija">
             <h1 class="titulo-verde">Productos Frescos y Locales</h1>
@@ -151,8 +151,7 @@ onMounted(async () => {
         <div v-if="cargando" style="text-align: center; padding: 20px;">
             <p>Cargando productos...</p>
         </div>
-        <MostrarProductos v-else-if="productosFiltrados.length >= 1" :productos="productosFiltrados"
-            :radioMaximo="radioActual"></MostrarProductos>
+        <MostrarProductosMain v-else-if="productosFiltrados.length >= 1" :productos="productosFiltrados" :usuario="usuario" />
         <div v-else class="mensaje-ayuda">
             <p>No se han encontrado productos.</p>
         </div>
