@@ -44,9 +44,9 @@ class CompraVentaController extends Controller
 
     public function misCompras() {
         $compras = CompraVenta::where('id_comprador', Auth::id())
-            ->with('producto')
+            ->with('producto', 'vendedor')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(3);
 
         return response()->json($compras);
     }
@@ -55,7 +55,7 @@ class CompraVentaController extends Controller
         $ventas = CompraVenta::where('id_vendedor', Auth::id())
             ->with(['producto', 'comprador'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(3);
 
         return response()->json($ventas);
     }
@@ -76,7 +76,7 @@ class CompraVentaController extends Controller
 
     public function completarVenta(CompraVenta $compraventa) {
 
-        $producto = $producto = Producto::find($compraventa->id_producto);
+        $producto = Producto::find($compraventa->id_producto);
 
         switch ($compraventa->estado) {
             case 'completado':

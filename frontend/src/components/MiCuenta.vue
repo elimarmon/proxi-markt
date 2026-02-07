@@ -6,6 +6,7 @@ import { useAuth } from '@/composables/useAuth.js';
 import axios from 'axios'
 import NavBar from './NavBar.vue'
 import MostrarProductos from './MostrarProductos.vue'
+import misventas from './misventas.vue';
 
 let map;
 const activarMapa = ref(false)
@@ -17,6 +18,8 @@ const puntosEntrega = ref([])
 const { usuario, fetchUsuario } = useAuth();
 const productosUser = ref([])
 const eleccionActual = ref('productos');
+const pagination = ref({});
+const paginaActual = ref(1);
 
 // console.log(puntosEntrega)
 
@@ -171,16 +174,22 @@ const eliminarPunto = async (id) => {
     }
 }
 
-const cargarProductosUser = async () => {
+const CargarProductosUser = async (pagina = 1) => {
     const token = localStorage.getItem('token');
     const productos = await axios.get(`http://localhost:8080/api/usuarios/${usuario.value.id}/productos`, {
+        params: {
+            page: pagina
+        },
         headers: {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json'
         }
     });
 
-    productosUser.value = productos.data;
+    productosUser.value = productos.data.data;
+    pagination.value = productos.data;
+    paginaActual.value = productos.data.current_page;
+
 }
 
 const eliminarProducto = async (id) => {
@@ -208,12 +217,12 @@ const irAlPunto = (punto) => {
 onMounted(async () => {
     if (!usuario.value?.id) await fetchUsuario();
     cargarPuntos();
-    cargarProductosUser();
+    CargarProductosUser();
 });
 
 </script>
 <template>
-    <NavBar/>
+    <NavBar />
     <div class="contenedor-pagina">
         <div class="contenedor-titulo">
             <h1 class="titulo">Mi Cuenta</h1>
@@ -305,7 +314,10 @@ onMounted(async () => {
 
             <div class="contenedor-secciones-datos">
                 <MostrarProductos v-if="eleccionActual === 'productos'" :productos="productosUser"
-                    @borrar="eliminarProducto" />
+                    :pagination="pagination" :paginaActual="paginaActual" @borrar="eliminarProducto"
+                    @cambiarPagina="CargarProductosUser" />
+                <misventas v-else-if="eleccionActual === 'compras'" :eleccion="eleccionActual" />
+                <misventas v-else-if="eleccionActual === 'ventas'" :eleccion="eleccionActual" />
             </div>
         </div>
     </div>

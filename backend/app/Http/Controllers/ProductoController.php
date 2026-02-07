@@ -14,8 +14,19 @@ class ProductoController extends Controller
      * Mostrar todos los productos disponibles (Para la tienda/mapa)
      */
     public function index() {
-        $productos = Producto::with(['categoria', 'usuario', 'punto_entrega'])->get();
+        $productos = Producto::with(['categoria', 'usuario', 'punto_entrega'])->paginate(9);
 
+        return response()->json($productos);
+    }
+
+    public function productosPorUsuario(Request $request) {
+        $user = $request->user();
+
+        $productos = Producto::with('categoria')
+            ->where('id_usuario', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(7);
+    
         return response()->json($productos);
     }
 
@@ -100,17 +111,6 @@ class ProductoController extends Controller
 
         return response()->json(['message' => 'Producto eliminado correctamente'], 200);
 
-    }
-
-    public function productosPorUsuario(Request $request, User $usuario) {
-        $user = $request->user();
-
-        $productos = Producto::with('categoria')
-            ->where('id_usuario', $usuario->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return response()->json($productos);
     }
 
     public function obtenerProductosPunto(PuntoEntrega $punto) {
