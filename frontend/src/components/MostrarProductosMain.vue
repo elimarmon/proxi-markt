@@ -16,10 +16,10 @@ const productosAjenos = computed(() => {
 });
 
 const calcularKm = (latVendedor, lngVendedor) => {
-    if (!usuario.value?.latitud || !latVendedor || !lngVendedor) return '--';
+    if (!props.usuario.latitud || !latVendedor || !lngVendedor) return '--';
 
-    const miLat = parseFloat(usuario.value.latitud);
-    const miLng = parseFloat(usuario.value.longitud);
+    const miLat = parseFloat(props.usuario.latitud);
+    const miLng = parseFloat(props.usuario.longitud);
     const vLat = parseFloat(latVendedor);
     const vLng = parseFloat(lngVendedor);
 
