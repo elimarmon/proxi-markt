@@ -5,15 +5,16 @@ import { ref, onMounted, nextTick } from "vue";
 import axios from "axios";
 import NavBar from "./NavBar.vue";
 import MostrarProductosMain from './MostrarProductosMain.vue';
+import { useAuth } from '@/composables/useAuth';
 
 let map = null;
 let markersLayer = null;
-const puntosdeproductos = ref([]);
+const puntosProductos = ref([]);
 const productos = ref([]);
 const productosKey = ref(0);
 const mensajeEstado = ref("");
-const ubicacionUsuario = ref({ lat: null, lng: null });
 const radioSeleccionado = ref(10);
+const { usuario, fetchUsuario } = useAuth();
 
 const seleccionarPunto = async (idPunto) => {
 
@@ -25,12 +26,12 @@ const seleccionarPunto = async (idPunto) => {
 
         if (response.data.status && response.data.productos) {
             const data = response.data.productos;
-            
+
             // Forzamos la reactividad: vaciamos, esperamos un tick y llenamos
             await nextTick();
             productos.value = [...data];
             mensajeEstado.value = "";
-            
+
             // Scroll suave
             setTimeout(() => {
                 const el = document.querySelector('.productos');
@@ -51,10 +52,10 @@ const seleccionarPunto = async (idPunto) => {
 // Carga marcadores en el mapa
 const cargarMarcadores = () => {
     if (!map || !markersLayer) return;
-    
+
     markersLayer.clearLayers();
 
-    puntosdeproductos.value.forEach(punto => {
+    puntosProductos.value.forEach(punto => {
         // Aseguramos que las coordenadas existan
         if (!punto.latitud || !punto.longitud) return;
 
@@ -73,22 +74,22 @@ const actualizarPuntos = async (nuevoRadio) => {
     // Sincronizamos el radio seleccionado para pasarlo al hijo
     radioSeleccionado.value = nuevoRadio;
 
-    if (!ubicacionUsuario.value.lat || !ubicacionUsuario.value.lng) return;
+    if (!usuario.value?.latitud || !usuario.value?.longitud) return;
 
     // Para la API usamos un número grande si es Infinity
     const radioParaAPI = nuevoRadio === Infinity ? 99999 : nuevoRadio;
 
     try {
-        const puntosdeentrega = await axios.get(`http://localhost:8080/api/puntos_radio/${radioParaAPI}`, {
-            params: { 
-                lng: ubicacionUsuario.value.lng, 
-                lat: ubicacionUsuario.value.lat 
+        const puntosEntrega = await axios.get(`http://localhost:8080/api/puntos_radio/${radioParaAPI}`, {
+            params: {
+                lng: usuario.value.longitud,
+                lat: usuario.value.latitud
             }
         });
-        
-        puntosdeproductos.value = Array.isArray(puntosdeentrega.data) ? puntosdeentrega.data : [];
+
+        puntosProductos.value = Array.isArray(puntosEntrega.data) ? puntosEntrega.data : [];
         mensajeEstado.value = "";
-        
+
         cargarMarcadores();
     } catch (error) {
         console.error("Error al actualizar puntos por radio:", error);
@@ -98,19 +99,10 @@ const actualizarPuntos = async (nuevoRadio) => {
 const inicializarMapa = async () => {
     await nextTick();
 
-    const token = localStorage.getItem('token');
     const radioInicial = localStorage.getItem('distancia_guardada');
 
     try {
-        const datosuser = await axios.get('http://localhost:8080/api/datosuser', {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
-        });
-
-        const { longitud: lng, latitud: lat } = datosuser.data;
-        ubicacionUsuario.value = { lat, lng };
+        const { longitud: lng, latitud: lat } = usuario.value;
 
         if (!map) {
             map = L.map('map', {
@@ -122,7 +114,7 @@ const inicializarMapa = async () => {
                 minZoom: 3,
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
-            
+
             markersLayer = L.layerGroup().addTo(map);
         }
 
@@ -134,15 +126,16 @@ const inicializarMapa = async () => {
     }
 }
 
-onMounted(() => {
+onMounted(async () => {
+    if (!usuario.value?.id) await fetchUsuario();
     inicializarMapa();
-})
+});
 </script>
 
 <template>
     <!-- Escuchamos el evento que emite el Navbar -->
-    <NavBar @cambiar-radio="actualizarPuntos"/>
-    
+    <NavBar @cambiar-radio="actualizarPuntos" />
+
     <div class="contenedor-pagina">
         <div id="contenedor-titulo">
             <h1 class="titulo">Mapa</h1>
@@ -168,19 +161,16 @@ onMounted(() => {
                     <h2 class="titulo-seccion">Productos en este punto</h2>
                 </div>
                 <!-- Pasamos el radioSeleccionado para que el componente hijo no filtre productos válidos -->
-                <MostrarProductosMain 
-                    :productos="productos" 
-                    :radioMaximo="radioSeleccionado" 
-                />
+                <MostrarProductosMain :productos="productos" :usuario="usuario" />
             </div>
-            
+
             <!-- Caso: Error o Mensaje de Vacío -->
             <div v-else-if="mensajeEstado" class="mensaje-informativo">
                 <p>{{ mensajeEstado }}</p>
             </div>
-            
+
             <!-- Caso: Estado inicial -->
-            <div v-else-if="puntosdeproductos.length > 0" class="mensaje-ayuda">
+            <div v-else-if="puntosProductos.length > 0" class="mensaje-ayuda">
                 <p>Haz clic en un marcador del mapa para ver sus productos</p>
             </div>
         </div>
@@ -257,7 +247,8 @@ onMounted(() => {
     font-weight: 600;
 }
 
-.mensaje-ayuda, .mensaje-informativo {
+.mensaje-ayuda,
+.mensaje-informativo {
     margin: 40px auto;
     text-align: center;
     color: #999;
@@ -274,14 +265,22 @@ onMounted(() => {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @media (max-width: 768px) {
     .contenedor-pagina {
         padding: 10px;
     }
+
     #map {
         height: 350px;
     }
