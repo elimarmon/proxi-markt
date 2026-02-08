@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import api from "@/api/axios";
 import { useAuth } from '@/composables/useAuth';
+import { useRouter } from 'vue-router';
 
 const form = ref({
     nombre_usuario: "",
@@ -9,7 +10,9 @@ const form = ref({
     contrasenya: "",
     telefono: ""
 });
+
 const { loading, setLoading } = useAuth();
+const router = useRouter();
 
 const enviarInfo = async () => {
 
@@ -32,6 +35,9 @@ const enviarInfo = async () => {
             contrasenya: "",
             telefono: ""
         };
+
+        alert("¡Cuenta creada con éxito! Ahora puedes iniciar sesión.");
+        router.push('/login');
 
     } catch (error) {
         console.error("Error en la petición:", error);
