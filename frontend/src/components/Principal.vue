@@ -1,14 +1,7 @@
 <template>
     <div class="contenedor-principal">
         <header>
-            <div id="nav-contenedor">
-                <div id="logo">
-                    <img src="../assets/logos/logo_peq.png" alt="Logo ProxiMarkt" />
-                    <p class="titulo">ProxiMarkt</p>
-                    <p class="subtitulo">Frutas y verduras frescas</p>
-                </div>
-                <router-link to="/login" class="boton-iniciosesion">Iniciar Sesion</router-link>
-            </div>
+            <NavBar />
         </header>
         <section class="seccion-portada">
             <div class="contenido-portada">
@@ -19,7 +12,7 @@
                     la compra-venta de frutas y verduras de kilómetro cero, con sistema de geolocalización avanzado y
                     gestión integral de pedidos.
                 </p>
-                <button class="boton-primario" @click="irRegistro">Comenzar Ahora</button>
+                <button class="boton-primario" @click="irAuth('register')">Comenzar Ahora</button>
             </div>
         </section>
 
@@ -123,7 +116,7 @@
         <section class="seccion-llamada">
             <h2>¿Listo para Comenzar?</h2>
             <p>Únete a ProxiMarkt hoy y descubre la mejor manera de comprar y vender productos frescos locales</p>
-            <button class="boton-blanco" @click="irRegistro">Crear Cuenta Gratis</button>
+            <button class="boton-blanco" @click="irAuth('register')">Crear Cuenta Gratis</button>
         </section>
 
         <footer class="pie-pagina-principal">
@@ -140,11 +133,16 @@
 
 <script setup>
 import { useRouter } from "vue-router";
-
+import NavBar from "./NavBar.vue";
 const router = useRouter();
 
-const irRegistro = () => {
-    router.push('/login');
+const irAuth = (modo) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        router.push({ name: 'auth', state: { modo: modo } });
+    } else {
+        router.push('/cuenta');
+    }
 };
 </script>
 

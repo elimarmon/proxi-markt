@@ -1,4 +1,4 @@
-import Login from "../views/Login.vue";
+import AuthView from "../views/AuthView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import Productos from "../components/Productos.vue";
 import Dashboard from "../components/Dashboard.vue";
@@ -19,9 +19,9 @@ const routes = [
         component: Principal,
     },
     {
-        path: "/login",
-        name: "login",
-        component: Login,
+        path: "/auth",
+        name: "auth",
+        component: AuthView,
     },
     {
         path: "/productos/:id",
@@ -69,11 +69,6 @@ const routes = [
         path: "/cuenta",
         name: "cuenta",
         component: MiCuenta,
-    },
-    {
-        path: "/ubicacion",
-        name: "ubicacion",
-        component: Ubicacion,
     },
     {
         path: "/mapa",
