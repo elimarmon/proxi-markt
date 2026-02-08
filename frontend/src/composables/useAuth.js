@@ -11,6 +11,8 @@ export const useAuth = () => {
     const loading = computed(() => _loading.value);
     const error = computed(() => _error.value);
     const estarAutenticado = computed(() => !!_token.value);
+    
+    const setLoading = (estado) => _loading.value = estado;
 
     const fetchUsuario = async () => {
         if (!_token.value) return;
@@ -45,6 +47,7 @@ export const useAuth = () => {
         usuario,
         loading,
         error,
+        setLoading,
         login,
         logout,
         fetchUsuario,
