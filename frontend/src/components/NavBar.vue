@@ -2,21 +2,28 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import ModalRadio from './ModalRadio.vue';
-import axios from 'axios';
+import { useAuth } from '@/composables/useAuth';
 
 const router = useRouter();
 const mostrarMenu = ref(false);
 
+/* 
+Exemple si existix el token:
+localStorge retorna l'string del token (truthy) i el negues (false) i ho tornes a negar (true).
+S'ha convertit un string en realment un boolea.
+*/
+const estaAutenticado = ref(!!localStorage.getItem('token'));
+const { usuario, fetchUsuario } = useAuth();
+
+
 const cerrarSesion = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('datos_usuario');
-    router.push('/login');
+    router.push('/');
 };
 
 const isModalOpen = ref(false);
 const emit = defineEmits(['cambiar-radio']);
 
-const DatosUser = ref({});
 const radioActual = ref(Number(localStorage.getItem('distancia_guardada')) || 10);
 
 const confirmarNuevoRadio = (valor) => {
@@ -30,19 +37,18 @@ const confirmarNuevoRadio = (valor) => {
 const nombreUsuario = async () => {
     const token = localStorage.getItem('token');
 
-    try {
-        const respuesta = await axios.get('http://localhost:8080/api/datosuser', {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
-        });
+    if (!token) return;
 
-        DatosUser.value = respuesta.data;
+    try {
+        await fetchUsuario();
 
     } catch (error) {
         console.error("Error al obtener el nombre de usuario:", error);
     }
+}
+
+const irAuth = (modo) => {
+    router.push({ name: 'auth', state: { modo: modo } });
 }
 
 onMounted(() => {
@@ -52,98 +58,100 @@ onMounted(() => {
 
 <template>
     <header>
-        <div id="nav-contenedor">
-            <div id="logo">
+        <nav id="nav-contenedor">
+            <div @click="router.push('/')" id="logo">
                 <img src="../assets/logos/logo_peq.png" alt="Logo ProxiMarkt" />
-                <p class="titulo">ProxiMarkt</p>
-                <p class="subtitulo">Frutas y verduras frescas</p>
+                <div class="texto-logo">
+                    <p class="titulo">ProxiMarkt</p>
+                    <p class="subtitulo">Frutas y verduras frescas</p>
+                </div>
             </div>
-            <nav>
-                <ul>
+
+            <div v-if="estaAutenticado" class="nav-autenticado">
+                <ul class="enlaces-paginas">
                     <li>
                         <router-link to="/dashboard">
-                            <img class="logos-nav" src="../assets/iconos/dashboard_verde.png" alt="logo_dashboard">
-                            Dashboard
+                            <img class="logos-nav" src="../assets/iconos/dashboard_verde.png" alt="icon">
+                            <span>Dashboard</span>
                         </router-link>
                     </li>
                     <li>
                         <router-link to="/productos">
-                            <img class="logos-nav" src="../assets/iconos/productos_verde.png" alt="logo_productos">
-                            Productos
+                            <img class="logos-nav" src="../assets/iconos/productos_verde.png" alt="icon">
+                            <span>Productos</span>
                         </router-link>
                     </li>
                     <li>
                         <router-link to="/mapa">
-                            <img class="logos-nav" src="../assets/iconos/ubicacion.png" alt="logo_mapa">
-                            Mapa
+                            <img class="logos-nav" src="../assets/iconos/ubicacion.png" alt="icon">
+                            <span>Mapa</span>
                         </router-link>
                     </li>
                     <li>
                         <router-link to="/mensaje">
-                            <img class="logos-nav" src="../assets/iconos/chat_verde.png" alt="logo_mensajes">
-                            Mensajes
+                            <img class="logos-nav" src="../assets/iconos/chat_verde.png" alt="icon">
+                            <span>Mensajes</span>
                         </router-link>
                     </li>
                     <li>
                         <router-link to="/comandas">
-                            <img class="logos-nav" src="../assets/iconos/comandas.png" alt="logo_comandas">
-                            Comandas
+                            <img class="logos-nav" src="../assets/iconos/comandas.png" alt="icon">
+                            <span>Comandas</span>
                         </router-link>
                     </li>
                     <li>
                         <router-link to="/publicar">
-                            <img class="logos-nav" src="../assets/iconos/publicar_verde.png" alt="logo_publicar">
-                            Publicar</router-link>
+                            <img class="logos-nav" src="../assets/iconos/publicar_verde.png" alt="icon">
+                            <span>Publicar</span>
+                        </router-link>
                     </li>
                     <li>
                         <router-link to="/cuenta">
-                            <img class="logos-nav" src="../assets/iconos/mi_cuenta_verde.png" alt="logo_mi_cuenta">
-                            Mi cuenta
+                            <img class="logos-nav" src="../assets/iconos/mi_cuenta_verde.png" alt="icon">
+                            <span>Mi cuenta</span>
                         </router-link>
                     </li>
                 </ul>
-            </nav>
 
-            <div id="radio_busqueda" @click="isModalOpen = true" style="cursor: pointer;">
-                <p>
-                    <img src="../assets/iconos/tuerca_verde.png" alt="logo_tuerca">
-                    <span :class="{ 'simbolo-infinito-nav': radioActual === Infinity }">
-                        {{ radioActual === Infinity ? '∞' : radioActual + 'km' }}
-                    </span>
-                </p>
+                <div class="utilidades-usuario">
+                    <div id="radio_busqueda" @click="isModalOpen = true">
+                        <img src="../assets/iconos/tuerca_verde.png" alt="radio">
+                        <span :class="{ 'simbolo-infinito-nav': radioActual === Infinity }">
+                            {{ radioActual === Infinity ? '∞' : radioActual + 'km' }}
+                        </span>
+                    </div>
+
+                    <div class="contenedor-perfil">
+                        <div id="usuario" @click="mostrarMenu = !mostrarMenu">
+                            <img src="../assets/iconos/cuenta.png" alt="perfil">
+                            <span class="nombre-user">{{ usuario?.nombre_usuario || 'Usuario' }}</span>
+                            <span class="triangulo"> ▼ </span>
+                        </div>
+
+                        <div v-if="mostrarMenu" class="menu-desplegable">
+                            <ul>
+                                <li @click="cerrarSesion" class="item-logout">
+                                    <img src="../assets/iconos/rechazar.png" alt="salir">
+                                    <span>Cerrar sesión</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="contenedor-perfil">
-
-                <div id="usuario" @click="mostrarMenu = !mostrarMenu">
-                    <img src="../assets/iconos/cuenta.png" alt="icono_perfil">
-                    {{ DatosUser.nombre_usuario }}
-                    <span class="triangulo"> ▼ </span>
-                </div>
-
-                <div v-if="mostrarMenu" class="menu-desplegable">
-                    <ul>
-                        <li @click="cerrarSesion">
-                            <img src="../assets/iconos/rechazar.png" alt="cerrar sesión" class="icono-salir"> Cerrar
-                            sesión
-                        </li>
-                    </ul>
-                </div>
+            <div v-else class="botones-acceso">
+                <button @click="irAuth('login')" class="btn-nav btn-outline">Iniciar Sesión</button>
+                <button @click="irAuth('register')" class="btn-nav btn-gradient">Registrarse</button>
             </div>
-        </div>
+        </nav>
+
         <ModalRadio :mostrar="isModalOpen" :distanciaInicial="radioActual" @cerrar="isModalOpen = false"
             @confirmar="confirmarNuevoRadio" />
     </header>
 </template>
 
 <style scoped>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', 'Arial';
-}
-
 header {
     width: 100%;
     background-color: #ffffff;
@@ -166,201 +174,183 @@ header {
 }
 
 #logo {
-    display: grid;
-    grid-template-columns: min-content max-content;
-    grid-template-rows: auto auto;
-    column-gap: 12px;
+    cursor: pointer;
+    display: flex;
     align-items: center;
-    margin-right: 40px;
+    gap: 12px;
+    flex-shrink: 0;
+    text-decoration: none !important;
 }
 
 #logo img {
-    grid-row: 1 / 3;
     height: 50px;
-    width: auto;
     border-radius: 12px;
 }
 
 .titulo {
-    grid-column: 2;
-    font-size: 25px;
-    font-weight: 600;
+    font-size: 22px;
+    font-weight: 700;
     color: #4CA626;
-    line-height: 1.2;
+    margin: 0;
 }
 
 .subtitulo {
-    grid-column: 2;
-    font-size: 15px;
+    font-size: 13px;
     color: #757575;
-    line-height: 1.2;
+    margin: 0;
 }
 
-nav {
+.nav-autenticado {
     display: flex;
-    justify-content: center;
+    align-items: center;
     flex: 1;
+    justify-content: space-between;
 }
 
-nav ul {
+.enlaces-paginas {
     display: flex;
     list-style: none;
-    align-self: flex-start;
     gap: 5px;
-    margin-left: 50px;
-    align-items: center;
+    margin: 0 auto;
 }
 
-nav li a {
+.enlaces-paginas li a {
     display: flex;
     align-items: center;
     text-decoration: none;
     color: #5F6368;
-    font-size: 18px;
-    font-weight: 500;
-    padding: 10px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 8px 12px;
     border-radius: 10px;
 }
 
-nav li a .logos-nav {
-    width: 30px;
-    height: 30px;
-    margin-right: 10px;
-}
-
-nav li a:hover {
-    background-color: #4CA6264A;
+.enlaces-paginas li a:hover,
+.router-link-active {
+    background-color: #4CA62615;
     color: #4CA626;
 }
 
-nav li a:hover .logos-nav {
-    filter: none;
-    opacity: 1;
+.logos-nav {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
 }
 
-.router-link-active,
-.router-link-exact-active {
-    background-color: #4CA6264A;
-    color: #4CA626;
+.utilidades-usuario {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
 }
 
 #radio_busqueda {
-    margin-right: 25px;
-}
-
-#radio_busqueda p {
     display: flex;
     align-items: center;
+    gap: 5px;
+    font-weight: 700;
     color: #5F6368;
-    font-size: 14px;
-    font-weight: 600;
-    gap: 8px;
     cursor: pointer;
 }
 
 #radio_busqueda img {
-    width: 40px;
-    height: 40px;
-}
-
-.simbolo-infinito-nav {
-    font-size: 22px;
-    line-height: 1;
-    margin-top: -2px;
+    width: 35px;
 }
 
 #usuario {
     display: flex;
     align-items: center;
-    background-color: #4CA6264A;
-    color: #757575;
-    padding: 6px 20px 6px 6px;
+    background-color: #4CA62615;
+    padding: 6px 15px;
     border-radius: 50px;
+    cursor: pointer;
     font-size: 14px;
     font-weight: 600;
+    color: #5F6368;
 }
 
 #usuario img {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    margin-right: 10px;
-    object-fit: cover;
+    margin-right: 8px;
 }
 
-.contenedor-perfil {
-    position: relative;
+.botones-acceso {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-nav {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
     cursor: pointer;
+    transition: 0.3s;
+    border: 2px solid transparent;
+}
+
+.btn-gradient {
+    background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
+    color: white;
+}
+
+.btn-outline {
+    border-color: #4CA626;
+    color: #4CA626;
+    background: transparent;
 }
 
 .menu-desplegable {
     position: absolute;
     top: 100%;
-    right: 0;
+    right: 5px;
     width: 180px;
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
-    margin-top: 10px;
-    padding: 10px 0;
-    z-index: 2000;
-    overflow: hidden;
-    border: 1px solid #EEEEEE;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    margin-top: 5px;
+    border: 1px solid #eee;
 }
 
 .menu-desplegable ul {
-    list-style: none;
     padding: 0;
-    margin: 0;
+    margin-top: 1rem;
 }
 
-.menu-desplegable li {
-    padding: 12px 20px;
+.item-logout {
     display: flex;
     align-items: center;
-    gap: 10px;
-    color: #5F6368;
-    font-weight: 500;
+    justify-content: center;
+    gap: 12px;
     cursor: pointer;
-    transition: background 0.2s;
+    color: #5F6368;
     font-size: 14px;
 }
 
-.menu-desplegable li:hover {
-    background-color: #FFECEC;
-    color: #D32F2F;
-}
-
-.icono-salir {
+.item-logout img {
     width: 18px;
     height: 18px;
-    opacity: 0.6;
+    object-fit: contain;
 }
 
-.triangulo {
-    font-size: 10px;
-    margin-left: 5px;
+.item-logout:hover {
+    background: #fff5f5;
+    color: #d32f2f;
 }
 
 @media (max-width: 1200px) {
-    #nav-contenedor {
-        padding: 0 15px;
+
+    .enlaces-paginas span,
+    .subtitulo,
+    .nombre-user {
+        display: none;
     }
 
-    nav li a {
-        font-size: 0;
-        padding: 10px;
-    }
-
-    nav li a .logos-nav {
+    .logos-nav {
         margin-right: 0;
-        width: 24px;
-        height: 24px;
-    }
-
-    nav ul {
-        margin-left: 20px;
-        gap: 15px;
+        width: 28px;
+        height: 28px;
     }
 }
 
@@ -372,59 +362,26 @@ nav li a:hover .logos-nav {
 
     #nav-contenedor {
         flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 10px;
     }
 
-    .titulo,
-    .subtitulo {
-        display: none;
+    .nav-autenticado {
+        flex-direction: column;
+        width: 100%;
     }
 
-    #logo {
-        margin-right: 0;
-        display: flex;
-    }
-
-    #usuario {
-        font-size: 16px;
-        background-color: #4CA6264A;
-        color: #757575;
-        padding: 6px 20px 6px 6px;
-        border-radius: 50px;
-    }
-
-    #usuario img {
-        margin-right: 0;
-        width: 40px;
-        height: 40px;
-    }
-
-    #radio_busqueda {
-        margin-right: 0;
-        order: 2;
-    }
-
-    #radio_busqueda p {
-        font-size: 16px;
-    }
-
-    nav {
-        order: 3;
-        flex-basis: 100%;
+    .enlaces-paginas {
+        width: 100%;
         overflow-x: auto;
-        padding-bottom: 5px;
-        margin-top: 5px;
-    }
-
-    nav ul {
-        margin-left: 0;
+        padding: 10px 0;
         justify-content: flex-start;
-        padding-left: 5px;
+        border-top: 1px solid #eee;
+        margin-top: 10px;
     }
 
-    nav li a {
-        background-color: #F5F5F5;
+    .utilidades-usuario {
+        width: 100%;
+        justify-content: flex-end;
+        margin-bottom: 5px;
     }
 }
 </style>
