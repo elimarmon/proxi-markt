@@ -1,41 +1,53 @@
-import { ref } from "vue";
-import axios from "axios";
+import { ref, computed } from "vue";
+import api from "@/api/axios";
 
-const usuario = ref({});
-const loading = ref(false);
-const error = ref(null);
+const _usuario = ref(null);
+const _loading = ref(false);
+const _error = ref(null);
+const _token = ref(localStorage.getItem("token"));
 
 export const useAuth = () => {
-    const fetchUsuario = async () => {
-        const token = localStorage.getItem("token");
-        if (!token) return;
+    const usuario = computed(() => _usuario.value);
+    const loading = computed(() => _loading.value);
+    const error = computed(() => _error.value);
+    const estarAutenticado = computed(() => !!_token.value);
 
-        loading.value = true;
-        error.value = false;
+    const fetchUsuario = async () => {
+        if (!_token.value) return;
+
+        _loading.value = true;
+        _error.value = null;
 
         try {
-            const response = await axios.get(
-                "http://localhost:8080/api/datosuser",
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': "application/json",
-                    },
-                },
-            );
-            usuario.value = response.data;
+            const response = await api.get("/datosuser");
+            _usuario.value = response.data;
         } catch (err) {
-            error.value = err.response?.data?.message || "Error de conexión";
+            _error.value = err.response?.data?.message || "Error de conexión";
             console.error(err);
         } finally {
-            loading.value = false;
+            _loading.value = false;
         }
     };
 
+    const login = (nuevoToken, datosUsuario) => {
+        localStorage.setItem('token', nuevoToken);
+        _token.value = nuevoToken;
+        _usuario.value = datosUsuario;
+    }
+
+    const logout = () => {
+        localStorage.removeItem("token");
+        _usuario.value = null;
+        _token.value = null;
+    };
+
     return {
-        usuario, 
+        usuario,
         loading,
         error,
-        fetchUsuario
-    }
+        login,
+        logout,
+        fetchUsuario,
+        estarAutenticado
+    };
 };
