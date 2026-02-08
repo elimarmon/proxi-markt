@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
-import axios from "axios";
+import api from "@/api/axios";
 import NavBar from "./NavBar.vue";
 import { useAuth } from '@/composables/useAuth';
 import MostrarProductosMain from './MostrarProductosMain.vue';
@@ -52,24 +52,18 @@ const categorias = computed(() => {
 
 const mostrarProductos = async (pagina = 1) => {
     cargando.value = true;
-    const token = localStorage.getItem('token');
-    const radioParaAPI = radioActual.value === Infinity ? 99999 : radioActual.value;
+    const radio = radioActual.value === Infinity ? 99999 : radioActual.value;
 
     try {
-        const response = await axios.get("http://localhost:8080/api/productos", {
+        const response = await api.get("/productos", {
             params: {
-                km: radioParaAPI,
+                km: radio,
                 page: pagina
-            },
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
             }
         });
         productos.value = response.data.data;
         pagination.value = response.data;
         paginaActual.value = response.data.current_page;
-
 
     } catch (error) {
         console.error("Error al cargar productos:", error);
@@ -98,8 +92,8 @@ const toggleMenu = () => {
 }
 
 onMounted(async () => {
-    if (!usuario.value?.id) await fetchUsuario();
-    mostrarProductos();
+    await fetchUsuario();
+    if (usuario.value?.id) mostrarProductos();
 });
 </script>
 

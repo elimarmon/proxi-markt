@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import axios from "axios";
+import api from "@/api/axios";
 import NavBar from "./NavBar.vue";
 import ValoracionForm from "./ValoracionForm.vue";
 import { useAuth } from "@/composables/useAuth";
@@ -8,18 +8,11 @@ import { useAuth } from "@/composables/useAuth";
 const comandas = ref([]);
 const cargando = ref(true);
 const { usuario, fetchUsuario } = useAuth();
-const token = localStorage.getItem("token");
 const aValorar = ref(null);
 
 const obtenerComandas = async () => {
     try {
-        const response = await axios.get("http://localhost:8080/api/mis-comandas", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: "application/json",
-                "Content-Type": "application/json",
-            },
-        });
+        const response = await api.get("/mis-comandas");
         comandas.value = response.data.datos;
     } catch (error) {
         console.error("Error al cargar:", error);
@@ -38,14 +31,7 @@ const historialComandas = computed(() => {
 
 const actualizarComanda = async (id, nuevoEstado) => {
     try {
-        await axios.put(`http://localhost:8080/api/mis-comandas/${id}`,
-            { estado: nuevoEstado },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/json"
-                }
-            });
+        await api.put(`/mis-comandas/${id}`, { estado: nuevoEstado });
         const comandaEncontrada = comandas.value.find(c => c.id === id);
         if (comandaEncontrada) comandaEncontrada.estado = nuevoEstado;
     } catch (err) {
@@ -78,12 +64,8 @@ const getUrlImagen = (rutaRelativa) => {
 };
 
 const postValoracion = async (idCompraventa, datos) => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
     try {
-        await axios.post(`http://localhost:8080/api/valoraciones/${idCompraventa}`, datos, {
-            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
-        });
+        await api.post(`/valoraciones/${idCompraventa}`, datos);
     } catch (err) {
         alert("Algo ha ido mal.");
         console.log(err);
@@ -115,7 +97,7 @@ const postValoracion = async (idCompraventa, datos) => {
 
             <div v-for="comanda in comandasPendientes" :key="comanda.id" class="tarjeta-comanda"
                 :style="{ borderLeftColor: getColoresEstado(comanda.estado) }">
-                
+
                 <div class="info-principal">
                     <img :src="getUrlImagen(comanda.producto?.imagen)" class="img-producto" />
                     <div class="detalles">
@@ -131,12 +113,12 @@ const postValoracion = async (idCompraventa, datos) => {
                 </div>
 
                 <div class="acciones">
-                    <button v-if="comanda.estado == 'en curso' && comanda.id_comprador !== usuario.id" 
-                            class="btn-accion finalizar" @click="actualizarComanda(comanda.id, 'completado')">
+                    <button v-if="comanda.estado == 'en curso' && comanda.id_comprador !== usuario.id"
+                        class="btn-accion finalizar" @click="actualizarComanda(comanda.id, 'completado')">
                         Finalizar
                     </button>
-                    <button v-else-if="comanda.id_comprador !== usuario.id" 
-                            class="btn-accion aceptar" @click="actualizarComanda(comanda.id, 'en curso')">
+                    <button v-else-if="comanda.id_comprador !== usuario.id" class="btn-accion aceptar"
+                        @click="actualizarComanda(comanda.id, 'en curso')">
                         Aceptar
                     </button>
                     <button class="btn-accion rechazar" @click="actualizarComanda(comanda.id, 'cancelado')">
@@ -180,7 +162,8 @@ const postValoracion = async (idCompraventa, datos) => {
                 </div>
 
                 <div class="acciones">
-                    <button v-if="item.estado == 'completado'" class="btn-accion valorar" @click="abrirModalValoracion(item.id)">
+                    <button v-if="item.estado == 'completado'" class="btn-accion valorar"
+                        @click="abrirModalValoracion(item.id)">
                         Valorar
                     </button>
                 </div>
@@ -197,7 +180,6 @@ const postValoracion = async (idCompraventa, datos) => {
 </template>
 
 <style scoped>
-
 * {
     margin: 0;
     padding: 0;
@@ -251,7 +233,8 @@ body {
 }
 
 .contador-badge {
-    background-color: #B9E2A6; /* De tu paleta */
+    background-color: #B9E2A6;
+    /* De tu paleta */
     color: #4CA626;
     padding: 6px 15px;
     border-radius: 8px;
@@ -268,7 +251,7 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
     position: relative;
 }
 
@@ -323,9 +306,22 @@ body {
     transition: 0.2s;
 }
 
-.aceptar, .finalizar { background: #4CA626; color: white; }
-.rechazar { background: #fee2e2; color: #e74c3c; border: 1px solid #e74c3c; }
-.valorar { background: #3498db; color: white; }
+.aceptar,
+.finalizar {
+    background: #4CA626;
+    color: white;
+}
+
+.rechazar {
+    background: #fee2e2;
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+}
+
+.valorar {
+    background: #3498db;
+    color: white;
+}
 
 .etiqueta-estado {
     position: absolute;
@@ -353,10 +349,12 @@ body {
         align-items: flex-start;
         gap: 15px;
     }
+
     .acciones {
         margin-right: 0;
         width: 100%;
     }
+
     .etiqueta-estado {
         top: 15px;
     }

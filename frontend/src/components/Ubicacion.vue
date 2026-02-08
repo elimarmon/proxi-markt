@@ -1,14 +1,14 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue';
 import axios from 'axios';
+import api from '@/api/axios';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
 
 const router = useRouter()
 
-const { usuario, fetchUsuario } = useAuth();
+const { usuario, fetchUsuario, setLoading, loading } = useAuth();
 const latitud = ref(null);
 const longitud = ref(null);
 const direccion = ref('');
@@ -74,20 +74,13 @@ const inicializarMapa = async () => {
 
         } catch (error) {
             console.error("Error al obtener dirección:", error);
-            direccion.value = "Dirección no encontrada";
+            alert("La dirección no es válida");
         }
     });
 };
 
 const guardarUbicacion = async () => {
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-        alert("Sesión no válida. Por favor, inicia sesión.");
-        return;
-    }
-
-    cargando.value = true;
+    setLoading(true);
 
     const datos = {
         direccion: direccion.value,
@@ -96,29 +89,21 @@ const guardarUbicacion = async () => {
     };
 
     try {
-        const respuesta = await axios.put(`http://localhost:8080/api/usuarios/${usuario.value.id}/ubicacion`, datos, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
-        });
+        await api.put(`usuarios/${usuario.value.id}/ubicacion`, datos);
 
-        if (respuesta.status >= 200 && respuesta.status < 300) {
-            // actualitzar l'objecte usuari manualment per no fer una nova petició a la base de dates
-            usuario.value = {
-                ...usuario.value,
-                ...datos
-            };
-            alert("Dirección actualizada correctamente.");
-            // console.log("Respuesta:", respuesta.data);
-            router.push('/cuenta');
-        }
-
+        // actualitzar l'objecte usuari manualment per no fer una nova petició a la base de dates
+        usuario.value = {
+            ...usuario.value,
+            ...datos
+        };
+        alert("Dirección actualizada correctamente.");
+        // console.log("Respuesta:", respuesta.data);
+        router.push('/cuenta');
     } catch (error) {
         console.error("Error al guardar:", error.response?.data);
         alert("Hubo un error al guardar los datos.");
     } finally {
-        cargando.value = false;
+        setLoading(false);
     }
 };
 
@@ -133,10 +118,11 @@ const cancelar = () => {
 }
 
 onMounted(async () => {
-    if (!usuario.value?.id) await fetchUsuario();
-    inicializarMapa();
+    await fetchUsuario();
+    if (usuario.value?.id) inicializarMapa();
 });
 </script>
+
 <template>
     <div class="main-container">
         <div class="card">

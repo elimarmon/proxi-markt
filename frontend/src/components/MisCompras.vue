@@ -1,19 +1,13 @@
 <script setup>
-import axios from 'axios';
+import api from '@/api/axios';
 import { onMounted, ref } from 'vue';
 
 const compras = ref([]);
 
-
-const miscompras = async () => {
-    const token = localStorage.getItem('token')
-    const response = await axios.get('http://localhost:8080/api/miscompras', {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    })
+const misCompras = async () => {
+    const response = await api.get('/mis-compras');
     compras.value = response.data;
-    console.log("compras: ", compras.value)
+    // console.log("compras: ", compras.value)
 }
 
 const formatearFecha = (fechaRaw) => {
@@ -27,8 +21,9 @@ const formatearFecha = (fechaRaw) => {
     }).format(fecha);
 };
 
-onMounted(miscompras)
+onMounted(() => misCompras)
 </script>
+
 <template>
     <div v-if="compras && compras.length > 0">
         <div v-for="compra in compras" :key="compra.id" class="compra-item">
@@ -51,6 +46,7 @@ onMounted(miscompras)
         </div>
     </div>
 </template>
+
 <style scoped>
 /* Contenedor de cada fila de compra */
 .compra-item {

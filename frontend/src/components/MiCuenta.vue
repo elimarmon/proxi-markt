@@ -1,14 +1,16 @@
 <script setup>
 import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import { useAuth } from '@/composables/useAuth.js';
-import axios from 'axios'
+import axios from 'axios';
+import api from '@/api/axios';
 import NavBar from './NavBar.vue'
 import MostrarProductos from './MostrarProductos.vue'
-import misventas from './misventas.vue';
+import MisVentas from './MisVentas.vue';
 
-let map;
+let map = null;
+let layerPuntos = null;
+let marcadorTemporal = null;
 const activarMapa = ref(false)
 const direccion = ref('');
 const latitud = ref(null)
@@ -26,87 +28,90 @@ const paginaActual = ref(1);
 const guardarPuntoEntrega = async () => {
     activarMapa.value = true;
 
-    if (map) {
-        map.remove();
-    }
-
     await nextTick();
 
-    if (usuario.value.latitud && usuario.value.longitud) {
-        latitud.value = usuario.value.latitud;
-        longitud.value = usuario.value.longitud;
-        direccion.value = usuario.value.direccion;
-    }
-
-    const centroInicial = (latitud.value && longitud.value)
-        ? [latitud.value, longitud.value]
+    const centroInicial = (usuario.value?.latitud && usuario.value?.longitud)
+        ? [usuario.value?.latitud, usuario.value?.longitud]
         : [39.032719, -0.215864];
+
+    if (!map) {
+        map = L.map('map', {
+            miZoom: 3,
+        }).setView(centroInicial, 8); // empezar con la localización del usuario
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            minZoom: 3,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        layerPuntos = L.layerGroup().addTo(map);
+        marcadorTemporal = L.marker(centroInicial, { opacity: 0 }).addTo(map);
+        map.on('click', onMapClick);
+    }
 
     direccion.value = "";
     nombrePunto.value = "";
-    latitud.value = null;
     longitud.value = null;
+    latitud.value = null;
 
-    map = L.map('map', {
-        miZoom: 3,
-    }).setView(centroInicial, 8); // empezar con la localización del usuario
+    cargarMarcadores();
+}
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        minZoom: 3,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
+const cargarMarcadores = () => {
+    if (!layerPuntos) return;
 
-    for (let i = 0; i < puntosEntrega.value.length; i++) {
-        const longitud = parseFloat(puntosEntrega.value[i].longitud)
-        const latitud = parseFloat(puntosEntrega.value[i].latitud)
-        L.marker([latitud, longitud]).addTo(map).bindPopup(puntosEntrega.value[i].nombre_punto);
-    }
+    layerPuntos.clearLayers();
 
-    let marcadorTemporal = L.marker(centroInicial, { opacity: 0 }).addTo(map);
+    puntosEntrega.value.forEach(punto => {
+        const lat = parseFloat(punto.latitud);
+        const lng = parseFloat(punto.longitud)
+        L.marker([lat, lng])
+            .addTo(layerPuntos)
+            .bindPopup(punto.nombre_punto);
+    });
+}
 
-    async function onMapClick(e) {
-        latitud.value = e.latlng.lat;
-        longitud.value = e.latlng.lng;
+async function onMapClick(e) {
+    latitud.value = e.latlng.lat;
+    longitud.value = e.latlng.lng;
 
-        try {
-            const response = await axios.get("https://nominatim.openstreetmap.org/reverse", {
-                params: {
-                    format: 'jsonv2',
-                    lat: latitud.value,
-                    lon: longitud.value
-                }
-            });
+    try {
+        const response = await axios.get("https://nominatim.openstreetmap.org/reverse", {
+            params: {
+                format: 'jsonv2',
+                lat: latitud.value,
+                lon: longitud.value
+            }
+        });
 
-            const address = response.data.address;
+        const address = response.data.address;
 
-            // los optional chaining para que no se rompa si se hace click en el mar
-            direccion.value = [
-                address?.road,
-                address?.city || address?.town || address?.village,
-                address?.postcode,
-                address?.country
-            ]
+        direccion.value = [
+            address.road,
+            address.city || address.town || address.village,
+            address.postcode,
+            address.country
+        ]
 
-            direccion.value = direccion.value.filter(Boolean).join(", ");
-            console.log("Valor de direccion:", `"${direccion.value}"`);
+        direccion.value = direccion.value.filter(Boolean).join(", ");
+
+        // console.log("Valor de direccion:", `"${direccion.value}"`);
+        if (marcadorTemporal) {
             marcadorTemporal
                 .setLatLng(e.latlng)
                 .setOpacity(1)
-                .bindPopup("Ubicación seleccionada")
+                .bindPopup(direccion.value)
                 .openPopup();
-
-        } catch (error) {
-            alert("Punto no válido.")
-            console.error(error.message);
         }
+
+    } catch (error) {
+        alert("Punto no válido.")
+        console.error(error.message);
     }
-    map.off('click');
-    map.on('click', onMapClick);
 }
 
 const crearPunto = async () => {
-    const token = localStorage.getItem('token');
     const datos = {
         latitud: latitud.value,
         longitud: longitud.value,
@@ -114,12 +119,7 @@ const crearPunto = async () => {
         direccion_punto: direccion.value
     }
     try {
-        const response = await axios.post('http://localhost:8080/api/puntos', datos, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
-        });
+        const response = await api.post('/puntos', datos);
 
         const nuevoPunto = {
             id: response.data.id,
@@ -138,13 +138,7 @@ const crearPunto = async () => {
 }
 
 const cargarPuntos = async () => {
-    const token = localStorage.getItem('token');
-    const resposta = await axios.get(`http://localhost:8080/api/usuarios/${usuario.value.id}/puntos`, {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-        }
-    })
+    const resposta = await api.get(`usuarios/${usuario.value.id}/puntos`);
     puntosEntrega.value = resposta.data;
 }
 
@@ -155,18 +149,12 @@ const esconderMapa = () => {
 const eliminarPunto = async (id) => {
     if (!confirm('¿Estás seguro de que quieres eliminar este punto de entrega?')) return;
 
-    const token = localStorage.getItem('token');
     try {
-        await axios.delete(`http://localhost:8080/api/puntos/${id}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
-        });
+        await api.delete(`/puntos/${id}`);
         alert('Punto eliminado correctamente');
         puntosEntrega.value = puntosEntrega.value.filter(p => p.id !== id);
-        if (activarMapa.value) {
-            guardarPuntoEntrega();
+        if (activarMapa.value && map) {
+            cargarMarcadores();
         }
     } catch (error) {
         alert('No se pudo eliminar el punto.');
@@ -174,38 +162,22 @@ const eliminarPunto = async (id) => {
     }
 }
 
-const CargarProductosUser = async (pagina = 1) => {
-    const token = localStorage.getItem('token');
-    const productos = await axios.get(`http://localhost:8080/api/usuarios/${usuario.value.id}/productos`, {
+const cargarProductosUser = async (pagina = 1) => {
+    const productos = await api.get(`/usuarios/${usuario.value.id}/productos`, {
         params: {
             page: pagina
-        },
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
         }
     });
 
     productosUser.value = productos.data.data;
     pagination.value = productos.data;
     paginaActual.value = productos.data.current_page;
-
 }
 
 const eliminarProducto = async (id) => {
-    const token = localStorage.getItem('token');
-
-    const response = await axios.delete('http://localhost:8080/api/productos/' + id, {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-        }
-    });
-
-    if (response.status === 200) {
-        alert('Producto eliminado correctamente');
-        productosUser.value = productosUser.value.filter(p => p.id !== id);
-    }
+    await api.delete('/productos/' + id);
+    alert('Producto eliminado correctamente');
+    productosUser.value = productosUser.value.filter(p => p.id !== id);
 }
 
 const irAlPunto = (punto) => {
@@ -215,12 +187,21 @@ const irAlPunto = (punto) => {
 }
 
 onMounted(async () => {
-    if (!usuario.value?.id) await fetchUsuario();
-    cargarPuntos();
-    CargarProductosUser();
+    await fetchUsuario();
+    if (usuario.value?.id) {
+        cargarPuntos();
+        cargarProductosUser();
+    }
 });
 
+onUnmounted(() => {
+    if (map) {
+        map.remove();
+        map = null;
+    }
+});
 </script>
+
 <template>
     <NavBar />
     <div class="contenedor-pagina">
@@ -234,15 +215,15 @@ onMounted(async () => {
                 <h3>Mi Perfil</h3><br>
                 <div class="info-usuario">
                     <p><span><img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-usuario"
-                                class="icono">Nombre:</span> {{ usuario.nombre_usuario || 'Cargando...' }}</p>
+                                class="icono">Nombre:</span> {{ usuario?.nombre_usuario || 'Cargando...' }}</p>
                     <p><span><img src="../assets/iconos/correo.png" alt="icono-email" class="icono">Email:</span> {{
-                        usuario.email }}</p>
+                        usuario?.email }}</p>
                     <p><span><img src="../assets/iconos/ubicacion.png" alt="icono-direccion"
-                                class="icono">Dirección:</span> {{ usuario.direccion || 'No definida' }}</p>
+                                class="icono">Dirección:</span> {{ usuario?.direccion || 'No definida' }}</p>
                     <hr>
                     <p class="valoracion"><span><img src="../assets/iconos/valoraciones-icono.png"
                                 alt="icono-valoracion" class="icono">Valoración:</span> <span class="puntuacion">{{
-                                    usuario.puntuacio || '5.0' }}</span></p>
+                                    usuario?.puntuacio || '5.0' }}</span></p>
                 </div>
             </div>
 
@@ -315,9 +296,9 @@ onMounted(async () => {
             <div class="contenedor-secciones-datos">
                 <MostrarProductos v-if="eleccionActual === 'productos'" :productos="productosUser"
                     :pagination="pagination" :paginaActual="paginaActual" @borrar="eliminarProducto"
-                    @cambiarPagina="CargarProductosUser" />
-                <misventas v-else-if="eleccionActual === 'compras'" :eleccion="eleccionActual" />
-                <misventas v-else-if="eleccionActual === 'ventas'" :eleccion="eleccionActual" />
+                    @cambiarPagina="cargarProductosUser" />
+                <MisVentas v-else-if="eleccionActual === 'compras'" :eleccion="eleccionActual" />
+                <MisVentas v-else-if="eleccionActual === 'ventas'" :eleccion="eleccionActual" />
             </div>
         </div>
     </div>
@@ -465,10 +446,9 @@ hr {
 #map {
     height: 300px;
     width: 100%;
-    border-radius:
-        8px;
-    margin-bottom:
-        15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    z-index: 1;
 }
 
 .grid-puntos-mini {

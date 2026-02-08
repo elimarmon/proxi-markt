@@ -1,8 +1,7 @@
 <script setup>
 import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
 import { ref, onMounted, nextTick } from "vue";
-import axios from "axios";
+import api from "@/api/axios";
 import NavBar from "./NavBar.vue";
 import MostrarProductosMain from './MostrarProductosMain.vue';
 import { useAuth } from '@/composables/useAuth';
@@ -22,7 +21,7 @@ const seleccionarPunto = async (idPunto) => {
     mensajeEstado.value = "Cargando...";
 
     try {
-        const response = await axios.get(`http://localhost:8080/api/puntos/${idPunto}/productos`);
+        const response = await api.get(`/puntos/${idPunto}/productos`);
 
         if (response.data.status && response.data.productos) {
             const data = response.data.productos;
@@ -77,10 +76,10 @@ const actualizarPuntos = async (nuevoRadio) => {
     if (!usuario.value?.latitud || !usuario.value?.longitud) return;
 
     // Para la API usamos un número grande si es Infinity
-    const radioParaAPI = nuevoRadio === Infinity ? 99999 : nuevoRadio;
+    const radio = nuevoRadio === Infinity ? 99999 : nuevoRadio;
 
     try {
-        const puntosEntrega = await axios.get(`http://localhost:8080/api/puntos_radio/${radioParaAPI}`, {
+        const puntosEntrega = await api.get(`/puntos_radio/${radio}`, {
             params: {
                 lng: usuario.value.longitud,
                 lat: usuario.value.latitud
@@ -127,8 +126,8 @@ const inicializarMapa = async () => {
 }
 
 onMounted(async () => {
-    if (!usuario.value?.id) await fetchUsuario();
-    inicializarMapa();
+    await fetchUsuario();
+    if (usuario.value?.id) inicializarMapa();
 });
 </script>
 
