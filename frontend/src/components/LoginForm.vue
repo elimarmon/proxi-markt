@@ -1,9 +1,11 @@
 <script setup>
 import { ref } from 'vue';
-import axios from 'axios';
+import api from '@/api/axios';
 import { useRouter } from 'vue-router';
+import { useAuth } from '@/composables/useAuth';
 
 const router = useRouter()
+const { login, loading, setLoading } = useAuth();
 
 const form = ref({
     email: "",
@@ -18,25 +20,29 @@ const enviarInfo = async () => {
         return;
     }
 
+    setLoading(true);
+    
     try {
-        const login = await axios.post('http://localhost:8080/api/login', form.value);
+        const response = await api.post('/login', form.value);
 
-        if (login.status === 200) {
-            const token = login.data.token;
-            localStorage.setItem('token', token);
-            // console.log("Token guardado con éxito");
+        // no necessitem comprovar el response.status == 200 la instancia
+        // de axios en el interceptor del response ja contempla l'exit o el fallo
+        const { token, user } = response.data;
+        login(token, user);
+        // console.log("Token guardado con éxito");
 
-            if (login.data.user.direccion === null) {
-                router.push('/ubicacion');
-            } else {
-                router.push('/cuenta')
-            }
-
-            form.value = { email: '', contrasenya: '' };
+        if (user.direccion === null) {
+            router.push('/ubicacion');
+        } else {
+            router.push('/cuenta')
         }
+
+        form.value = { email: '', contrasenya: '' };
     } catch (error) {
         console.error("Error en el login:", error.response?.data || error.message);
         alert("Credenciales incorrectas");
+    } finally {
+        setLoading(false);
     }
 }
 </script>
@@ -58,7 +64,7 @@ const enviarInfo = async () => {
                     placeholder="••••••••" />
             </div>
 
-            <button type="submit" class="boton-submit">Iniciar Sesión</button>
+            <button :disabled="loading" type="submit" class="boton-submit">Iniciar Sesión</button>
         </form>
     </div>
 </template>
@@ -150,6 +156,18 @@ input::placeholder {
 
 .boton-submit:hover {
     background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
+}
+
+.boton-submit:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.7;
+    color: #888888
+}
+
+.boton-submit:disabled:hover {
+    background: #cccccc;
 }
 
 @media (min-width: 1200px) {

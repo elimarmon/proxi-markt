@@ -6,18 +6,10 @@ import { useAuth } from '@/composables/useAuth';
 
 const router = useRouter();
 const mostrarMenu = ref(false);
-
-/* 
-Exemple si existix el token:
-localStorge retorna l'string del token (truthy) i el negues (false) i ho tornes a negar (true).
-S'ha convertit un string en realment un boolea.
-*/
-const estaAutenticado = ref(!!localStorage.getItem('token'));
-const { usuario, fetchUsuario } = useAuth();
-
+const { usuario, fetchUsuario, estarAutenticado, logout } = useAuth();
 
 const cerrarSesion = () => {
-    localStorage.removeItem('token');
+    logout();
     router.push('/');
 };
 
@@ -34,25 +26,12 @@ const confirmarNuevoRadio = (valor) => {
     // console.log("Filtrando productos a:", valor === Infinity ? "Sin límite" : valor + " km");
 };
 
-const nombreUsuario = async () => {
-    const token = localStorage.getItem('token');
-
-    if (!token) return;
-
-    try {
-        await fetchUsuario();
-
-    } catch (error) {
-        console.error("Error al obtener el nombre de usuario:", error);
-    }
-}
-
 const irAuth = (modo) => {
     router.push({ name: 'auth', state: { modo: modo } });
 }
 
-onMounted(() => {
-    nombreUsuario();
+onMounted(async () => {
+    if (estarAutenticado.value) await fetchUsuario();
 });
 </script>
 
@@ -67,7 +46,7 @@ onMounted(() => {
                 </div>
             </div>
 
-            <div v-if="estaAutenticado" class="nav-autenticado">
+            <div v-if="estarAutenticado" class="nav-autenticado">
                 <ul class="enlaces-paginas">
                     <li>
                         <router-link to="/dashboard">
