@@ -32,7 +32,8 @@ const cargarProductosUser = async () => {
     if (!userId.value) return;
     try {
         const response = await axios.get(`http://localhost:8080/api/usuarios/${userId.value}/productos`, getConfig());
-        productosUser.value = response.data;
+        productosUser.value = response.data.data;
+        console.log(response.data);
     } catch (error) {
         console.error("Error cargando productos:", error);
     }
@@ -52,12 +53,17 @@ const comprasCompletadas = computed(() => {
     return misCompras.value.filter(c => c.estado === 'completado');
 });
 
+const ventasCompletadas = computed(() => {
+    return misVentas.value.filter(v => v.estado === 'completado');
+});
+
 const productosOrdenados = computed(() => {
     return [...productosUser.value].sort((a, b) => a.id - b.id);
 });
 
 onMounted(() => {
     obtenerUsuario();
+    console.log(productosUser.value);
     obtenerCompras();
     obtenerVentas();
 });
@@ -92,7 +98,7 @@ onMounted(() => {
 
             <div class="caja">
                 <h3>Ingresos</h3>
-                <p>{{misVentas.filter(venta => venta.estado === 'completado').reduce((total, venta) => total +
+                <p>{{ventasCompletadas.reduce((total, venta) => total +
                     (venta.cantidad * (venta.producto?.precio || 0)), 0).toFixed(2) }}€</p>
                 <img src="../assets/iconos/euro.png" />
             </div>
@@ -103,8 +109,8 @@ onMounted(() => {
                 <img src="../assets/iconos/carrito.png" class="icono" />
                 <h3>Mis Ventas</h3>
 
-                <div v-if="misVentas.length > 0" class="lista-scroll">
-                    <div class="producto-ventas" v-for="venta in misVentas" :key="venta.id">
+                <div v-if="ventasCompletadas.length > 0" class="lista-scroll">
+                    <div class="producto-ventas" v-for="venta in ventasCompletadas" :key="venta.id">
 
                         <img :src="venta.producto?.imagen ? `http://localhost:8080/storage/${venta.producto.imagen}` : 'https://via.placeholder.com/150'"
                             class="imagen-producto">
@@ -144,7 +150,7 @@ onMounted(() => {
                 <h3>Mis Compras</h3>
 
                 <div v-if="comprasCompletadas.length > 0" class="lista-scroll">
-                    <div class="compras-producto" v-for="compra in misCompras.filter(c => c.estado === 'completado')" :key="compra.id">
+                    <div class="compras-producto" v-for="compra in comprasCompletadas" :key="compra.id">
                         <img :src="compra.producto?.imagen ? `http://localhost:8080/storage/${compra.producto.imagen}` : 'https://via.placeholder.com/150'"
                             class="imagen-producto">
 
