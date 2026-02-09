@@ -4,7 +4,6 @@ import axios from "axios";
 import NavBar from "./NavBar.vue";
 import ValoracionForm from "./ValoracionForm.vue";
 import { useAuth } from "@/composables/useAuth";
-import Footer from "./Footer.vue";
 
 const comandas = ref([]);
 const cargando = ref(true);
@@ -48,10 +47,7 @@ const actualizarComanda = async (id, nuevoEstado) => {
                 }
             });
         const comandaEncontrada = comandas.value.find(c => c.id === id);
-
-        if (comandaEncontrada) {
-            comandaEncontrada.estado = nuevoEstado;
-        }
+        if (comandaEncontrada) comandaEncontrada.estado = nuevoEstado;
     } catch (err) {
         alert("Ha ocurrido un error al actualizar la comanda.");
         console.error(err);
@@ -112,107 +108,96 @@ const postValoracion = async (idCompraventa, datos) => {
                 <span class="contador-badge">{{ comandasPendientes.length }} pendientes</span>
             </div>
 
-            <div v-for="comanda in comandasPendientes" :key="comanda.id" class="comanda">
-                <img :src="getUrlImagen(comanda.producto?.imagen)" alt="foto-producto" class="foto-producto" />
-
-                <h3>
-                    {{ comanda.producto?.nombre_producto || "Producto desconocido" }}
-                </h3>
-
-                <p id="estado">{{ comanda.estado }}</p>
-
-                <div id="precio-total">
-                    <p>{{ comanda.precio_total }}€</p>
-                    <p>Total</p>
-                </div>
-
-                <div id="cantidad">
-                    <img src="../assets/iconos/stock.png" alt="icono-cantidad" class="icono" />
-                    <p>Cantidad: {{ comanda.cantidad }}</p>
-                </div>
-
-                <div id="horario">
-                    <img src="../assets/iconos/calendario.png" alt="icono-calendario" class="icono" />
-                    <p>{{ comanda.fecha_prevista }}</p>
-                </div>
-
-                <div id="usuario">
-                    <img src="../assets/iconos/mi_cuenta_verde.png" alt="icono-cuenta" class="icono" />
-                    <p>
-                        {{ comanda.comprador?.nombre_usuario || "Usuario desconocido" }}
-                    </p>
-                </div>
-                <!-- 
-                <div class="mensaje-comprador">
-                    <img src="../assets/iconos/chat-comanda.png" alt="icono-chat" class="icono" />
-                    <p>Nota del pedido:</p>
-                    <p>{{ comanda.mensaje || "No especificado" }}</p>
-                </div> -->
-
-                <button v-if="comanda.estado == 'completado'" class="aceptar"
-                    @click="abrirModalValoracion(comanda.id)">Valorar</button>
-                <button v-else-if="comanda.estado == 'en curso' && comanda['id_comprador'] !== usuario.id"
-                    class="aceptar" @click="actualizarComanda(comanda.id, 'completado')">
-                    <img src="../assets/iconos/aceptar.png" alt="icono-aceptar" class="icono" />
-                    Finalizar comanda
-                </button>
-                <button v-else-if="comanda['id_comprador'] !== usuario.id"
-                    @click="actualizarComanda(comanda.id, 'en curso')" class="aceptar">
-                    <img src="../assets/iconos/aceptar.png" alt="icono-aceptar" class="icono" />
-                    Aceptar comanda
-                </button>
-
-                <button :disabled="comanda.estado == 'completado'" class="rechazar"
-                    @click="actualizarComanda(comanda.id, 'cancelado')">
-                    <img src="../assets/iconos/rechazar.png" alt="icono-rechazar" class="icono" />
-                    Rechazar comanda
-                </button>
+            <p v-if="cargando" class="texto-info">Cargando comandas...</p>
+            <div v-if="!cargando && comandasPendientes.length === 0" class="sin-datos">
+                No hay comandas pendientes
             </div>
-        </div>
-        <ValoracionForm v-if="aValorar" :id="aValorar" @enviar-valoracion="postValoracion(aValorar, $event)"
-            @cerrar="aValorar = null" />
-    </div>
 
-    <div class="historial">
-        <div class="titulo-historial">
-            <img src="../assets/iconos/aceptar.png" alt="Historial" class="icono-titulo">
-            <h3>Historial de comandas</h3>
-        </div>
-
-        <div v-if="historialComandas.length === 0" style="text-align: center; color: #999; padding: 20px;">
-            No hay historial disponible.
-        </div>
-
-        <div v-for="item in historialComandas" :key="item.id" class="tarjeta-producto"
-            :style="{ borderLeftColor: item.estado === 'cancelado' ? '#e74c3c' : '#22c55e' }">
-
-            <div class="info-izquierda">
-                <img :src="getUrlImagen(item.producto?.imagen)" alt="foto-producto" class="img-producto">
-                <div class="detalles">
-                    <h3>{{ item.producto?.nombre_producto }}</h3>
-                    <div class="fila-datos">
-                        <span>Cantidad: {{ item.cantidad }}</span>
-                        <span class="separador">•</span>
-                        <span class="precio">{{ item.precio_total }}€</span>
-                        <span class="separador">•</span>
-                        <span class="usuario">{{ item.comprador?.nombre_usuario }}</span>
+            <div v-for="comanda in comandasPendientes" :key="comanda.id" class="tarjeta-comanda"
+                :style="{ borderLeftColor: getColoresEstado(comanda.estado) }">
+                
+                <div class="info-principal">
+                    <img :src="getUrlImagen(comanda.producto?.imagen)" class="img-producto" />
+                    <div class="detalles">
+                        <h3>{{ comanda.producto?.nombre_producto || "Producto" }}</h3>
+                        <div class="fila-datos">
+                            <span>Cant: {{ comanda.cantidad }}</span>
+                            <span class="separador">•</span>
+                            <span class="precio">{{ comanda.precio_total }}€</span>
+                            <span class="separador">•</span>
+                            <span class="usuario">{{ comanda.comprador?.nombre_usuario }}</span>
+                        </div>
                     </div>
                 </div>
+
+                <div class="acciones">
+                    <button v-if="comanda.estado == 'en curso' && comanda.id_comprador !== usuario.id" 
+                            class="btn-accion finalizar" @click="actualizarComanda(comanda.id, 'completado')">
+                        Finalizar
+                    </button>
+                    <button v-else-if="comanda.id_comprador !== usuario.id" 
+                            class="btn-accion aceptar" @click="actualizarComanda(comanda.id, 'en curso')">
+                        Aceptar
+                    </button>
+                    <button class="btn-accion rechazar" @click="actualizarComanda(comanda.id, 'cancelado')">
+                        Rechazar
+                    </button>
+                </div>
+
+                <div class="etiqueta-estado" :style="{ backgroundColor: getColoresEstado(comanda.estado) }">
+                    {{ comanda.estado }}
+                </div>
+            </div>
+        </div>
+
+        <div class="seccion-comandas">
+            <div class="cabecera-seccion">
+                <div class="titulo-grupo">
+                    <img src="../assets/iconos/aceptar.png" alt="Historial" class="icono-seccion">
+                    <h3>Historial de comandas</h3>
+                </div>
             </div>
 
-            <div class="etiqueta-estado"
-                :style="{ backgroundColor: item.estado === 'cancelado' ? '#e74c3c' : '#0f172a' }">
-                {{ item.estado === 'cancelado' ? 'Rechazado' : 'Aceptado' }}
+            <div v-if="historialComandas.length === 0" class="sin-datos">
+                No hay historial disponible.
+            </div>
+
+            <div v-for="item in historialComandas" :key="item.id" class="tarjeta-comanda"
+                :style="{ borderLeftColor: getColoresEstado(item.estado) }">
+
+                <div class="info-principal">
+                    <img :src="getUrlImagen(item.producto?.imagen)" class="img-producto">
+                    <div class="detalles">
+                        <h3>{{ item.producto?.nombre_producto }}</h3>
+                        <div class="fila-datos">
+                            <span>Cant: {{ item.cantidad }}</span>
+                            <span class="separador">•</span>
+                            <span class="precio">{{ item.precio_total }}€</span>
+                            <span class="separador">•</span>
+                            <span class="usuario">{{ item.comprador?.nombre_usuario }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="acciones">
+                    <button v-if="item.estado == 'completado'" class="btn-accion valorar" @click="abrirModalValoracion(item.id)">
+                        Valorar
+                    </button>
+                </div>
+
+                <div class="etiqueta-estado" :style="{ backgroundColor: getColoresEstado(item.estado) }">
+                    {{ item.estado }}
+                </div>
             </div>
         </div>
 
         <ValoracionForm v-if="aValorar" :id="aValorar" @enviar-valoracion="postValoracion(aValorar, $event)"
             @cerrar="aValorar = null" />
     </div>
-    <Footer></Footer>
 </template>
 
 <style scoped>
+
 * {
     margin: 0;
     padding: 0;
