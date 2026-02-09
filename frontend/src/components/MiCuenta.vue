@@ -39,7 +39,7 @@ const guardarPuntoEntrega = async () => {
     }
 
     const centroInicial = (latitud.value && longitud.value)
-        ? [latitud.value, longitud.value]
+        ? [usuario.value.latitud, usuario.value.longitud]
         : [39.032719, -0.215864];
 
     direccion.value = "";
@@ -47,21 +47,22 @@ const guardarPuntoEntrega = async () => {
     latitud.value = null;
     longitud.value = null;
 
+    const southWest = L.latLng(-89.9, -180);
+    const northEast = L.latLng(89.9, 180);
+    const bounds = L.latLngBounds(southWest, northEast);
+
     map = L.map('map', {
-        miZoom: 3,
-    }).setView(centroInicial, 8); // empezar con la localización del usuario
+        minZoom: 3,
+        worldCopyJump: true,      
+        maxBounds: bounds,        
+        maxBoundsViscosity: 1.0   
+    }).setView(centroInicial, 8);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         minZoom: 3,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
-
-    for (let i = 0; i < puntosEntrega.value.length; i++) {
-        const longitud = parseFloat(puntosEntrega.value[i].longitud)
-        const latitud = parseFloat(puntosEntrega.value[i].latitud)
-        L.marker([latitud, longitud]).addTo(map).bindPopup(puntosEntrega.value[i].nombre_punto);
-    }
 
     let marcadorTemporal = L.marker(centroInicial, { opacity: 0 }).addTo(map);
 

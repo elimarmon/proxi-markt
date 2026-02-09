@@ -5,25 +5,25 @@ import NavBar from "./NavBar.vue";
 import { useAuth } from '@/composables/useAuth';
 import MostrarProductosMain from './MostrarProductosMain.vue';
 
+// --- ESTADOS ---
 const productos = ref([]);
 const radioActual = ref(
     localStorage.getItem('distancia_guardada') === 'Infinity'
         ? Infinity
         : (Number(localStorage.getItem('distancia_guardada')) || 10)
 );
+
 const { usuario, fetchUsuario } = useAuth();
 const categoriasSeleccionadas = ref([]);
+const todasLasCategorias = ref([]); 
 const menuAbierto = ref(false);
 const cargando = ref(false);
 const textoBusqueda = ref("");
 const pagination = ref({});
 const paginaActual = ref(1);
 
-// TODO: se calculan distancias en el padre y en el hijo-> intentar simplificarlo
 const calcularDistanciaReal = (latV, lngV) => {
-    if (!usuario.value || !usuario.value.latitud || !latV || !lngV) {
-        return 999999;
-    }
+    if (!usuario.value || !usuario.value.latitud || !latV || !lngV) return 999999;
 
     const miLat = parseFloat(usuario.value.latitud);
     const miLng = parseFloat(usuario.value.longitud);
@@ -38,38 +38,31 @@ const calcularDistanciaReal = (latV, lngV) => {
     return 12742 * Math.asin(Math.sqrt(a));
 };
 
-const manejarCambioRadio = (nuevoRadio) => {
-    radioActual.value = nuevoRadio;
-    localStorage.setItem('distancia_guardada', nuevoRadio);
-    mostrarProductos();
-};
-
-const categorias = computed(() => {
-    const nombres = productos.value.map(p => p.categoria ? p.categoria.nombre_categoria : null);
-    const unicas = [...new Set(nombres)].filter(Boolean);
-    return unicas.sort();
-});
 
 const mostrarProductos = async (pagina = 1) => {
     cargando.value = true;
     const token = localStorage.getItem('token');
+
+    // Si el radio es Infinity, mandamos un número muy grande al backend
     const radioParaAPI = radioActual.value === Infinity ? 99999 : radioActual.value;
 
     try {
         const response = await axios.get("http://localhost:8080/api/productos", {
             params: {
+                page: pagina,
                 km: radioParaAPI,
-                page: pagina
+                search: textoBusqueda.value,
+                categorias: categoriasSeleccionadas.value.join(',')
             },
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
             }
         });
+
         productos.value = response.data.data;
         pagination.value = response.data;
         paginaActual.value = response.data.current_page;
-
 
     } catch (error) {
         console.error("Error al cargar productos:", error);
@@ -78,20 +71,35 @@ const mostrarProductos = async (pagina = 1) => {
     }
 };
 
+const cargarCategorias = async () => {
+    try {
+        const response = await axios.get("http://localhost:8080/api/categorias", {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        todasLasCategorias.value = response.data.map(c => c.nombre_categoria).sort();
+    } catch (error) {
+        console.error("Error cargando categorías:", error);
+    }
+};
+
+
+watch([textoBusqueda, categoriasSeleccionadas], () => {
+    mostrarProductos(1);
+});
+
+
 const productosFiltrados = computed(() => {
     return productos.value.filter(p => {
-        const coincideTexto = !textoBusqueda.value ||
-            p.nombre_producto.toLowerCase().includes(textoBusqueda.value.toLowerCase());
-
-        const coincideCategoria = categoriasSeleccionadas.value.length === 0 ||
-            categoriasSeleccionadas.value.includes(p.categoria?.nombre_categoria);
-
         const dist = calcularDistanciaReal(p.punto_entrega?.latitud, p.punto_entrega?.longitud);
-        const coincideRadio = radioActual.value === Infinity || dist <= radioActual.value;
-
-        return coincideTexto && coincideCategoria && coincideRadio;
+        return radioActual.value === Infinity || dist <= radioActual.value;
     });
 });
+
+const manejarCambioRadio = (nuevoRadio) => {
+    radioActual.value = nuevoRadio;
+    localStorage.setItem('distancia_guardada', nuevoRadio);
+    mostrarProductos(1);
+};
 
 const toggleMenu = () => {
     menuAbierto.value = !menuAbierto.value;
@@ -99,7 +107,8 @@ const toggleMenu = () => {
 
 onMounted(async () => {
     if (!usuario.value?.id) await fetchUsuario();
-    mostrarProductos();
+    cargarCategorias(); 
+    mostrarProductos(); 
 });
 </script>
 
@@ -131,7 +140,7 @@ onMounted(async () => {
                         </button>
 
                         <div v-if="menuAbierto" class="menu-checkboxes">
-                            <label v-for="cat in categorias" :key="cat" class="fila-opcion">
+                            <label v-for="cat in todasLasCategorias" :key="cat" class="fila-opcion">
                                 <input type="checkbox" :value="cat" v-model="categoriasSeleccionadas">
                                 <span class="nombre-cat">{{ cat }}</span>
                             </label>
@@ -151,7 +160,8 @@ onMounted(async () => {
         <div v-if="cargando" style="text-align: center; padding: 20px;">
             <p>Cargando productos...</p>
         </div>
-        <MostrarProductosMain v-else-if="productosFiltrados.length >= 1" :productos="productosFiltrados" :usuario="usuario" />
+        <MostrarProductosMain v-else-if="productosFiltrados.length >= 1" :productos="productosFiltrados"
+            :usuario="usuario" />
         <div v-else class="mensaje-ayuda">
             <p>No se han encontrado productos.</p>
         </div>

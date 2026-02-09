@@ -10,14 +10,28 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductoController extends Controller
 {
-    /**
-     * Mostrar todos los productos disponibles (Para la tienda/mapa)
-     */
-    public function index() {
-        $productos = Producto::with(['categoria', 'usuario', 'punto_entrega'])->paginate(9);
 
-        return response()->json($productos);
+    public function index(Request $request) {
+    $query = Producto::with(['categoria', 'usuario', 'punto_entrega']);
+
+    if ($request->has('search') && $request->search != '') {
+        $query->where('nombre_producto', 'like', '%' . $request->search . '%');
     }
+
+    if ($request->has('categorias') && $request->categorias != '') {
+        $categorias = is_array($request->categorias) 
+                      ? $request->categorias 
+                      : explode(',', $request->categorias);
+                      
+        $query->whereHas('categoria', function($q) use ($categorias) {
+            $q->whereIn('nombre_categoria', $categorias);
+        });
+    }
+    
+    $productos = $query->paginate(9);
+
+    return response()->json($productos);
+}
 
     public function productosPorUsuario(Request $request) {
         $user = $request->user();
