@@ -61,8 +61,8 @@ const insertarProducto = async () => {
             router.push('/cuenta');
         }
     } catch (error) {
-        console.error("Error:", error.response?.data);
         alert('Error: ' + (error.response?.data?.message || 'No se pudo crear'));
+        console.error("Error:", error.response?.data);
     }
 }
 
@@ -94,7 +94,7 @@ const cargarCategorias = async () => {
 }
 
 onMounted(async () => {
-    await fetchUsuario();
+    if (!usuario.value?.id) await fetchUsuario();
     cargarPuntos();
     cargarCategorias();
 });

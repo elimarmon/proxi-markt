@@ -8,7 +8,7 @@ const mensajes = ref([]);
 const nuevoMensaje = ref("");
 let polling = null;
 
-const bajarmensajes = ref(null);
+const bajarMensajes = ref(null);
 
 //funcio de formatear fecha
 const formatearFecha = (fechaRaw) => {
@@ -29,11 +29,11 @@ const hacerScrollAlFinal = async () => {
     //espera a que vue acabe de renderizar els mensatges
     await nextTick();
     //comproba que la referencia al contenedor existix
-    if (bajarmensajes.value) {
+    if (bajarMensajes.value) {
         //fa el moviment del scroll
-        bajarmensajes.value.scrollTo({
+        bajarMensajes.value.scrollTo({
             //baixa hasta baix del contenedor de mensatges
-            top: bajarmensajes.value.scrollHeight,
+            top: bajarMensajes.value.scrollHeight,
             behavior: 'instant' // fa que no hi haja animacio de baixar
         });
     }
@@ -49,13 +49,13 @@ const cargarMensajes = async () => {
         });
 
         //comparar si els mensatges han aumentat
-        const MensajesNuevos = res.data.mensajes.length !== mensajes.value.length;
+        const mensajesNuevos = res.data.mensajes.length !== mensajes.value.length;
 
         //actualizem la llista de mensatges
         mensajes.value = res.data.mensajes;
 
         //si nian mensatges nous baixem el scroll
-        if (MensajesNuevos) {
+        if (mensajesNuevos) {
             hacerScrollAlFinal();
         }
     } catch (e) {
@@ -70,7 +70,7 @@ const enviarMensaje = async () => {
         const token = localStorage.getItem('token');
 
         //peticio al backend
-        await axios.post('http://localhost:8080/api/enviarmensaje', {
+        await axios.post('http://localhost:8080/api/enviar-mensaje', {
             id_chat: props.chatid,   // id del chat actual
             id_vendedor: props.id_receptor, // a qui li arriba el mensatge
             id_producto: props.id_producto, // el producte del que estem parlant
@@ -121,9 +121,8 @@ onUnmounted(() => {
 
 <template>
     <div class="chat-hijo">
-        <div class="caja-mensajes" ref="bajarmensajes">
-            <div v-for="m in mensajes" :key="m.id"
-                :class="['burbuja', m.id_envio === props.mi_id ? 'propio' : 'ajeno']">
+        <div class="caja-mensajes" ref="bajarMensajes">
+            <div v-for="m in mensajes" :key="m.id" :class="['burbuja', m.id_envio === props.mi_id ? 'propio' : 'ajeno']">
                 <!-- açi lo que fem es que si el id del que envia el mensatge no es el
                  que ta la sesio inicia es pinta a un costat o al altre -->
                 <div class="contenido">{{ m.contenido }}</div>

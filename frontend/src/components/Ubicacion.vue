@@ -104,8 +104,13 @@ const guardarUbicacion = async () => {
         });
 
         if (respuesta.status >= 200 && respuesta.status < 300) {
+            // actualitzar l'objecte usuari manualment per no fer una nova petició a la base de dates
+            usuario.value = {
+                ...usuario.value,
+                ...datos
+            };
             alert("Dirección actualizada correctamente.");
-            console.log("Respuesta:", respuesta.data);
+            // console.log("Respuesta:", respuesta.data);
             router.push('/cuenta');
         }
 
@@ -128,7 +133,7 @@ const cancelar = () => {
 }
 
 onMounted(async () => {
-    await fetchUsuario();
+    if (!usuario.value?.id) await fetchUsuario();
     inicializarMapa();
 });
 </script>
@@ -255,9 +260,9 @@ onMounted(async () => {
 
 .boton-secondary {
     flex: 1;
-    background-color: #f0f7ed; /* Un blanco con un toque de verde */
-    color: #4CA626;            /* El mismo verde que tu título */
-    border: 1px solid #c2e0b5; /* Un borde sutil */
+    background-color: #f0f7ed;
+    color: #4CA626;
+    border: 1px solid #c2e0b5;
     padding: 12px;
     border-radius: 8px;
     font-weight: 600;
@@ -266,7 +271,7 @@ onMounted(async () => {
 }
 
 .boton-secondary:hover {
-    background-color: #e2f0da; /* Se oscurece un poco al pasar el ratón */
+    background-color: #e2f0da;
     border-color: #8BD16A;
 }
 

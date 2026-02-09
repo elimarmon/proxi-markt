@@ -3,12 +3,14 @@ import { reactive, onMounted, ref } from 'vue';
 import axios from 'axios';
 import NavBar from './NavBar.vue';
 import { useRouter } from 'vue-router';
+import { useAuth } from '@/composables/useAuth';
 
 const router = useRouter();
 
 const PuntosEntrega = ref([]);
 const archivoImagen = ref(null);
 const imagenPreview = ref(null);
+const { usuario, fetchUsuario } = useAuth();
 
 const props = defineProps({
     id: {
@@ -35,7 +37,7 @@ const seleccionarArchivo = (e) => {
     }
 }
 
-const CargarProducto = async () => {
+const cargarProducto = async () => {
     try {
         const respuesta = await axios.get(`http://localhost:8080/api/productos/${props.id}`);
         Object.assign(formulario, respuesta.data);
@@ -78,10 +80,10 @@ const editarProducto = async () => {
     }
 }
 
-const CargarPuntos = async () => {
+const cargarPuntos = async () => {
     const token = localStorage.getItem('token');
     try {
-        const resposta = await axios.get(`http://localhost:8080/api/puntosuser`, {
+        const resposta = await axios.get(`http://localhost:8080/api/usuarios/${usuario.value.id}/puntos`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
@@ -93,14 +95,15 @@ const CargarPuntos = async () => {
     }
 }
 
-onMounted(() => {
-    CargarProducto();
-    CargarPuntos();
+onMounted(async () => {
+    if (!usuario.value?.id) await fetchUsuario();
+    cargarProducto();
+    cargarPuntos();
 });
 </script>
 
 <template>
-    <NavBar/>
+    <NavBar />
     <div class="contenedor-edicion">
         <div class="tarjeta-formulario">
             <h1 class="titulo-principal">Edición de producto</h1>
@@ -145,8 +148,8 @@ onMounted(() => {
                     <label>Imagen del producto</label>
 
                     <div class="preview-container" v-if="imagenPreview || formulario.imagen">
-                        <img :src="imagenPreview || `http://localhost:8080/storage/${formulario.imagen}`" alt="Vista previa"
-                            class="foto-preview" />
+                        <img :src="imagenPreview || `http://localhost:8080/storage/${formulario.imagen}`"
+                            alt="Vista previa" class="foto-preview" />
                         <p class="texto-ayuda-foto">{{ imagenPreview ? 'Nueva imagen seleccionada' : 'Imagen actual' }}
                         </p>
                     </div>
@@ -162,7 +165,14 @@ onMounted(() => {
                     </div>
                 </div>
 
-                <button type="submit" class="boton-actualizar">Actualizar Producto</button>
+                <div class="contenedor-acciones">
+                    <button @click="router.back()" type="button" class="boton-cancelar">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="boton-actualizar">
+                        Actualizar Producto
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -314,26 +324,50 @@ select:focus {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.boton-actualizar {
+.contenedor-acciones {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
     width: 100%;
+}
+
+.boton-actualizar,
+.boton-cancelar {
+    flex: 1;
     padding: 14px;
-    margin-top: 10px;
     border-radius: 8px;
     font-weight: 700;
     font-size: 16px;
     cursor: pointer;
     border: none;
+    transition: all 0.2s ease;
+}
+
+.boton-actualizar {
     color: white;
     background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
-    transition: transform 0.1s active, opacity 0.2s;
 }
 
 .boton-actualizar:hover {
     opacity: 0.95;
     box-shadow: 0 4px 12px rgba(76, 166, 38, 0.2);
+    transform: translateY(-1px);
 }
 
-.boton-actualizar:active {
+.boton-cancelar {
+    background-color: transparent;
+    border: 2px solid #9ca3af;
+    color: #6b7280;
+}
+
+.boton-cancelar:hover {
+    background-color: #f3f4f6;
+    border-color: #6b7280;
+    color: #374151;
+}
+
+.boton-actualizar:active,
+.boton-cancelar:active {
     transform: scale(0.98);
 }
 

@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from "vue";
-import axios from "axios";
+import api from "@/api/axios";
+import { useAuth } from '@/composables/useAuth';
+import { useRouter } from 'vue-router';
 
 const form = ref({
     nombre_usuario: "",
@@ -8,6 +10,9 @@ const form = ref({
     contrasenya: "",
     telefono: ""
 });
+
+const { loading, setLoading } = useAuth();
+const router = useRouter();
 
 const enviarInfo = async () => {
 
@@ -18,24 +23,27 @@ const enviarInfo = async () => {
         return;
     }
 
+    setLoading(true);
+
     try {
-        console.log("Enviando registro: ", form.value);
+        // console.log("Enviando registro: ", form.value);
+        await api.post("/register", form.value);
 
-        const registrar = await axios.post("http://localhost:8080/api/register", form.value);
+        form.value = {
+            nombre_usuario: "",
+            email: "",
+            contrasenya: "",
+            telefono: ""
+        };
 
-        if (registrar.status === 201) {
-            alert("Cuenta creada con éxito");
+        alert("¡Cuenta creada con éxito! Ahora puedes iniciar sesión.");
+        router.push('/login');
 
-            form.value = {
-                nombre_usuario: "",
-                email: "",
-                contrasenya: "",
-                telefono: ""
-            };
-        }
     } catch (error) {
         console.error("Error en la petición:", error);
         alert("Hubo un error al conectar con el servidor");
+    } finally {
+        setLoading(false);
     }
 };
 </script>
@@ -46,23 +54,30 @@ const enviarInfo = async () => {
         <p class="subtitle">Únete a la comunidad de ProxiMarkt</p>
 
         <form @submit.prevent="enviarInfo">
+            <div class="form-group">
+                <label for="nombre">Nombre</label>
+                <input v-model="form.nombre_usuario" type="text" id="nombre" placeholder="Juan Garcia" />
+            </div>
 
-            <label for="nombre">Nombre</label>
-            <input v-model="form.nombre_usuario" type="text" name="nombre" id="nombre"
-                placeholder="Juan Garcia" /><br><br>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input v-model="form.email" type="email" id="email" placeholder="tu@gmail.com" />
+            </div>
 
+            <div class="form-group">
+                <label for="contrasenya">Contraseña</label>
+                <input v-model="form.contrasenya" type="password" id="contrasenya" placeholder="••••••••" />
+            </div>
 
-            <label for="email">Email</label>
-            <input v-model="form.email" type="email" name="email" id="email" placeholder="tu@gmail.com" /><br><br>
+            <div class="form-group">
+                <label for="telefono">Teléfono</label>
+                <input v-model="form.telefono" type="tel" id="telefono" placeholder="123456789" />
+            </div>
 
-            <label for="contrasenya">Contraseña</label>
-            <input v-model="form.contrasenya" type="password" name="contrasenya" id="contrasenya"
-                placeholder="••••••••" /><br><br>
-
-            <label for="telefono">Teléfono</label>
-            <input v-model="form.telefono" type="text" name="telefono" id="telefono" placeholder="123456789" /><br><br>
-
-            <button type="submit" class="boton-submit">Crear Cuenta</button>
+            <button type="submit" class="boton-submit" :disabled="loading">
+                <span v-if="!loading">Crear Cuenta</span>
+                <span v-else>Procesando...</span>
+            </button>
         </form>
     </div>
 </template>
@@ -144,8 +159,8 @@ input::placeholder {
 .boton-submit {
     width: 100%;
     padding: 14px;
-    background-color: #4CA626;
-    color: #FFFFFF;
+    background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
+    color: #FFF;
     font-weight: bold;
     font-size: 1rem;
     border: none;
@@ -156,7 +171,19 @@ input::placeholder {
 }
 
 .boton-submit:hover {
-    background-color: #009E47;
+    background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
+}
+
+.boton-submit:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.7;
+    color: #888888
+}
+
+.boton-submit:disabled:hover {
+    background: #cccccc;
 }
 
 @media (min-width: 1200px) {
