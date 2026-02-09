@@ -30,9 +30,11 @@ const misventas = async (pagina = 1) => {
     paginaActual.value = response.data.current_page;
 
     console.log("ventas: ", mostrar.value)
+    console.log("paginacion", pagination.value)
 }
 
 const miscompras = async (pagina = 1) => {
+    
     const token = localStorage.getItem('token')
     const response = await axios.get('http://localhost:8080/api/miscompras', {
         params: {
@@ -47,6 +49,7 @@ const miscompras = async (pagina = 1) => {
     paginaActual.value = response.data.current_page;
 
     console.log("compras: ", mostrar.value)
+    console.log("paginacion", pagination.value)
 }
 
 const formatearFecha = (fechaRaw) => {

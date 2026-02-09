@@ -47,7 +47,7 @@ const actualizarComanda = async (id, nuevoEstado) => {
                 }
             });
         const comandaEncontrada = comandas.value.find(c => c.id === id);
-        
+
         if (comandaEncontrada) {
             comandaEncontrada.estado = nuevoEstado;
         }
@@ -139,7 +139,7 @@ const postValoracion = async (idCompraventa, datos) => {
                         {{ comanda.comprador?.nombre_usuario || "Usuario desconocido" }}
                     </p>
                 </div>
-<!-- 
+                <!-- 
                 <div class="mensaje-comprador">
                     <img src="../assets/iconos/chat-comanda.png" alt="icono-chat" class="icono" />
                     <p>Nota del pedido:</p>
@@ -165,47 +165,47 @@ const postValoracion = async (idCompraventa, datos) => {
                     Rechazar comanda
                 </button>
             </div>
-            <ValoracionForm v-if="aValorar" :id="aValorar" @enviar-valoracion="postValoracion(aValorar, $event)" @cerrar="aValorar = null" />
+        </div>
+        <ValoracionForm v-if="aValorar" :id="aValorar" @enviar-valoracion="postValoracion(aValorar, $event)"
+            @cerrar="aValorar = null" />
+    </div>
+
+    <div class="historial">
+        <div class="titulo-historial">
+            <img src="../assets/iconos/aceptar.png" alt="Historial" class="icono-titulo">
+            <h3>Historial de comandas</h3>
         </div>
 
-        <div class="historial">
-            <div class="titulo-historial">
-                <img src="../assets/iconos/aceptar.png" alt="Historial" class="icono-titulo">
-                <h3>Historial de comandas</h3>
-            </div>
+        <div v-if="historialComandas.length === 0" style="text-align: center; color: #999; padding: 20px;">
+            No hay historial disponible.
+        </div>
 
-            <div v-if="historialComandas.length === 0" style="text-align: center; color: #999; padding: 20px;">
-                No hay historial disponible.
-            </div>
+        <div v-for="item in historialComandas" :key="item.id" class="tarjeta-producto"
+            :style="{ borderLeftColor: item.estado === 'cancelado' ? '#e74c3c' : '#22c55e' }">
 
-            <div v-for="item in historialComandas" :key="item.id" class="tarjeta-producto"
-                :style="{ borderLeftColor: item.estado === 'cancelado' ? '#e74c3c' : '#22c55e' }">
-                
-                <div class="info-izquierda">
-                    <img :src="getUrlImagen(item.producto?.imagen)" alt="foto-producto" class="img-producto">
-                    <div class="detalles">
-                        <h3>{{ item.producto?.nombre_producto }}</h3>
-                        <div class="fila-datos">
-                            <span>Cantidad: {{ item.cantidad }}</span>
-                            <span class="separador">•</span>
-                            <span class="precio">{{ item.precio_total }}€</span>
-                            <span class="separador">•</span>
-                            <span class="usuario">{{ item.comprador?.nombre_usuario }}</span>
-                        </div>
+            <div class="info-izquierda">
+                <img :src="getUrlImagen(item.producto?.imagen)" alt="foto-producto" class="img-producto">
+                <div class="detalles">
+                    <h3>{{ item.producto?.nombre_producto }}</h3>
+                    <div class="fila-datos">
+                        <span>Cantidad: {{ item.cantidad }}</span>
+                        <span class="separador">•</span>
+                        <span class="precio">{{ item.precio_total }}€</span>
+                        <span class="separador">•</span>
+                        <span class="usuario">{{ item.comprador?.nombre_usuario }}</span>
                     </div>
                 </div>
+            </div>
 
-                <div class="etiqueta-estado"
-                    :style="{ backgroundColor: item.estado === 'cancelado' ? '#e74c3c' : '#0f172a' }">
-                    {{ item.estado === 'cancelado' ? 'Rechazado' : 'Aceptado' }}
-                </div>
+            <div class="etiqueta-estado"
+                :style="{ backgroundColor: item.estado === 'cancelado' ? '#e74c3c' : '#0f172a' }">
+                {{ item.estado === 'cancelado' ? 'Rechazado' : 'Aceptado' }}
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-
 * {
     margin: 0;
     padding: 0;
