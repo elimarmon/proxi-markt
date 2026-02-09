@@ -120,7 +120,7 @@ onMounted(() => {
 
                         <p id="precio">{{ (venta.cantidad * (venta.producto?.precio || 0)).toFixed(2) }}€</p>
 
-                        <p id="info">Comprador #{{ venta.id_comprador }}</p>
+                        <p id="info">{{ venta.comprador.nombre_usuario }}</p>
                         <p id="estado">{{ venta.estado }}</p>
                     </div>
                 </div>
@@ -156,7 +156,7 @@ onMounted(() => {
                             class="imagen-producto">
 
                         <p id="nombre-producto">{{ compra.producto?.nombre_producto || 'Producto no disponible' }}</p>
-                        <p id="info">Vendedor #{{ compra.id_vendedor }}</p>
+                        <p id="info">{{ compra.vendedor.nombre_usuario }}</p>
                         <p id="estado">{{ compra.estado }}</p>
                         <p id="precio">{{ (compra.cantidad * (compra.producto?.precio || 0)).toFixed(2) }}€</p>
                     </div>

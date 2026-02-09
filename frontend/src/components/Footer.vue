@@ -4,7 +4,7 @@
       
       <div class="bloque redes">
         <h4>Síguenos</h4>
-        <img src="../assets/iconos/instagram.png" alt="icono-instagram" class="icono"><a href="https://www.instagram.com/proxi_markt?igsh=MWMxcnpxNjd5OWppbA%3D%3D">proxi_markt</a>
+        <img src="../assets/iconos/instagram.png" alt="icono-instagram" class="icono"><a href="https://www.instagram.com">proxi_markt</a>
         <img src="../assets/iconos/facebook.png" alt="icono-facebook" class="icono"><a href="https://facebook.com">Proxi Markt</a>
         <img src="../assets/iconos/x.png" alt="icono-x" class="icono"><a href="https://x.com">proxi_markt</a>
         <img src="../assets/iconos/tiktok.png" alt="icono-tiktok" class="icono"><a href="https://tiktok.com">proxi_markt</a>
