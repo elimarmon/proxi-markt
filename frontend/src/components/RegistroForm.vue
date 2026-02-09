@@ -21,7 +21,6 @@ const form = ref({
 });
 
 const { loading, setLoading } = useAuth();
-const router = useRouter();
 
 const enviarInfo = async () => {
     const { nombre_usuario, email, contrasenya, confirmar_contrasenya, telefono } = form.value;

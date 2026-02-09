@@ -141,7 +141,7 @@ onMounted(async () => {
                     </div>
                 </div>
                 <p class="informacion-resultados">
-                    {{ productosFiltrados.length }} productos encontrados
+                    Productos encontrados
                     <span class="texto-verde">
                         ({{ radioActual === Infinity ? 'sin límite' : 'en un radio de ' + radioActual + ' km' }})
                     </span>

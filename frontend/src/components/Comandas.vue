@@ -151,6 +151,40 @@ const postValoracion = async (idCompraventa, datos) => {
             </div>
         </div>
 
+        <!-- <div class="historial">
+            <div class="titulo-historial">
+                <img src="../assets/iconos/aceptar.png" alt="Historial" class="icono-titulo">
+                <h3>Historial de comandas</h3>
+            </div>
+
+            <div v-if="historialComandas.length === 0" style="text-align: center; color: #999; padding: 20px;">
+                No hay historial disponible.
+            </div>
+
+            <div v-for="item in historialComandas" :key="item.id" class="tarjeta-producto"
+                :style="{ borderLeftColor: item.estado === 'cancelado' ? '#e74c3c' : '#22c55e' }">
+                
+                <div class="info-izquierda">
+                    <img :src="getUrlImagen(item.producto?.imagen)" alt="foto-producto" class="img-producto">
+                    <div class="detalles">
+                        <h3>{{ item.producto?.nombre_producto }}</h3>
+                        <div class="fila-datos">
+                            <span>Cantidad: {{ item.cantidad }}</span>
+                            <span class="separador">•</span>
+                            <span class="precio">{{ item.precio_total }}€</span>
+                            <span class="separador">•</span>
+                            <span class="usuario">{{ item.comprador?.nombre_usuario }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="etiqueta-estado"
+                    :style="{ backgroundColor: item.estado === 'cancelado' ? '#e74c3c' : '#0f172a' }">
+                    {{ item.estado === 'cancelado' ? 'Rechazado' : 'Aceptado' }}
+                </div>
+            </div>
+        </div> -->
+
         <div class="seccion-comandas">
             <div class="cabecera-seccion">
                 <div class="titulo-grupo">
