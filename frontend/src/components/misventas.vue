@@ -17,7 +17,7 @@ const misventas = async (pagina = 1) => {
     const token = localStorage.getItem('token')
     // li pasem el numero de pagina per a que laravel soles el porte els
     //el numero de elements que li has indicat en la query ->paginate(9)
-    const response = await axios.get('http://localhost:8080/api/misventas', {
+    const response = await axios.get('http://localhost:8080/api/mis-ventas', {
         params: {
             page: pagina
         },
@@ -30,11 +30,13 @@ const misventas = async (pagina = 1) => {
     paginaActual.value = response.data.current_page;
 
     console.log("ventas: ", mostrar.value)
+    console.log("paginacion", pagination.value)
 }
 
 const miscompras = async (pagina = 1) => {
+    
     const token = localStorage.getItem('token')
-    const response = await axios.get('http://localhost:8080/api/miscompras', {
+    const response = await axios.get('http://localhost:8080/api/mis-compras', {
         params: {
             page: pagina
         },
@@ -47,6 +49,7 @@ const miscompras = async (pagina = 1) => {
     paginaActual.value = response.data.current_page;
 
     console.log("compras: ", mostrar.value)
+    console.log("paginacion", pagination.value)
 }
 
 const formatearFecha = (fechaRaw) => {
