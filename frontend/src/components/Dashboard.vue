@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import NavBar from "./NavBar.vue";
+import Footer from "./Footer.vue";
 
 const productosUser = ref([]);
 const misCompras = ref([]);
@@ -33,20 +34,20 @@ const cargarProductosUser = async () => {
     try {
         const response = await axios.get(`http://localhost:8080/api/usuarios/${userId.value}/productos`, getConfig());
         productosUser.value = response.data.data;
-        console.log(response.data);
+        console.log(response.data.data);
     } catch (error) {
         console.error("Error cargando productos:", error);
     }
 };
 
 const obtenerCompras = async () => {
-    const response = await axios.get('http://localhost:8080/api/miscompras', getConfig());
-    misCompras.value = response.data;
+    const response = await axios.get('http://localhost:8080/api/mis-compras', getConfig());
+    misCompras.value = response.data.data;
 };
 
 const obtenerVentas = async () => {
-    const response = await axios.get('http://localhost:8080/api/misventas', getConfig());
-    misVentas.value = response.data;
+    const response = await axios.get('http://localhost:8080/api/mis-ventas', getConfig());
+    misVentas.value = response.data.data;
 };
 
 const comprasCompletadas = computed(() => {
@@ -164,6 +165,7 @@ onMounted(() => {
             </div>
         </div>
     </div>
+    <Footer></Footer>
 </template>
 
 <style scoped>
@@ -383,8 +385,8 @@ body {
 }
 
 .compras-producto #estado {
-    background: #FFF4E6;
-    color: #FF9F43;
+    background: #E0F8E9;
+    color: #00B86B;
     padding: 2px 8px;
     border-radius: 4px;
     font-weight: bold;

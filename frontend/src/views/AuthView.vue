@@ -36,7 +36,7 @@ onMounted(() => {
 
                 <div class="form-contenedor">
                     <LoginForm v-if="eleccionActual === 'login'" />
-                    <RegisterForm v-else />
+                    <RegisterForm v-else @registro-completado="eleccionActual = 'login'" />
                 </div>
             </div>
         </div>

@@ -4,6 +4,7 @@ import axios from "axios";
 import NavBar from "./NavBar.vue";
 import { useAuth } from '@/composables/useAuth';
 import MostrarProductosMain from './MostrarProductosMain.vue';
+import Footer from "./Footer.vue";
 
 const productos = ref([]);
 const radioActual = ref(
@@ -165,6 +166,7 @@ onMounted(async () => {
         <button :disabled="paginaActual === pagination.last_page" @click="mostrarProductos(paginaActual + 1)"> Siguiente
         </button>
     </div>
+    <Footer></Footer>
 </template>
 
 <style scoped>

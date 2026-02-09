@@ -7,6 +7,7 @@ import axios from 'axios'
 import NavBar from './NavBar.vue'
 import MostrarProductos from './MostrarProductos.vue'
 import misventas from './misventas.vue';
+import Footer from "./Footer.vue";
 
 let map;
 const activarMapa = ref(false)
@@ -321,6 +322,7 @@ onMounted(async () => {
             </div>
         </div>
     </div>
+    <Footer></Footer>
 </template>
 
 <style scoped>

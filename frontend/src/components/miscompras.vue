@@ -52,11 +52,10 @@ onMounted(miscompras)
     </div>
 </template>
 <style scoped>
-/* Contenedor de cada fila de compra */
 .compra-item {
     display: flex;
-    align-items: flex-start; /* Alinea los elementos al principio verticalmente */
-    gap: 15px;               /* Espacio entre la imagen y el contenido */
+    align-items: flex-start;
+    gap: 15px;
     padding: 15px;
     border-radius: 8px;
     border: 1px solid #e0e0e0;
@@ -64,7 +63,6 @@ onMounted(miscompras)
     font-family: sans-serif;
 }
 
-/* Contenedor de la imagen y el badge */
 .imagen-contenedor {
     position: relative;
     width: 80px;
@@ -74,15 +72,14 @@ onMounted(miscompras)
 .imagen-contenedor img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Evita que la imagen se deforme */
+    object-fit: cover;
     border-radius: 4px;
 }
 
-/* El contenido textual */
 .info-contenedor {
     display: flex;
     flex-direction: column;
-    gap: 4px; /* Espacio pequeño entre líneas de texto */
+    gap: 4px;
 }
 
 .info-contenedor h3 {
@@ -91,7 +88,6 @@ onMounted(miscompras)
     color: #333;
 }
 
-/* Estilo para el estado (badge) */
 .badge-estado {
     display: inline-block;
     padding: 2px 8px;
@@ -102,7 +98,6 @@ onMounted(miscompras)
     margin-bottom: 5px;
 }
 
-/* Iconos y texto secundario */
 .detalle {
     display: flex;
     align-items: center;

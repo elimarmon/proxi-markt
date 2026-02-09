@@ -4,6 +4,7 @@ import axios from "axios";
 import NavBar from "./NavBar.vue";
 import ValoracionForm from "./ValoracionForm.vue";
 import { useAuth } from "@/composables/useAuth";
+import Footer from "./Footer.vue";
 
 const comandas = ref([]);
 const cargando = ref(true);
@@ -194,6 +195,7 @@ const postValoracion = async (idCompraventa, datos) => {
         <ValoracionForm v-if="aValorar" :id="aValorar" @enviar-valoracion="postValoracion(aValorar, $event)"
             @cerrar="aValorar = null" />
     </div>
+    <Footer></Footer>
 </template>
 
 <style scoped>
