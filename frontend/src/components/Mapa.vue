@@ -104,13 +104,22 @@ const inicializarMapa = async () => {
         const { longitud: lng, latitud: lat } = usuario.value;
 
         if (!map) {
+            const limitesVerticales = [
+                [-90, -180],
+                [90, 180]
+            ];
+
             map = L.map('map', {
                 minZoom: 3,
+                worldCopyJump: true,
+                maxBounds: limitesVerticales,
+                maxBoundsViscosity: 1.0
             }).setView([lat, lng], 13);
 
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 minZoom: 3,
+                noWrap: false,
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
 

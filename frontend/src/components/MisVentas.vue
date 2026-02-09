@@ -38,7 +38,8 @@ const misCompras = async (pagina = 1) => {
     pagination.value = response.data;
     paginaActual.value = response.data.current_page;
 
-    console.log("compras: ", mostrar.value)
+    // console.log("compras: ", mostrar.value)
+    // console.log("paginacion", pagination.value)
 }
 
 const formatearFecha = (fechaRaw) => {

@@ -28,6 +28,11 @@ const paginaActual = ref(1);
 const guardarPuntoEntrega = async () => {
     activarMapa.value = true;
 
+    const southWest = L.latLng(-89.9, -180);
+    const northEast = L.latLng(89.9, 180);
+    const bounds = L.latLngBounds(southWest, northEast);
+
+
     await nextTick();
 
     const centroInicial = (usuario.value?.latitud && usuario.value?.longitud)
@@ -36,8 +41,12 @@ const guardarPuntoEntrega = async () => {
 
     if (!map) {
         map = L.map('map', {
-            miZoom: 3,
-        }).setView(centroInicial, 8); // empezar con la localización del usuario
+            minZoom: 3,
+            worldCopyJump: true,
+            maxBounds: bounds,
+            maxBoundsViscosity: 1.0
+        }).setView(centroInicial, 8);
+
 
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
