@@ -36,54 +36,51 @@ const router = useRouter();
 
 const enviarInfo = async () => {
     const { nombre_usuario, email, contrasenya, confirmar_contrasenya, telefono } = form.value;
-        if (!nombre_usuario || !email || !contrasenya || !confirmar_contrasenya || !telefono) {
-            alert("Rellena todos los campos obligatorios.");
-            return;
-        }
+    if (!nombre_usuario || !email || !contrasenya || !confirmar_contrasenya || !telefono) {
+        lanzarToast("Rellena los campos obligatorios.");
+        return;
+    }
+    
+    if (contrasenya !== confirmar_contrasenya) {
+        lanzarToast("Las contraseñas no coinciden.");
+        return;
+    }
 
-        if (!nombre_usuario || !email || !contrasenya || !telefono) {
-            lanzarToast("Rellena los campos obligatorios.");
-        if (contrasenya !== confirmar_contrasenya) {
-            lanzarToast("Las contraseñas no coinciden.");
-            return;
-        }
+    if (contrasenya.length < 6) {
+        lanzarToast("La contraseña debe tener al menos 6 caracteres.");
+        return;
+    }
 
-        if (contrasenya.length < 6) {
-            lanzarToast("La contraseña debe tener al menos 6 caracteres.");
-            return;
-        }
+    setLoading(true);
 
-        setLoading(true);
+    try {
+        const datosRegistro = {
+            nombre_usuario,
+            email,
+            contrasenya,
+            telefono
+        };
 
-        try {
-            const datosRegistro = {
-                nombre_usuario,
-                email,
-                contrasenya,
-                telefono
-            };
+        await api.post("/register", datosRegistro);
 
-            await api.post("/register", datosRegistro);
+        form.value = {
+            nombre_usuario: "",
+            email: "",
+            contrasenya: "",
+            confirmar_contrasenya: "",
+            telefono: ""
+        };
 
-            form.value = {
-                nombre_usuario: "",
-                email: "",
-                contrasenya: "",
-                confirmar_contrasenya: "",
-                telefono: ""
-            };
+        lanzarToast("¡Cuenta creada con éxito! Ahora puedes iniciar sesión.");
+        setTimeout(() => {
+            router.push('/login');
+        }, 2000);
 
-            lanzarToast("¡Cuenta creada con éxito! Ahora puedes iniciar sesión.");
-            setTimeout(() => {
-                router.push('/login');
-            }, 2000);
-
-        } catch (error) {
-            lanzarToast("Hubo un error al conectar con el servidor");
-            console.error("Error en la petición:", error);
-        } finally {
-            setLoading(false);
-        }
+    } catch (error) {
+        lanzarToast("Hubo un error al conectar con el servidor");
+        console.error("Error en la petición:", error);
+    } finally {
+        setLoading(false);
     }
 }
 </script>
