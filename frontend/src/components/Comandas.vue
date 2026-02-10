@@ -49,7 +49,7 @@ const historialComandas = computed(() => {
 
 const actualizarComanda = async (id, nuevoEstado) => {
     try {
-        await axios.put(`http://localhost:8080/api/mis-comandas-ROTO/${id}`,
+        await axios.put(`http://localhost:8080/api/mis-comandas/${id}`,
             { estado: nuevoEstado },
             {
                 headers: {
@@ -221,6 +221,10 @@ const postValoracion = async (idCompraventa, datos) => {
 
         <ValoracionForm v-if="aValorar" :id="aValorar" @enviar-valoracion="postValoracion(aValorar, $event)"
             @cerrar="aValorar = null" />
+
+        <div v-if="toastVisible" class="toast-notificacion">
+            {{ toastMensaje }}
+        </div>
     </div>
 </template>
 
@@ -487,30 +491,19 @@ body {
 
 .toast-notificacion {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    bottom: 20px;
+    right: 20px;
     background-color: #333;
     color: white;
-    padding: 12px 24px;
+    padding: 15px 25px;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-    font-weight: 500;
-    font-size: 0.95rem;
-    animation: aparecerDesdeAbajo 0.3s ease-in-out;
-    text-align: center;
-    min-width: 300px;
+    z-index: 99999;
+    animation: subida 0.3s ease-out;
 }
 
-@keyframes aparecerDesdeAbajo {
-    from { 
-        opacity: 0; 
-        transform: translateY(20px); 
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
-    }
+@keyframes subida {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
 }
 
 @media (max-width: 768px) {
