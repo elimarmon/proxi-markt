@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import axios from "axios";
 import NavBar from "./NavBar.vue";
 import ChatDetalle from "./chat.vue"; 
@@ -7,11 +7,13 @@ import ChatDetalle from "./chat.vue";
 const chats = ref([]);
 const chatSeleccionadoId = ref(null);
 const idUsuarioLogueado = ref(null); 
+let intervaloChat = null; // Variable para el auto-refresco
 
-// saber si eres comprador o vendedor
+// --- LÓGICA DE USUARIO ---
 const obtenerDatosUsuario = async () => {
     try {
         const token = localStorage.getItem('token');
+        if(!token) return;
         const res = await axios.get('http://localhost:8080/api/datosuser', {
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -21,50 +23,91 @@ const obtenerDatosUsuario = async () => {
     }
 };
 
-// esta funcio es pa pasarli al fill quin chat has seleccionat
+// --- COMPUTADAS ---
 const chatActivo = computed(() => {
     return chats.value.find(c => c.id === chatSeleccionadoId.value);
 });
 
-// comprobar qui es qui (vendedor, comprador)
 const idReceptorDinamico = computed(() => {
     if (!chatActivo.value || !idUsuarioLogueado.value) return null;
-
-    if (chatActivo.value.id_vendedor === idUsuarioLogueado.value) {
-        // si el id del vendedor del chat es el meu, jo soc el vendedor
-        return chatActivo.value.id_comprador;
-    } else {
-        // Si no soc el comprador
-        return chatActivo.value.id_vendedor;
-    }
+    return chatActivo.value.id_vendedor === idUsuarioLogueado.value 
+        ? chatActivo.value.id_comprador 
+        : chatActivo.value.id_vendedor;
 });
 
+const hayNotificacionesGlobales = computed(() => {
+    if (!chats.value) return false;
+    return chats.value.some(chat => chat.mensajes_no_leidos > 0);
+});
+
+// --- API CHATS ---
 const obtenerchats = async () => {
     try {
         const token = localStorage.getItem('token');
+        if(!token) return;
+
         const respuesta = await axios.get('http://localhost:8080/api/mischats', {
             headers: { Authorization: `Bearer ${token}` }
         });
         chats.value = respuesta.data;
     } catch (error) {
-        console.error("Error obteniendo chats:", error);
+        // Ignoramos errores de auth en el polling
+        if (error.response && error.response.status !== 401) {
+            console.error("Error obteniendo chats:", error);
+        }
+    }
+}
+
+// --- NUEVA FUNCIÓN: SELECCIONAR Y MARCAR COMO LEÍDO ---
+const seleccionarChat = async (chatId) => {
+    // 1. Cambiamos la selección visualmente
+    chatSeleccionadoId.value = chatId;
+
+    // 2. Buscamos el chat en la lista
+    const chat = chats.value.find(c => c.id === chatId);
+
+    // 3. Si tiene mensajes sin leer, los limpiamos
+    if (chat && chat.mensajes_no_leidos > 0) {
+        // Truco visual: quitar el punto rojo inmediatamente
+        chat.mensajes_no_leidos = 0;
+
+        try {
+            const token = localStorage.getItem('token');
+            // Avisar a Laravel
+            await axios.put(`http://localhost:8080/api/chats/${chatId}/leer`, {}, {
+                 headers: { Authorization: `Bearer ${token}` }
+            });
+        } catch (e) {
+            console.error("Error marcando leído:", e);
+        }
     }
 }
 
 onMounted(() => {
     obtenerchats();
     obtenerDatosUsuario();
+    // Auto-refresco cada 3 segundos para ver si llegan mensajes nuevos
+    intervaloChat = setInterval(obtenerchats, 3000);
+});
+
+onUnmounted(() => {
+    if (intervaloChat) clearInterval(intervaloChat);
 });
 </script>
 
 <template>
-    <NavBar/>
+    <NavBar :tiene-notificacion="hayNotificacionesGlobales"/>
+
     <div class="contenedor-pagina">
         <div id="layout-chat">
+            
             <div class="lista-chats">
                 <div v-for="chat in chats" :key="chat.id" 
-                     @click="chatSeleccionadoId = chat.id"
+                     @click="seleccionarChat(chat.id)"
                      :class="['item-chat', { activo: chatSeleccionadoId === chat.id }]">
+                    
+                    <div v-if="chat.mensajes_no_leidos > 0" class="punto-rojo"></div>
+
                     <h3>
                         {{ chat.id_vendedor === idUsuarioLogueado ? chat.comprador.nombre_usuario : chat.vendedor.nombre_usuario }}
                     </h3>
@@ -73,9 +116,6 @@ onMounted(() => {
             </div>
 
             <div class="ventana-mensajes">
-                <!-- si es selecciona un chat i el usuari esta logejat
-                 enviem al component fill el qui el recibix, 
-                 el producte, y el id de la persona logejada   -->
                 <ChatDetalle 
                     v-if="chatActivo && idUsuarioLogueado" 
                     :id_receptor="idReceptorDinamico" 
@@ -91,14 +131,13 @@ onMounted(() => {
     </div>
 </template>
 
-
 <style scoped>
 .contenedor-pagina {
     padding: 50px;
     padding-top: 130px;
     height: 100vh; 
     box-sizing: border-box;
-    background-color: #f5f5f5; /* Un fondo sutil para que resalte el layout */
+    background-color: #f5f5f5;
 }
 
 #layout-chat {
@@ -131,6 +170,23 @@ onMounted(() => {
     cursor: pointer;
     transition: all 0.2s ease;
     background-color: white;
+    
+    /* IMPORTANTE: Relative para poder posicionar el punto rojo dentro */
+    position: relative; 
+}
+
+/* ESTILO DEL PUNTO ROJO */
+.punto-rojo {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 12px;
+    height: 12px;
+    background-color: #ff3b30; /* Rojo vibrante */
+    border-radius: 50%;
+    border: 2px solid #fff; /* Borde blanco para que resalte */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 10;
 }
 
 .item-chat:hover {

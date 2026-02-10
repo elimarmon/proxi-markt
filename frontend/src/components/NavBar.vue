@@ -1,52 +1,86 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import ModalRadio from './ModalRadio.vue';
 import axios from 'axios';
 
 const router = useRouter();
 const mostrarMenu = ref(false);
+const isModalOpen = ref(false);
+const emit = defineEmits(['cambiar-radio']);
 
+// DATOS
+const DatosUser = ref({});
+const radioActual = ref(Number(localStorage.getItem('distancia_guardada')) || 10);
+const tieneNotificacion = ref(false); // Estado interno del punto rojo
+let intervaloNotificacion = null;     // Variable para el temporizador
+
+// 1. CERRAR SESIÓN
 const cerrarSesion = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('datos_usuario');
     router.push('/login');
 };
 
-const isModalOpen = ref(false);
-const emit = defineEmits(['cambiar-radio']);
-
-const DatosUser = ref({});
-const radioActual = ref(Number(localStorage.getItem('distancia_guardada')) || 10);
-
+// 2. CONFIRMAR RADIO (MODAL)
 const confirmarNuevoRadio = (valor) => {
     radioActual.value = valor;
     localStorage.setItem('distancia_guardada', valor);
     isModalOpen.value = false;
     emit('cambiar-radio', valor);
-    // console.log("Filtrando productos a:", valor === Infinity ? "Sin límite" : valor + " km");
 };
 
+// 3. OBTENER DATOS USUARIO
 const nombreUsuario = async () => {
     const token = localStorage.getItem('token');
+    if (!token) return;
 
     try {
         const respuesta = await axios.get('http://localhost:8080/api/datosuser', {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
-
         DatosUser.value = respuesta.data;
-
     } catch (error) {
-        console.error("Error al obtener el nombre de usuario:", error);
+        console.error("Error al obtener usuario:", error);
     }
 }
 
+// 4. --- LA "ANTENA" INTEGRADA ---
+// Esta función busca si hay mensajes no leídos
+const comprobarNotificaciones = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+        const res = await axios.get('http://localhost:8080/api/mischats', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        // Si la respuesta es un array, miramos si alguno tiene mensajes_no_leidos > 0
+        if (Array.isArray(res.data)) {
+             // Comprobamos si hay ALGUN chat con mensajes sin leer
+            const hayMensajes = res.data.some(chat => chat.mensajes_no_leidos > 0);
+            tieneNotificacion.value = hayMensajes;
+        }
+    } catch (error) {
+        // Ignoramos errores silenciosamente para no llenar la consola
+    }
+};
+
+// 5. CICLO DE VIDA
 onMounted(() => {
     nombreUsuario();
+    
+    // Comprobar inmediatamente al cargar la barra
+    comprobarNotificaciones();
+
+    // Comprobar repetidamente cada 3 segundos
+    intervaloNotificacion = setInterval(comprobarNotificaciones, 3000);
+});
+
+onUnmounted(() => {
+    // Limpiar el intervalo si se desmonta la barra
+    if (intervaloNotificacion) clearInterval(intervaloNotificacion);
 });
 </script>
 
@@ -79,9 +113,11 @@ onMounted(() => {
                         </router-link>
                     </li>
                     <li>
-                        <router-link to="/mensaje">
+                        <router-link to="/mensaje" class="enlace-con-notificacion">
                             <img class="logos-nav" src="../assets/iconos/chat_verde.png" alt="logo_mensajes">
                             Mensajes
+                            
+                            <span v-if="tieneNotificacion" class="punto-nav"></span>
                         </router-link>
                     </li>
                     <li>
@@ -114,7 +150,6 @@ onMounted(() => {
             </div>
 
             <div class="contenedor-perfil">
-
                 <div id="usuario" @click="mostrarMenu = !mostrarMenu">
                     <img src="../assets/iconos/cuenta.png" alt="icono_perfil">
                     {{ DatosUser.nombre_usuario }}
@@ -221,6 +256,25 @@ nav li a {
     padding: 10px 16px;
     border-radius: 10px;
 }
+
+/* --- ESTILOS DEL PUNTO ROJO --- */
+.enlace-con-notificacion {
+    position: relative !important;
+}
+
+.punto-nav {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 10px;
+    height: 10px;
+    background-color: #ff3b30;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 10;
+}
+/* ------------------------------ */
 
 nav li a .logos-nav {
     width: 30px;
@@ -361,6 +415,13 @@ nav li a:hover .logos-nav {
     nav ul {
         margin-left: 20px;
         gap: 15px;
+    }
+    
+    .punto-nav {
+        top: 2px;
+        right: 2px;
+        width: 8px;
+        height: 8px;
     }
 }
 
