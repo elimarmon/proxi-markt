@@ -126,6 +126,8 @@ const postValoracion = async (idCompraventa, datos) => {
                             <span class="precio">{{ comanda.precio_total }}€</span>
                             <span class="separador">•</span>
                             <span class="usuario">{{ comanda.comprador?.nombre_usuario }}</span>
+                            <!-- <span class="separador">•</span>
+                            <span class="fecha">{{ comanda.fecha_prevista }}</span> -->
                         </div>
                     </div>
                 </div>
@@ -175,6 +177,8 @@ const postValoracion = async (idCompraventa, datos) => {
                             <span class="precio">{{ item.precio_total }}€</span>
                             <span class="separador">•</span>
                             <span class="usuario">{{ item.comprador?.nombre_usuario }}</span>
+                            <!-- <span class="separador">•</span>
+                            <span class="fecha">{{ comanda.fecha_prevista }}</span> -->
                         </div>
                     </div>
                 </div>
@@ -440,6 +444,10 @@ body {
 .precio {
     color: #22c55e;
     font-weight: 600;
+}
+
+.fecha {
+    color: #22c55e;
 }
 
 .etiqueta-estado {
