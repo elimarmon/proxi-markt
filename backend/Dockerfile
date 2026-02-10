@@ -33,4 +33,5 @@ RUN composer install --no-dev --optimize-autoloader
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 80
+RUN php artisan storage:link
 CMD ["apache2-foreground"]
