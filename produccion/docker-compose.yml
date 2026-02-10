@@ -1,51 +1,61 @@
 version: '3.8'
 
 services:
-  # BACKEND
-  api:
-    build: ./api
-    container_name: proximarkt-api
-    restart: always
-    env_file: ./api/.env
-    volumes:
-      - ./api:/var/www/html # Montaje para desarrollo, quítalo si es producción pura
-      - api_storage:/var/www/html/storage
-    networks:
-      - proxy_net
-      - internal_db
-
-  # FRONTEND
+  # --- FRONTEND (Vue.js) ---
   client:
-    build: 
-      context: ./client
+    build:
+      context: ../client
+      dockerfile: Dockerfile
       args:
         - VITE_API_URL=https://proximarkt.francecentral.cloudapp.azure.com/api
-    container_name: proximarkt-client
+    container_name: proximarkt-frontend
     restart: always
+    networks:
+      - proxy_net
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+
+  # --- BACKEND (Laravel) ---
+  api:
+    build:
+      context: ../api
+      dockerfile: Dockerfile
+    container_name: proximarkt-api
+    restart: always
+    env_file: ../api/.env
+    volumes:
+      - api_storage:/var/www/html/storage
     networks:
       - proxy_net
+      - backend_net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=myresolver"
+      - "traefik.http.services.backend.loadbalancer.server.port=80"
 
-  # BASE DE DATOS
+  # --- BASE DE DATOS (MySQL) ---
   db:
     image: mysql:8.0
     container_name: proximarkt-db
+    restart: always
     environment:
       MYSQL_DATABASE: proximarkt
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root_password_seguro}
     volumes:
       - db_data:/var/lib/mysql
     networks:
-      - internal_db
+      - backend_net
 
 networks:
   proxy_net:
-    external: true
-  internal_db:
+    external: true  # Usa la red creada por Traefik
+  backend_net:
     driver: bridge
 
 volumes:
