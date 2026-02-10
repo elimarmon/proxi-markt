@@ -1,6 +1,8 @@
 version: '3.8'
 
 services:
+  # --- FRONTEND (Nginx + Vue) ---
+  # Se encarga de recibir TODO el tráfico y repartirlo
   frontend:
     build:
       context: ../frontend
@@ -17,9 +19,10 @@ services:
       - "traefik.http.routers.frontend.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls.certresolver=myresolver"
-      - "traefik.http.routers.frontend.priority=1"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
 
+  # --- BACKEND (Laravel PHP-FPM) ---
+  # Ahora es privado: solo Nginx habla con él por la red interna
   backend:
     build:
       context: ../backend
@@ -32,15 +35,9 @@ services:
     networks:
       - proxy_net
       - backend_net
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=proxy_net"
-      - "traefik.http.routers.backend.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.backend.entrypoints=websecure"
-      - "traefik.http.routers.backend.tls.certresolver=myresolver"
-      - "traefik.http.routers.backend.priority=10"
-      - "traefik.http.services.backend.loadbalancer.server.port=9000"
+    # Sin labels de Traefik aquí para evitar el error 502
 
+  # --- BASE DE DATOS (MySQL) ---
   db:
     image: mysql:8.0
     container_name: proximarkt-db
