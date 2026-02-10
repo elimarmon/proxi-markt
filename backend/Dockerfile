@@ -1,20 +1,28 @@
-FROM php:8.2-fpm-alpine
+# Cambiamos a 8.4 para soportar Symfony 8
+FROM php:8.4-fpm-alpine
 
-# Instalar extensiones necesarias para MySQL y carpetas
-RUN docker-php-ext-install pdo pdo_mysql
+# Instalar dependencias del sistema para PHP y extensiones
+RUN apk add --no-cache \
+    libpng-dev \
+    libzip-dev \
+    zip \
+    unzip
 
-# Instalamos Composer
+RUN docker-php-ext-install pdo pdo_mysql gd zip
+
+# Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copiamos el código
+# Copiar el código
 COPY . .
 
-# Instalamos dependencias y ajustamos permisos
-RUN composer install --no-dev --optimize-autoloader && \
-    chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Ejecutar la instalación de dependencias
+RUN composer install --no-dev --optimize-autoloader
 
-# Exponemos el puerto para PHP-FPM
+# Permisos correctos para Laravel
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
 EXPOSE 9000
 CMD ["php-fpm"]
