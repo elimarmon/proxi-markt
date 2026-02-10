@@ -1,29 +1,35 @@
 #!/bin/bash
 set -e
 
-# 1. Sincronizar código
+# 1. Sincronizar
 git fetch origin
 git reset --hard origin/despliegue
-
-# 2. Asegurar que el build no lea traefik (el archivo manual que hicimos antes)
 echo "traefik/" > .dockerignore
 
-# 3. Reiniciar contenedores
+# 2. Reiniciar
 cd produccion
 docker-compose down -v --remove-orphans
 docker-compose up -d --build
 
-# 4. Configurar Laravel
-echo "==> Instalando librerías y configurando..."
-sleep 15
+# 3. Espera CRÍTICA
+echo "==> Esperando a que MySQL esté totalmente listo (30s)..."
+# MySQL en frío con un .sql de carga tarda más de 15s
+sleep 30
 
-# ESTA ES LA LÍNEA CLAVE PARA ARREGLAR TU ERROR:
+# 4. Instalación y Limpieza
+echo "==> Instalando dependencias y limpiando caché..."
 docker exec proximarkt-backend composer install --no-dev --optimize-autoloader
 
-# Reparar permisos
+# Forzamos la regeneración de la clave y limpieza de rutas
+docker exec proximarkt-backend php artisan key:generate --force || true
+docker exec proximarkt-backend php artisan config:cache
+docker exec proximarkt-backend php artisan route:cache
+docker exec proximarkt-backend php artisan view:cache
+
+# 5. Permisos
 docker exec proximarkt-backend chown -R www-data:www-data storage bootstrap/cache
 docker exec proximarkt-backend chmod -R 775 storage bootstrap/cache
 
-# Migraciones
+# 6. Migraciones (Ahora MySQL debería responder)
+echo "==> Ejecutando migraciones..."
 docker exec proximarkt-backend php artisan migrate --force
-docker exec proximarkt-backend php artisan config:clear
