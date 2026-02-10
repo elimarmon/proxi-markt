@@ -31,7 +31,9 @@ services:
       - "--api.insecure=true"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`)"
+      # Cambiamos la regla para que el Dashboard solo responda en una ruta específica
+      # O mejor aún, desactiva esta etiqueta si no necesitas el dashboard en el dominio principal
+      - "traefik.http.routers.api.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))"
       - "traefik.http.routers.api.service=api@internal"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=myresolver"
