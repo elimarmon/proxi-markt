@@ -326,6 +326,7 @@ onUnmounted(() => {
             </div>
         </div>
     </div>
+    <Footer></Footer>
 </template>
 
 <style scoped>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreValoracionRequest;
 use App\Models\CompraVenta;
 use App\Models\Valoracion;
+use Illuminate\Support\Facades\Auth;
 
 class ValoracionController extends Controller
 {
@@ -18,7 +19,7 @@ class ValoracionController extends Controller
     }
     public function store(StoreValoracionRequest $request, CompraVenta $compraventa) {
         // comprobar que no se dejan reseñas a sí mismos
-        $idEmisor = auth()->id();
+        $idEmisor = Auth::id();
         $idReceptor = $idEmisor == $compraventa->id_comprador ? $compraventa->id_vendedor : $compraventa->id_comprador;
 
         Valoracion::create([

@@ -10,6 +10,19 @@ const cargando = ref(true);
 const { usuario, fetchUsuario } = useAuth();
 const aValorar = ref(null);
 
+// --- VARIABLES PARA EL TOAST ---
+const toastVisible = ref(false);
+const toastMensaje = ref("");
+
+// --- FUNCIÓN PARA ACTIVAR EL TOAST ---
+const lanzarToast = (mensaje) => {
+    toastMensaje.value = mensaje;
+    toastVisible.value = true;
+    setTimeout(() => {
+        toastVisible.value = false;
+    }, 3000); // Se oculta a los 3 segundos
+};
+
 const obtenerComandas = async () => {
     try {
         const response = await api.get("/mis-comandas");
@@ -35,7 +48,7 @@ const actualizarComanda = async (id, nuevoEstado) => {
         const comandaEncontrada = comandas.value.find(c => c.id === id);
         if (comandaEncontrada) comandaEncontrada.estado = nuevoEstado;
     } catch (err) {
-        alert("Ha ocurrido un error al actualizar la comanda.");
+        lanzarToast("Ha ocurrido un error al actualizar la comanda.");
         console.error(err);
     }
 }
@@ -53,6 +66,19 @@ const getColoresEstado = (estado) => {
         'valorado': '#4CA626',
     };
     return paleta[estado] || '#64748b';
+};
+
+const formatearFecha = (fecha) => {
+    if (!fecha) return '';
+    const [year, month, day] = fecha.split('-'); 
+    return `${day}/${month}/${year}`;
+};
+
+const getNombreContraparte = (comanda) => {
+    if (comanda.id_comprador === usuario.value.id) {
+        return comanda.vendedor?.nombre_usuario || 'Vendedor';
+    }
+    return comanda.comprador?.nombre_usuario || 'Comprador';
 };
 
 onMounted(async () => {
@@ -74,7 +100,7 @@ const postValoracion = async (idCompraventa, datos) => {
             comanda.estado = 'valorado';
         }
     } catch (err) {
-        alert("Algo ha ido mal.");
+        lanzarToast("Algo ha ido mal.");
         console.log(err);
     }
 };
@@ -104,7 +130,6 @@ const postValoracion = async (idCompraventa, datos) => {
 
             <div v-for="comanda in comandasPendientes" :key="comanda.id" class="tarjeta-comanda"
                 :style="{ borderLeftColor: getColoresEstado(comanda.estado) }">
-
                 <div class="info-principal">
                     <img :src="getUrlImagen(comanda.producto?.imagen)" class="img-producto" />
                     <div class="detalles">
@@ -114,7 +139,9 @@ const postValoracion = async (idCompraventa, datos) => {
                             <span class="separador">•</span>
                             <span class="precio">{{ comanda.precio_total }}€</span>
                             <span class="separador">•</span>
-                            <span class="usuario">{{ comanda.comprador?.nombre_usuario }}</span>
+                            <span class="usuario">{{ getNombreContraparte(comanda) }}</span>
+                            <span class="separador">•</span>
+                            <span class="fecha">{{ formatearFecha(comanda.fecha_prevista) }}</span>
                         </div>
                     </div>
                 </div>
@@ -163,7 +190,9 @@ const postValoracion = async (idCompraventa, datos) => {
                             <span class="separador">•</span>
                             <span class="precio">{{ item.precio_total }}€</span>
                             <span class="separador">•</span>
-                            <span class="usuario">{{ item.comprador?.nombre_usuario }}</span>
+                            <span class="usuario">{{ getNombreContraparte(item) }}</span>
+                            <span class="separador">•</span>
+                            <span class="fecha">{{ formatearFecha(item.fecha_prevista) }}</span>
                         </div>
                     </div>
                 </div>
@@ -194,6 +223,7 @@ const postValoracion = async (idCompraventa, datos) => {
 </template>
 
 <style scoped>
+
 * {
     margin: 0;
     padding: 0;

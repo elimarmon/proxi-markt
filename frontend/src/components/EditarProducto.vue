@@ -4,6 +4,7 @@ import api from '@/api/axios';
 import NavBar from './NavBar.vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
+import Footer from "./Footer.vue";
 
 const router = useRouter();
 
@@ -177,6 +178,7 @@ onMounted(async () => {
             </form>
         </div>
     </div>
+    <Footer></Footer>
 </template>
 
 <style scoped>

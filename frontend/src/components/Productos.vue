@@ -4,6 +4,7 @@ import api from "@/api/axios";
 import NavBar from "./NavBar.vue";
 import { useAuth } from '@/composables/useAuth';
 import MostrarProductosMain from './MostrarProductosMain.vue';
+import Footer from "./Footer.vue";
 
 // --- ESTADOS ---
 const productos = ref([]);
@@ -98,7 +99,10 @@ const toggleMenu = () => {
 
 onMounted(async () => {
     await fetchUsuario();
-    if (usuario.value?.id) mostrarProductos();
+    if (usuario.value?.id) {
+        mostrarProductos();
+        cargarCategorias();
+    }
 });
 </script>
 
@@ -139,7 +143,7 @@ onMounted(async () => {
                     </div>
                 </div>
                 <p class="informacion-resultados">
-                    {{ productosFiltrados.length }} productos encontrados
+                    Productos encontrados
                     <span class="texto-verde">
                         ({{ radioActual === Infinity ? 'sin límite' : 'en un radio de ' + radioActual + ' km' }})
                     </span>
@@ -165,6 +169,7 @@ onMounted(async () => {
         <button :disabled="paginaActual === pagination.last_page" @click="mostrarProductos(paginaActual + 1)"> Siguiente
         </button>
     </div>
+    <Footer></Footer>
 </template>
 
 <style scoped>

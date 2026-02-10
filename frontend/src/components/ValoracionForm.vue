@@ -15,7 +15,6 @@ const enviarValoracion = () => {
         comentario: form.comentario
     });
 }
-
 </script>
 
 <template>

@@ -4,6 +4,7 @@ import { ref, onMounted } from 'vue';
 import api from '@/api/axios';
 import NavBar from "@/components/NavBar.vue";
 import { useAuth } from '@/composables/useAuth';
+import Footer from "./Footer.vue";
 
 const props = defineProps(['id']);
 const producto = ref(null);
@@ -105,6 +106,7 @@ onMounted(async () => {
             </div>
         </div>
     </div>
+    <Footer></Footer>
 </template>
 
 <style scoped>

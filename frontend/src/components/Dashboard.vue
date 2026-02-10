@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from "vue";
 import api from "@/api/axios";
 import { useAuth } from '@/composables/useAuth';
 import NavBar from "./NavBar.vue";
+import Footer from "./Footer.vue";
 
 const productosUser = ref([]);
 const misCompras = ref([]);
@@ -11,10 +12,6 @@ const { usuario, fetchUsuario } = useAuth();
 
 const stockTotal = computed(() => {
     return productosUser.value.reduce((total, p) => total + (p.stock_total || 0), 0);
-});
-
-const ventasCompletadas = computed(() => {
-    return misVentas.value.filter(v => v.estado === 'completado');
 });
 
 const ingresos = computed(() => {
@@ -28,8 +25,9 @@ const ingresos = computed(() => {
 // que en este cas carrega fins a 7 productes
 const cargarProductosUser = async () => {
     try {
-        const response = await api.get(`/usuarios/${usuario.value.id}/productos`);
+        const response = await api.get(`/usuarios/${userId.value}/productos`);
         productosUser.value = response.data.data;
+        // console.log(response.data.data);
     } catch (error) {
         console.error("Error cargando productos:", error);
     }
@@ -47,6 +45,10 @@ const obtenerVentas = async () => {
 
 const comprasCompletadas = computed(() => {
     return misCompras.value.filter(c => c.estado === 'completado');
+});
+
+const ventasCompletadas = computed(() => {
+    return misVentas.value.filter(v => v.estado === 'completado');
 });
 
 const productosOrdenados = computed(() => {
@@ -104,8 +106,8 @@ onMounted(async () => {
                 <img src="../assets/iconos/carrito.png" class="icono" />
                 <h3>Mis Ventas</h3>
 
-                <div v-if="misVentas.length > 0" class="lista-scroll">
-                    <div class="producto-ventas" v-for="venta in misVentas" :key="venta.id">
+                <div v-if="ventasCompletadas.length > 0" class="lista-scroll">
+                    <div class="producto-ventas" v-for="venta in ventasCompletadas" :key="venta.id">
 
                         <img :src="venta.producto?.imagen ? `http://localhost:8080/storage/${venta.producto.imagen}` : 'https://via.placeholder.com/150'"
                             class="imagen-producto">
@@ -114,7 +116,7 @@ onMounted(async () => {
 
                         <p id="precio">{{ (venta.cantidad * (venta.producto?.precio || 0)).toFixed(2) }}€</p>
 
-                        <p id="info">Comprador #{{ venta.id_comprador }}</p>
+                        <p id="info">{{ venta.comprador.nombre_usuario }}</p>
                         <p id="estado">{{ venta.estado }}</p>
                     </div>
                 </div>
@@ -151,7 +153,7 @@ onMounted(async () => {
                             class="imagen-producto">
 
                         <p id="nombre-producto">{{ compra.producto?.nombre_producto || 'Producto no disponible' }}</p>
-                        <p id="info">Vendedor #{{ compra.id_vendedor }}</p>
+                        <p id="info">{{ compra.vendedor.nombre_usuario }}</p>
                         <p id="estado">{{ compra.estado }}</p>
                         <p id="precio">{{ (compra.cantidad * (compra.producto?.precio || 0)).toFixed(2) }}€</p>
                     </div>
@@ -160,6 +162,7 @@ onMounted(async () => {
             </div>
         </div>
     </div>
+    <Footer></Footer>
 </template>
 
 <style scoped>
@@ -379,8 +382,8 @@ body {
 }
 
 .compras-producto #estado {
-    background: #FFF4E6;
-    color: #FF9F43;
+    background: #E0F8E9;
+    color: #00B86B;
     padding: 2px 8px;
     border-radius: 4px;
     font-weight: bold;
