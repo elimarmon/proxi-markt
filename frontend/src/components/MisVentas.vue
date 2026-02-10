@@ -1,17 +1,19 @@
 <script setup>
 import api from '@/api/axios';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const props = defineProps({
-    eleccion: String
-})
+    eleccion: {
+        type: String,
+        required: true
+    }
+});
 
 const mostrar = ref([]);
 // guarda tots els datos que mos pasa laravel
 const pagination = ref({});
 // el numero de pagina que estem veguent
 const paginaActual = ref(1);
-
 
 const misVentas = async (pagina = 1) => {
     // li pasem el numero de pagina per a que laravel soles el porte els
@@ -28,20 +30,6 @@ const misVentas = async (pagina = 1) => {
     // console.log("ventas: ", mostrar.value)
 }
 
-const misCompras = async (pagina = 1) => {
-    const response = await api.get('/mis-compras', {
-        params: {
-            page: pagina
-        }
-    });
-    mostrar.value = response.data.data;
-    pagination.value = response.data;
-    paginaActual.value = response.data.current_page;
-
-    // console.log("compras: ", mostrar.value)
-    // console.log("paginacion", pagination.value)
-}
-
 const formatearFecha = (fechaRaw) => {
     if (!fechaRaw) return 'Sin fecha';
 
@@ -53,19 +41,7 @@ const formatearFecha = (fechaRaw) => {
     }).format(fecha);
 };
 
-const cargarDatos = () => {
-    if (props.eleccion === 'ventas') {
-        misVentas();
-    } else if (props.eleccion === 'compras') {
-        misCompras();
-    }
-};
-
-onMounted(() => cargarDatos());
-
-watch(() => props.eleccion, () => {
-    cargarDatos();
-});
+onMounted(() => misVentas());
 </script>
 
 <template>

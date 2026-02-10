@@ -26,7 +26,7 @@ const comandasPendientes = computed(() => {
 });
 
 const historialComandas = computed(() => {
-    return comandas.value.filter(c => c.estado == 'completado' || c.estado == 'cancelado');
+    return comandas.value.filter(c => c.estado == 'completado' || c.estado == 'cancelado' || c.estado == 'valorado');
 });
 
 const actualizarComanda = async (id, nuevoEstado) => {
@@ -49,14 +49,15 @@ const getColoresEstado = (estado) => {
         'pendiente': '#ff7519',
         'en curso': '#3498db',
         'completado': '#4CA626',
-        'cancelado': '#e74c3c'
+        'cancelado': '#e74c3c',
+        'valorado': '#4CA626',
     };
     return paleta[estado] || '#64748b';
 };
 
 onMounted(async () => {
-    if (!usuario.value?.id) await fetchUsuario();
-    obtenerComandas();
+    await fetchUsuario();
+    if (usuario.value?.id) obtenerComandas();
 });
 
 const getUrlImagen = (rutaRelativa) => {
@@ -66,7 +67,12 @@ const getUrlImagen = (rutaRelativa) => {
 const postValoracion = async (idCompraventa, datos) => {
     try {
         await api.post(`/valoraciones/${idCompraventa}`, datos);
+        alert("Valoración realizada.")
         aValorar.value = null;
+        const comanda = comandas.value.find(c => c.id === idCompraventa);
+        if (comanda) {
+            comanda.estado = 'valorado';
+        }
     } catch (err) {
         alert("Algo ha ido mal.");
         console.log(err);
@@ -162,10 +168,17 @@ const postValoracion = async (idCompraventa, datos) => {
                     </div>
                 </div>
 
+                <!-- No es pot dependre d'un estat global. He de registrar qui ha valorat i qui no -->
                 <div class="acciones">
-                    <button v-if="item.estado == 'completado'" class="btn-accion valorar"
+                    <button v-if="item.estado == 'completado' || item.estado == 'valorado'"
+                        :disabled="item.estado == 'valorado'" class="btn-accion valorar"
                         @click="abrirModalValoracion(item.id)">
-                        Valorar
+
+                        <span v-if="item.estado == 'completado'">Valorar</span>
+
+                        <span v-else class="d-flex align-items-center gap-1">
+                            <i class="bi bi-check-circle-fill"></i> Ya valorado
+                        </span>
                     </button>
                 </div>
 
@@ -303,6 +316,32 @@ const postValoracion = async (idCompraventa, datos) => {
     cursor: pointer;
     border: none;
     transition: 0.2s;
+}
+
+.btn-accion:disabled {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    cursor: not-allowed;
+    border: 1px solid #e2e8f0;
+    transform: none;
+    box-shadow: none;
+}
+
+.valorar:disabled {
+    opacity: 0.8;
+    font-style: italic;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.gap-1 {
+    gap: 4px;
 }
 
 .aceptar,

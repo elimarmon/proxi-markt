@@ -7,6 +7,8 @@ import api from '@/api/axios';
 import NavBar from './NavBar.vue'
 import MostrarProductos from './MostrarProductos.vue'
 import MisVentas from './MisVentas.vue';
+import MisCompras from './MisCompras.vue';
+import ValoracionView from './ValoracionView.vue';
 
 let map = null;
 let layerPuntos = null;
@@ -152,8 +154,12 @@ const cargarPuntos = async () => {
 }
 
 const esconderMapa = () => {
-    activarMapa.value = false
-}
+    if (map) {
+        map.remove();
+        map = null;
+    }
+    activarMapa.value = false;
+};
 
 const eliminarPunto = async (id) => {
     if (!confirm('¿Estás seguro de que quieres eliminar este punto de entrega?')) return;
@@ -194,6 +200,14 @@ const irAlPunto = (punto) => {
     const lng = parseFloat(punto.longitud);
     map.flyTo([lat, lng], 10);
 }
+
+const cambiarSeccion = async (seccion) => {
+    if (activarMapa.value) {
+        esconderMapa();
+    }
+    await nextTick();
+    eleccionActual.value = seccion;
+};
 
 onMounted(async () => {
     await fetchUsuario();
@@ -277,24 +291,24 @@ onUnmounted(() => {
                 <ul>
                     <li>
                         <button :class="{ active: eleccionActual === 'productos' }"
-                            @click="eleccionActual = 'productos'">
+                            @click="cambiarSeccion('productos')">
                             <img src="../assets/iconos/productos_stock.png" alt="caja-stock" class="iconoSubNav">Mis
                             Productos ({{ productosUser.length }})
                         </button>
                     </li>
                     <li>
-                        <button :class="{ active: eleccionActual === 'compras' }" @click="eleccionActual = 'compras'">
+                        <button :class="{ active: eleccionActual === 'compras' }" @click="cambiarSeccion('compras')">
                             <img src="../assets/iconos/carrito.png" alt="carrito" class="iconoSubNav">Mis Compras
                         </button>
                     </li>
                     <li>
-                        <button :class="{ active: eleccionActual === 'ventas' }" @click="eleccionActual = 'ventas'">
+                        <button :class="{ active: eleccionActual === 'ventas' }" @click="cambiarSeccion('ventas')">
                             <img src="../assets/iconos/manzana.png" alt="manzana" class="iconoSubNav">Mis Ventas
                         </button>
                     </li>
                     <li>
                         <button :class="{ active: eleccionActual === 'valoraciones' }"
-                            @click="eleccionActual = 'valoraciones'">
+                            @click="cambiarSeccion('valoraciones')">
                             <img src="../assets/iconos/valoraciones-icono.png" alt="valoraciones"
                                 class="iconoSubNav">Mis Valoraciones
                         </button>
@@ -306,8 +320,9 @@ onUnmounted(() => {
                 <MostrarProductos v-if="eleccionActual === 'productos'" :productos="productosUser"
                     :pagination="pagination" :paginaActual="paginaActual" @borrar="eliminarProducto"
                     @cambiarPagina="cargarProductosUser" />
-                <MisVentas v-else-if="eleccionActual === 'compras'" :eleccion="eleccionActual" />
-                <MisVentas v-else-if="eleccionActual === 'ventas'" :eleccion="eleccionActual" />
+                <MisCompras v-else-if="eleccionActual === 'compras'" :eleccion="'compras'"/>
+                <MisVentas v-else-if="eleccionActual === 'ventas'" :eleccion="'ventas'"/>
+                <ValoracionView v-else-if="eleccionActual === 'valoraciones'" />
             </div>
         </div>
     </div>
@@ -503,7 +518,7 @@ hr {
 .contenedor-secciones-datos {
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    gap: 10px;
 }
 
 .seccion-bloque h3 {

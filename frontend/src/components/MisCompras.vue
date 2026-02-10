@@ -2,12 +2,31 @@
 import api from '@/api/axios';
 import { onMounted, ref } from 'vue';
 
-const compras = ref([]);
+const props = defineProps({
+    eleccion: {
+        type: String,
+        required: true
+    }
+});
 
-const misCompras = async () => {
-    const response = await api.get('/mis-compras');
-    compras.value = response.data;
-    // console.log("compras: ", compras.value)
+const mostrar = ref([]);
+// guarda tots els datos que mos pasa laravel
+const pagination = ref({});
+// el numero de pagina que estem veguent
+const paginaActual = ref(1);
+
+const misCompras = async (pagina = 1) => {
+    const response = await api.get('/mis-compras', {
+        params: {
+            page: pagina
+        }
+    });
+    mostrar.value = response.data.data;
+    pagination.value = response.data;
+    paginaActual.value = response.data.current_page;
+
+    // console.log("compras: ", mostrar.value)
+    // console.log("paginacion", pagination.value)
 }
 
 const formatearFecha = (fechaRaw) => {
@@ -21,38 +40,64 @@ const formatearFecha = (fechaRaw) => {
     }).format(fecha);
 };
 
-onMounted(() => misCompras)
+onMounted(() => misCompras())
 </script>
 
 <template>
-    <div v-if="compras && compras.length > 0">
-        <div v-for="compra in compras" :key="compra.id" class="compra-item">
-            
+    <div v-if="mostrar && mostrar.length > 0">
+        <div v-for="elemento in mostrar" :key="elemento.id" class="elemento-item">
+
             <div class="imagen-contenedor">
-                <img :src="compra.producto.imagen ? `http://localhost:8080/storage/${compra.producto.imagen}` : 'https://via.placeholder.com/150'"
+                <img :src="elemento.producto.imagen ? `http://localhost:8080/storage/${elemento.producto.imagen}` : 'https://via.placeholder.com/150'"
                     alt="Imagen producto">
             </div>
 
             <div class="info-contenedor">
-                <h3>{{ compra.producto.nombre_producto }}</h3>
-                
-                <span class="badge-estado">{{ compra.producto.estado }}</span>
-                
-                <p class="detalle"><img src="../assets/iconos/stock.png" alt="" class="icono"> Cantidad: {{ compra.cantidad }}</p>
-                <p class="detalle"><img src="../assets/iconos/calendario.png" alt="" class="icono"> Recogida: {{ formatearFecha(compra.fecha_prevista) }}</p>
-                <p class="detalle"><img src="../assets/iconos/mi_cuenta_verde.png" alt="" class="icono"> Comprador: {{ compra.comprador.nombre_usuario }}</p>
+                <h3>{{ elemento.producto.nombre_producto }}</h3>
+
+                <span class="badge-estado">{{ elemento.estado }}</span>
+
+                <p class="detalle"><img src="../assets/iconos/stock.png" alt="" class="icono"> Cantidad: {{
+                    elemento.cantidad }}</p>
+                <p class="detalle"><img src="../assets/iconos/calendario.png" alt="" class="icono"> Recogida: {{
+                    formatearFecha(elemento.fecha_prevista) }}</p>
+                <p class="detalle">
+                    <img src="../assets/iconos/mi_cuenta_verde.png" alt="" class="icono">
+                    {{ props.eleccion === 'ventas' ? 'Comprador: ' : 'Vendedor: ' }}
+                    {{ props.eleccion === 'ventas' ? elemento.id_comprador?.nombre_usuario :
+                        elemento.vendedor?.nombre_usuario }}
+                </p>
             </div>
 
         </div>
     </div>
+    <div v-else class="card-vacia">
+        No hay compras para mostrar en este momento.
+    </div>
+    <!-- Paginacion -->
+    <!-- Soles mostra la paginacio si hi ha mes de una pagina -->
+    <div v-if="pagination.last_page > 1" class="paginacion">
+        <!-- El disabled lo que fa es bloquejar el 
+             boto si esta en la pagina indica -->
+        <button :disabled="paginaActual === 1"
+            @click="props.eleccion === 'ventas' ? misVentas(paginaActual - 1) : misCompras(paginaActual - 1)"> Anterior
+        </button>
+
+        <span>Página {{ paginaActual }} de {{ pagination.last_page }}</span>
+
+        <!-- El @click suma 1 o resta 1 al numero de 
+             la pagina actual per a cambiar -->
+        <button :disabled="paginaActual === pagination.last_page"
+            @click="props.eleccion === 'ventas' ? misVentas(paginaActual + 1) : misCompras(paginaActual + 1)"> Siguiente
+        </button>
+    </div>
 </template>
 
 <style scoped>
-/* Contenedor de cada fila de compra */
-.compra-item {
+.elemento-item {
     display: flex;
-    align-items: flex-start; /* Alinea los elementos al principio verticalmente */
-    gap: 15px;               /* Espacio entre la imagen y el contenido */
+    align-items: flex-start;
+    gap: 15px;
     padding: 15px;
     border-radius: 8px;
     border: 1px solid #e0e0e0;
@@ -60,7 +105,6 @@ onMounted(() => misCompras)
     font-family: sans-serif;
 }
 
-/* Contenedor de la imagen y el badge */
 .imagen-contenedor {
     position: relative;
     width: 80px;
@@ -70,7 +114,7 @@ onMounted(() => misCompras)
 .imagen-contenedor img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Evita que la imagen se deforme */
+    object-fit: cover;
     border-radius: 4px;
 }
 
@@ -78,7 +122,7 @@ onMounted(() => misCompras)
 .info-contenedor {
     display: flex;
     flex-direction: column;
-    gap: 4px; /* Espacio pequeño entre líneas de texto */
+    gap: 4px;
 }
 
 .info-contenedor h3 {
@@ -87,7 +131,6 @@ onMounted(() => misCompras)
     color: #333;
 }
 
-/* Estilo para el estado (badge) */
 .badge-estado {
     display: inline-block;
     padding: 2px 8px;
@@ -98,7 +141,6 @@ onMounted(() => misCompras)
     margin-bottom: 5px;
 }
 
-/* Iconos y texto secundario */
 .detalle {
     display: flex;
     align-items: center;
@@ -111,5 +153,36 @@ onMounted(() => misCompras)
 .icono {
     width: 25px;
     height: 25px;
+}
+
+.card-vacia {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    color: #999;
+}
+
+.paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin: 20px 0px 40px 0px;
+    padding: 10px;
+}
+
+.paginacion button {
+    padding: 8px 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+}
+
+.paginacion button:disabled {
+    background: #eee;
+    cursor: not-allowed;
 }
 </style>
