@@ -29,6 +29,7 @@ services:
     env_file: ../backend/.env 
     volumes:
       - backend_storage:/var/www/html/storage
+      - ../docker/database/base.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - proxy_net
       - backend_net
