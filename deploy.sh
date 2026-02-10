@@ -9,7 +9,6 @@ cd "${ROOT_DIR}"
 # Limpiamos cambios locales para evitar el error de 'merge' que viste antes
 git fetch origin
 git reset --hard origin/despliegue
-git clean -fd
 
 echo "==> 🌐 Asegurando infraestructura (Traefik)..."
 if [ -d "traefik" ]; then
