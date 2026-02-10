@@ -45,9 +45,10 @@ services:
     container_name: proximarkt-mysql
     restart: always
     environment:
-      MYSQL_DATABASE: proxi_markt
-      MYSQL_USER: alumno
-      MYSQL_ROOT_PASSWORD: alumno
+      MMYSQL_DATABASE: proxi_markt
+      MYSQL_ROOT_PASSWORD: alumno  
+      MYSQL_USER: alumno           
+      MYSQL_PASSWORD: alumno
     volumes:
       - db_data:/var/lib/mysql
     networks:
