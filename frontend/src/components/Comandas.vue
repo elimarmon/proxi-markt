@@ -68,6 +68,19 @@ const getColoresEstado = (estado) => {
     return paleta[estado] || '#64748b';
 };
 
+const formatearFecha = (fecha) => {
+    if (!fecha) return '';
+    const [year, month, day] = fecha.split('-'); 
+    return `${day}/${month}/${year}`;
+};
+
+const getNombreContraparte = (comanda) => {
+    if (comanda.id_comprador === usuario.value.id) {
+        return comanda.vendedor?.nombre_usuario || 'Vendedor';
+    }
+    return comanda.comprador?.nombre_usuario || 'Comprador';
+};
+
 onMounted(async () => {
     if (!usuario.value?.id) await fetchUsuario();
     obtenerComandas();
@@ -125,9 +138,9 @@ const postValoracion = async (idCompraventa, datos) => {
                             <span class="separador">•</span>
                             <span class="precio">{{ comanda.precio_total }}€</span>
                             <span class="separador">•</span>
-                            <span class="usuario">{{ comanda.comprador?.nombre_usuario }}</span>
-                            <!-- <span class="separador">•</span>
-                            <span class="fecha">{{ comanda.fecha_prevista }}</span> -->
+                            <span class="usuario">{{ getNombreContraparte(comanda) }}</span>
+                            <span class="separador">•</span>
+                            <span class="fecha">{{ formatearFecha(comanda.fecha_prevista) }}</span>
                         </div>
                     </div>
                 </div>
@@ -176,9 +189,9 @@ const postValoracion = async (idCompraventa, datos) => {
                             <span class="separador">•</span>
                             <span class="precio">{{ item.precio_total }}€</span>
                             <span class="separador">•</span>
-                            <span class="usuario">{{ item.comprador?.nombre_usuario }}</span>
-                            <!-- <span class="separador">•</span>
-                            <span class="fecha">{{ comanda.fecha_prevista }}</span> -->
+                            <span class="usuario">{{ getNombreContraparte(item) }}</span>
+                            <span class="separador">•</span>
+                            <span class="fecha">{{ formatearFecha(item.fecha_prevista) }}</span>
                         </div>
                     </div>
                 </div>
