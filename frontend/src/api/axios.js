@@ -26,7 +26,7 @@ api.interceptors.response.use(
     (error) => {
         if (error.response && error.response.status === 401) {
             localStorage.removeItem("token");
-            window.location.href("/auth"); 
+            window.location.href("/api/auth"); 
         }
         return Promise.reject(error);
     },
