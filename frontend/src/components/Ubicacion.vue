@@ -1,14 +1,14 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue';
 import axios from 'axios';
+import api from '@/api/axios';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
 
 const router = useRouter()
 
-const { usuario, fetchUsuario } = useAuth();
+const { usuario, fetchUsuario, setLoading, loading } = useAuth();
 const latitud = ref(null);
 const longitud = ref(null);
 const direccion = ref('');
@@ -32,20 +32,20 @@ const inicializarMapa = async () => {
     await nextTick();
 
     const limitesVerticales = [
-        [-89.9, -180], 
-        [89.9, 180]    
+        [-89.9, -180],
+        [89.9, 180]
     ];
 
     map = L.map('map', {
         minZoom: 3,
-        worldCopyJump: true,          
-        maxBounds: limitesVerticales, 
-        maxBoundsViscosity: 1.0      
+        worldCopyJump: true,
+        maxBounds: limitesVerticales,
+        maxBoundsViscosity: 1.0
     }).setView(centroInicial, 13);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        minZoom: 3, 
+        minZoom: 3,
         attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 
@@ -75,7 +75,7 @@ const inicializarMapa = async () => {
                     lon: lng
                 }
             });
-            
+
             if (response.data.address) {
                 const address = response.data.address;
                 direccion.value = [
@@ -86,20 +86,13 @@ const inicializarMapa = async () => {
                 ].filter(Boolean).join(", ");
             }
         } catch (error) {
-            console.error("Error obteniendo dirección:", error);
-            direccion.value = `Coordenadas: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+            console.error("Error al obtener dirección:", error);
+            alert("La dirección no es válida");
         }
     });
 };
 const guardarUbicacion = async () => {
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-        alert("Sesión no válida. Por favor, inicia sesión.");
-        return;
-    }
-
-    cargando.value = true;
+    setLoading(true);
 
     const datos = {
         direccion: direccion.value,
@@ -108,29 +101,21 @@ const guardarUbicacion = async () => {
     };
 
     try {
-        const respuesta = await axios.put(`http://localhost:8080/api/usuarios/${usuario.value.id}/ubicacion`, datos, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
-        });
+        await api.put(`usuarios/${usuario.value.id}/ubicacion`, datos);
 
-        if (respuesta.status >= 200 && respuesta.status < 300) {
-            // actualitzar l'objecte usuari manualment per no fer una nova petició a la base de dates
-            usuario.value = {
-                ...usuario.value,
-                ...datos
-            };
-            alert("Dirección actualizada correctamente.");
-            // console.log("Respuesta:", respuesta.data);
-            router.push('/cuenta');
-        }
-
+        // actualitzar l'objecte usuari manualment per no fer una nova petició a la base de dates
+        usuario.value = {
+            ...usuario.value,
+            ...datos
+        };
+        alert("Dirección actualizada correctamente.");
+        // console.log("Respuesta:", respuesta.data);
+        router.push('/cuenta');
     } catch (error) {
         console.error("Error al guardar:", error.response?.data);
         alert("Hubo un error al guardar los datos.");
     } finally {
-        cargando.value = false;
+        setLoading(false);
     }
 };
 
@@ -197,10 +182,11 @@ const obtenerUbicacionActual = () => {
 };
 
 onMounted(async () => {
-    if (!usuario.value?.id) await fetchUsuario();
-    inicializarMapa();
+    await fetchUsuario();
+    if (usuario.value?.id) inicializarMapa();
 });
 </script>
+
 <template>
     <div class="main-container">
         <div class="card">
@@ -219,8 +205,9 @@ onMounted(async () => {
                         <button @click="cancelar" :disabled="cargando" class="boton-secondary">
                             Cancelar
                         </button>
-                        
-                        <button @click="obtenerUbicacionActual" type="button" class="boton-geo-inline" :disabled="cargando">
+
+                        <button @click="obtenerUbicacionActual" type="button" class="boton-geo-inline"
+                            :disabled="cargando">
                             📍 Mi ubicación
                         </button>
 
@@ -281,7 +268,7 @@ onMounted(async () => {
 }
 
 .info-box {
-    background-color: #f9fdf7; 
+    background-color: #f9fdf7;
     padding: 20px;
     border-radius: 12px;
     border: 1px solid #e2f0da;
@@ -306,11 +293,13 @@ onMounted(async () => {
     display: flex;
     gap: 10px;
     margin-top: 15px;
-    flex-wrap: wrap; 
+    flex-wrap: wrap;
 }
 
-.boton-primary, .boton-secondary, .boton-geo-inline {
-    flex: 1; 
+.boton-primary,
+.boton-secondary,
+.boton-geo-inline {
+    flex: 1;
     padding: 12px 5px;
     border-radius: 8px;
     font-weight: 600;
@@ -354,7 +343,9 @@ onMounted(async () => {
     background-color: #3d851e;
 }
 
-.boton-primary:disabled, .boton-secondary:disabled, .boton-geo-inline:disabled {
+.boton-primary:disabled,
+.boton-secondary:disabled,
+.boton-geo-inline:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
@@ -387,7 +378,14 @@ onMounted(async () => {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 </style>

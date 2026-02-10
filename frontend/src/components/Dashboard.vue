@@ -1,50 +1,45 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import axios from "axios";
+import api from "@/api/axios";
+import { useAuth } from '@/composables/useAuth';
 import NavBar from "./NavBar.vue";
+import Footer from "./Footer.vue";
 
 const productosUser = ref([]);
 const misCompras = ref([]);
 const misVentas = ref([]);
-const userId = ref(null);
+const { usuario, fetchUsuario } = useAuth();
 
-const getConfig = () => {
-    const token = localStorage.getItem('token');
-    return {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-        }
-    };
-};
+const stockTotal = computed(() => {
+    return productosUser.value.reduce((total, p) => total + (p.stock_total || 0), 0);
+});
 
-const obtenerUsuario = async () => {
-    try {
-        const response = await axios.get('http://localhost:8080/api/datosuser', getConfig());
-        userId.value = response.data.id;
-        cargarProductosUser(); 
-    } catch (error) {
-        console.error("Error obteniendo usuario:", error);
-    }
-};
+const ingresos = computed(() => {
+    return ventasCompletadas.value.reduce((total, v) => {
+        return total + (v.cantidad * (v.producto?.precio || 0));
+    }, 0);
+});
 
+// sols està carregant els productes de la pàgina 1
+// data.data perque Laravel esta retornant un objecte de paginacio
+// que en este cas carrega fins a 7 productes
 const cargarProductosUser = async () => {
-    if (!userId.value) return;
     try {
-        const response = await axios.get(`http://localhost:8080/api/usuarios/${userId.value}/productos`, getConfig());
-        productosUser.value = response.data;
+        const response = await api.get(`/usuarios/${userId.value}/productos`);
+        productosUser.value = response.data.data;
+        // console.log(response.data.data);
     } catch (error) {
         console.error("Error cargando productos:", error);
     }
 };
 
 const obtenerCompras = async () => {
-    const response = await axios.get('http://localhost:8080/api/miscompras', getConfig());
+    const response = await api.get('/mis-compras');
     misCompras.value = response.data;
 };
 
 const obtenerVentas = async () => {
-    const response = await axios.get('http://localhost:8080/api/misventas', getConfig());
+    const response = await api.get('/mis-ventas');
     misVentas.value = response.data;
 };
 
@@ -52,19 +47,28 @@ const comprasCompletadas = computed(() => {
     return misCompras.value.filter(c => c.estado === 'completado');
 });
 
+const ventasCompletadas = computed(() => {
+    return misVentas.value.filter(v => v.estado === 'completado');
+});
+
 const productosOrdenados = computed(() => {
     return [...productosUser.value].sort((a, b) => a.id - b.id);
 });
 
-onMounted(() => {
-    obtenerUsuario();
-    obtenerCompras();
-    obtenerVentas();
+onMounted(async () => {
+    await fetchUsuario();
+    if (usuario.value?.id) {
+        await Promise.all([
+            cargarProductosUser(),
+            obtenerCompras(),
+            obtenerVentas()
+        ]);
+    }
 });
 </script>
 
 <template>
-    <NavBar/>
+    <NavBar />
     <div class="contenedor-pagina">
         <div id="contenedor-titulo">
             <h1 class="titulo">Dashboard</h1>
@@ -80,20 +84,19 @@ onMounted(() => {
 
             <div class="caja">
                 <h3>Stock total</h3>
-                <p>{{productosUser.reduce((total, producto) => total + (producto.stock_total || 0), 0)}}</p>
+                <p>{{ stockTotal }}</p>
                 <img src="../assets/iconos/ingresos.png" />
             </div>
 
             <div class="caja">
                 <h3>Mis Ventas</h3>
-                <p>{{misVentas.filter(venta => venta.estado === 'completado').length}}</p>
+                <p>{{ ventasCompletadas.length }}</p>
                 <img src="../assets/iconos/info.png" />
             </div>
 
             <div class="caja">
                 <h3>Ingresos</h3>
-                <p>{{misVentas.filter(venta => venta.estado === 'completado').reduce((total, venta) => total +
-                    (venta.cantidad * (venta.producto?.precio || 0)), 0).toFixed(2) }}€</p>
+                <p>{{ ingresos.toFixed(2) }}€</p>
                 <img src="../assets/iconos/euro.png" />
             </div>
         </div>
@@ -103,8 +106,8 @@ onMounted(() => {
                 <img src="../assets/iconos/carrito.png" class="icono" />
                 <h3>Mis Ventas</h3>
 
-                <div v-if="misVentas.length > 0" class="lista-scroll">
-                    <div class="producto-ventas" v-for="venta in misVentas" :key="venta.id">
+                <div v-if="ventasCompletadas.length > 0" class="lista-scroll">
+                    <div class="producto-ventas" v-for="venta in ventasCompletadas" :key="venta.id">
 
                         <img :src="venta.producto?.imagen ? `http://localhost:8080/storage/${venta.producto.imagen}` : 'https://via.placeholder.com/150'"
                             class="imagen-producto">
@@ -113,7 +116,7 @@ onMounted(() => {
 
                         <p id="precio">{{ (venta.cantidad * (venta.producto?.precio || 0)).toFixed(2) }}€</p>
 
-                        <p id="info">Comprador #{{ venta.id_comprador }}</p>
+                        <p id="info">{{ venta.comprador.nombre_usuario }}</p>
                         <p id="estado">{{ venta.estado }}</p>
                     </div>
                 </div>
@@ -144,12 +147,13 @@ onMounted(() => {
                 <h3>Mis Compras</h3>
 
                 <div v-if="comprasCompletadas.length > 0" class="lista-scroll">
-                    <div class="compras-producto" v-for="compra in misCompras.filter(c => c.estado === 'completado')" :key="compra.id">
+                    <div class="compras-producto" v-for="compra in misCompras.filter(c => c.estado === 'completado')"
+                        :key="compra.id">
                         <img :src="compra.producto?.imagen ? `http://localhost:8080/storage/${compra.producto.imagen}` : 'https://via.placeholder.com/150'"
                             class="imagen-producto">
 
                         <p id="nombre-producto">{{ compra.producto?.nombre_producto || 'Producto no disponible' }}</p>
-                        <p id="info">Vendedor #{{ compra.id_vendedor }}</p>
+                        <p id="info">{{ compra.vendedor.nombre_usuario }}</p>
                         <p id="estado">{{ compra.estado }}</p>
                         <p id="precio">{{ (compra.cantidad * (compra.producto?.precio || 0)).toFixed(2) }}€</p>
                     </div>
@@ -158,6 +162,7 @@ onMounted(() => {
             </div>
         </div>
     </div>
+    <Footer></Footer>
 </template>
 
 <style scoped>
@@ -377,8 +382,8 @@ body {
 }
 
 .compras-producto #estado {
-    background: #FFF4E6;
-    color: #FF9F43;
+    background: #E0F8E9;
+    color: #00B86B;
     padding: 2px 8px;
     border-radius: 4px;
     font-weight: bold;

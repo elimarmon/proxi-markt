@@ -1,9 +1,10 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
+import api from '@/api/axios';
 import Navbar from './NavBar.vue'
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
+import Footer from "./Footer.vue";
 
 const router = useRouter()
 
@@ -48,18 +49,15 @@ const insertarProducto = async () => {
             datos.append('imagen', imagen.value);
         }
 
-        const respuesta = await axios.post('http://localhost:8080/api/productos', datos, {
+        const respuesta = await api.post('/productos', datos, {
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'multipart/form-data',
-                'Accept': 'application/json'
             }
         });
 
-        if (respuesta.status === 201 || respuesta.status === 200) {
-            alert('¡Producto creado correctamente!');
-            router.push('/cuenta');
-        }
+        alert('¡Producto creado correctamente!');
+        router.push('/cuenta');
+
     } catch (error) {
         alert('Error: ' + (error.response?.data?.message || 'No se pudo crear'));
         console.error("Error:", error.response?.data);
@@ -73,12 +71,7 @@ const cargarPuntos = async () => {
     const token = localStorage.getItem('token');
 
     try {
-        const resposta = await axios.get(`http://localhost:8080/api/usuarios/${usuario.value.id}/puntos`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'applicacion/json'
-            }
-        });
+        const resposta = await api.get(`/usuarios/${usuario.value.id}/puntos`);
         puntosEntrega.value = resposta.data;
     } catch (err) {
         alert("Error cargando puntos de entrega.");
@@ -89,14 +82,16 @@ const cargarPuntos = async () => {
 }
 
 const cargarCategorias = async () => {
-    const resposta = await axios.get('http://localhost:8080/api/categorias');
+    const resposta = await api.get('/categorias');
     categorias.value = resposta.data;
 }
 
 onMounted(async () => {
-    if (!usuario.value?.id) await fetchUsuario();
-    cargarPuntos();
-    cargarCategorias();
+    await fetchUsuario();
+    if (usuario.value?.id) {
+        cargarPuntos();
+        cargarCategorias();
+    }
 });
 </script>
 
@@ -186,6 +181,7 @@ onMounted(async () => {
             </form>
         </div>
     </div>
+    <Footer></Footer>
 </template>
 
 <style scoped>
