@@ -29,6 +29,17 @@ const formularioIncompleto = computed(() => {
         puntosEntrega.value.length === 0;
 });
 
+const toastVisible = ref(false);
+const toastMensaje = ref("");
+
+const lanzarToast = (mensaje) => {
+    toastMensaje.value = mensaje;
+    toastVisible.value = true;
+    setTimeout(() => {
+        toastVisible.value = false;
+    }, 3000);
+};
+
 const guardarImagen = (event) => {
     imagen.value = event.target.files[0];
 }
@@ -54,12 +65,14 @@ const insertarProducto = async () => {
             }
         });
 
-        alert('¡Producto creado correctamente!');
-        router.push('/cuenta');
+        lanzarToast("¡Producto creado correctamente!");
+        setTimeout(() => {
+            router.push('/cuenta');
+        }, 2000);
 
     } catch (error) {
-        alert('Error: ' + (error.response?.data?.message || 'No se pudo crear'));
-        console.error("Error:", error.response?.data);
+        lanzarToast('No se pudo crear el producto');
+        console.error("Error:", error.response?.data?.message);
     }
 }
 
@@ -73,7 +86,7 @@ const cargarPuntos = async () => {
         const resposta = await api.get(`/usuarios/${usuario.value.id}/puntos`);
         puntosEntrega.value = resposta.data;
     } catch (err) {
-        alert("Error cargando puntos de entrega.");
+        lanzarToast("Error cargando puntos de entrega.");
         console.error(err.message);
     } finally {
         cargando.value = false;
@@ -178,6 +191,9 @@ onMounted(async () => {
                         producto</button>
                 </div>
             </form>
+        </div>
+        <div v-if="toastVisible" class="toast-notificacion">
+            {{ toastMensaje }}
         </div>
     </div>
 </template>
@@ -412,5 +428,22 @@ button {
     background-image: none;
     cursor: not-allowed;
     color: #FFFFFF;
+}
+
+.toast-notificacion {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    z-index: 99999;
+    animation: subida 0.3s ease-out;
+}
+
+@keyframes subida {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
 }
 </style>
