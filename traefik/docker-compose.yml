@@ -28,6 +28,14 @@ services:
       # API y Dashboard
       - "--api.dashboard=true"
       - "--api.insecure=true"
+    labels:
+      - "traefik.enable=true"
+      # Definimos el router para el dashboard
+      - "traefik.http.routers.api.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.api.service=api@internal"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      # ACTIVAMOS EL RESOLVER AQUÍ:
+      - "traefik.http.routers.api.tls.certresolver=myresolver"
     ports:
       - "80:80"
       - "443:443"
