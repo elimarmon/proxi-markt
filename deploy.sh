@@ -9,8 +9,8 @@ git clean -fd -e traefik/letsencrypt/
 echo "==> 🚀 Reiniciando Contenedores..."
 cd produccion
 # Usamos -v para que MySQL lea el base.sql de nuevo desde cero
-docker compose down -v
-docker compose up -d --build
+docker-compose down -v
+docker-compose up -d --build
 
 echo "==> ⏳ Esperando a MySQL (15s)..."
 sleep 15
