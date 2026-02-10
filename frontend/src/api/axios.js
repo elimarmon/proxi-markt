@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "https://proximarkt.francecentral.cloudapp.azure.com",
+    baseURL: "https://proximarkt.francecentral.cloudapp.azure.com/api",
     headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
