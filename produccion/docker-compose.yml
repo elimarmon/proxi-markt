@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Base de Datos
+  # Base de Datos MySQL
   mysql:
     container_name: proximarkt-mysql
     image: mysql:8.0
@@ -14,12 +14,12 @@ services:
       - MYSQL_ROOT_PASSWORD=root
     volumes:
       - mysql_data:/var/lib/mysql
-      # IMPORTANTE: Mapeo de tu script SQL para inicializar tablas
+      # Mapeo del script SQL para inicializar tablas automáticamente
       - ../docker/database/base.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - proximarkt-network
+      - proxy_net
 
-  # Backend (Laravel)
+  # Backend (Laravel PHP-FPM)
   backend:
     container_name: proximarkt-backend
     build:
@@ -28,15 +28,12 @@ services:
     restart: always
     volumes:
       - ../backend:/var/www/html
-    environment:
-      - APP_ENV=production
-      - APP_DEBUG=false
     depends_on:
       - mysql
     networks:
-      - proximarkt-network
+      - proxy_net
 
-  # Frontend + Servidor Web (Nginx)
+  # Servidor Web (Nginx) - Este es el que se comunica con Traefik
   nginx:
     container_name: proximarkt-nginx
     image: nginx:stable-alpine
@@ -47,17 +44,19 @@ services:
     depends_on:
       - backend
     networks:
-      - proximarkt-network
-    # Configuración para Traefik (Dominio y SSL)
+      - proxy_net
+    # Configuración de Etiquetas para Traefik
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.proximarkt.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`)"
       - "traefik.http.routers.proximarkt.entrypoints=websecure"
       - "traefik.http.routers.proximarkt.tls.certresolver=myresolver"
+      - "traefik.http.services.proximarkt.loadbalancer.server.port=80"
 
 networks:
-  proximarkt-network:
-    external: true # Usamos la red que ya creó Traefik
+  # Definimos la red de Traefik como externa
+  proxy_net:
+    external: true
 
 volumes:
   mysql_data:
