@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # --- FRONTEND (Vue.js) ---
+  # --- FRONTEND (Vue.js + Nginx) ---
   frontend:
     build:
       context: ../frontend
@@ -17,9 +17,11 @@ services:
       - "traefik.http.routers.frontend.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+      # Prioridad baja para que no "robe" peticiones destinadas a /api
+      - "traefik.http.routers.frontend.priority=1"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
 
-  # --- BACKEND (Laravel) ---
+  # --- BACKEND (Laravel PHP-FPM) ---
   backend:
     build:
       context: ../backend
@@ -34,9 +36,12 @@ services:
       - backend_net
     labels:
       - "traefik.enable=true"
+      # Prioridad alta para capturar /api antes que el router del frontend
       - "traefik.http.routers.backend.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`) && PathPrefix(`/api`)"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certresolver=myresolver"
+      - "traefik.http.routers.backend.priority=10"
+      # IMPORTANTE: PHP-FPM escucha en el 9000
       - "traefik.http.services.backend.loadbalancer.server.port=9000"
 
   # --- BASE DE DATOS (MySQL) ---
@@ -54,7 +59,7 @@ services:
 
 networks:
   proxy_net:
-    external: true  # Usa la red creada por Traefik
+    external: true  # Red compartida con Traefik
   backend_net:
     driver: bridge
 
