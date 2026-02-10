@@ -1,56 +1,63 @@
 version: '3.8'
 
 services:
-  mysql:
-    container_name: proximarkt-mysql
-    image: mysql:8.0
-    restart: always
-    command: --default-authentication-plugin=mysql_native_password --log-bin-trust-function-creators=1
-    environment:
-      - MYSQL_DATABASE=proxi_markt
-      - MYSQL_USER=alumno
-      - MYSQL_PASSWORD=alumno
-      - MYSQL_ROOT_PASSWORD=root
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ../docker/database/base.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - proxy_net
-
-  backend:
-    container_name: proximarkt-backend
+  # --- FRONTEND (Vue.js) ---
+  frontend:
     build:
-      context: ..
-      dockerfile: docker/php/Dockerfile
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=https://proximarkt.francecentral.cloudapp.azure.com/api
+    container_name: proximarkt-frontend
     restart: always
-    volumes:
-      - ../backend:/var/www/html
-    depends_on:
-      - mysql
-    networks:
-      - proxy_net
-
-  nginx:
-    container_name: proximarkt-nginx
-    image: nginx:stable-alpine
-    restart: always
-    volumes:
-      - ../backend:/var/www/html:ro
-      - ../docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - backend
     networks:
       - proxy_net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.proximarkt.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`)"
-      - "traefik.http.routers.proximarkt.entrypoints=websecure"
-      - "traefik.http.routers.proximarkt.tls.certresolver=myresolver"
-      - "traefik.http.services.proximarkt.loadbalancer.server.port=80"
+      - "traefik.http.routers.frontend.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+
+  # --- BACKEND (Laravel) ---
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: proximarkt-backend
+    restart: always
+    env_file: ../backend/.env 
+    volumes:
+      - backend_storage:/var/www/html/storage
+    networks:
+      - proxy_net
+      - backend_net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=myresolver"
+      - "traefik.http.services.backend.loadbalancer.server.port=80"
+
+  # --- BASE DE DATOS (MySQL) ---
+  db:
+    image: mysql:8.0
+    container_name: proximarkt-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: proximarkt
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root_password_seguro}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - backend_net
 
 networks:
   proxy_net:
-    external: true
+    external: true  # Usa la red creada por Traefik
+  backend_net:
+    driver: bridge
 
 volumes:
-  mysql_data:
+  db_data:
+  backend_storage:
