@@ -40,7 +40,7 @@ services:
       - "traefik.http.services.backend.loadbalancer.server.port=80"
 
   # --- BASE DE DATOS (MySQL) ---
-  db:
+  mysql:
     image: mysql:8.0
     container_name: proximarkt-db
     restart: always
