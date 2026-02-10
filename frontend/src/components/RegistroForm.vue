@@ -4,6 +4,17 @@ import api from "@/api/axios";
 import { useAuth } from '@/composables/useAuth';
 import { useRouter } from 'vue-router';
 
+const toastVisible = ref(false);
+const toastMensaje = ref("");
+
+const lanzarToast = (mensaje) => {
+    toastMensaje.value = mensaje;
+    toastVisible.value = true;
+    setTimeout(() => {
+        toastVisible.value = false;
+    }, 3000);
+};
+
 const form = ref({
     nombre_usuario: "",
     email: "",
@@ -19,7 +30,7 @@ const enviarInfo = async () => {
     const { nombre_usuario, email, contrasenya, telefono } = form.value;
 
     if (!nombre_usuario || !email || !contrasenya || !telefono) {
-        alert("Rellena los campos obligatorios.");
+        lanzarToast("Rellena los campos obligatorios.");
         return;
     }
 
@@ -36,12 +47,14 @@ const enviarInfo = async () => {
             telefono: ""
         };
 
-        alert("¡Cuenta creada con éxito! Ahora puedes iniciar sesión.");
-        router.push('/login');
+        lanzarToast("¡Cuenta creada con éxito! Ahora puedes iniciar sesión.");
+        setTimeout(() => {
+            router.push('/login');
+        }, 2000);
 
     } catch (error) {
+        lanzarToast("Hubo un error al conectar con el servidor");
         console.error("Error en la petición:", error);
-        alert("Hubo un error al conectar con el servidor");
     } finally {
         setLoading(false);
     }
@@ -79,6 +92,9 @@ const enviarInfo = async () => {
                 <span v-else>Procesando...</span>
             </button>
         </form>
+        <div v-if="toastVisible" class="toast-notificacion">
+            {{ toastMensaje }}
+        </div>
     </div>
 </template>
 
@@ -184,6 +200,23 @@ input::placeholder {
 
 .boton-submit:disabled:hover {
     background: #cccccc;
+}
+
+.toast-notificacion {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    z-index: 99999;
+    animation: subida 0.3s ease-out;
+}
+
+@keyframes subida {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
 }
 
 @media (min-width: 1200px) {
