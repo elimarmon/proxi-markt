@@ -2,7 +2,6 @@ version: '3.8'
 
 services:
   # --- FRONTEND (Nginx + Vue) ---
-  # Se encarga de recibir TODO el tráfico y repartirlo
   frontend:
     build:
       context: ../frontend
@@ -22,7 +21,6 @@ services:
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
 
   # --- BACKEND (Laravel PHP-FPM) ---
-  # Ahora es privado: solo Nginx habla con él por la red interna
   backend:
     build:
       context: ../backend
@@ -35,15 +33,16 @@ services:
     networks:
       - proxy_net
       - backend_net
-    # Sin labels de Traefik aquí para evitar el error 502
 
-  # --- BASE DE DATOS (MySQL) ---
-  db:
+  # --- BASE DE DATOS (Cambiado de 'db' a 'mysql') ---
+  mysql:
     image: mysql:8.0
     container_name: proximarkt-db
     restart: always
     environment:
+      # Asegúrate de que este nombre de DB coincida con tu .env
       MYSQL_DATABASE: proximarkt
+      # Si en tu .env usas DB_PASSWORD, aquí debe ir igual
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root_password_seguro}
     volumes:
       - db_data:/var/lib/mysql
