@@ -7,6 +7,17 @@ import { useAuth } from '@/composables/useAuth';
 const router = useRouter()
 const { login, loading, setLoading } = useAuth();
 
+const toastVisible = ref(false);
+const toastMensaje = ref("");
+
+const lanzarToast = (mensaje) => {
+    toastMensaje.value = mensaje;
+    toastVisible.value = true;
+    setTimeout(() => {
+        toastVisible.value = false;
+    }, 3000);
+};
+
 const form = ref({
     email: "",
     contrasenya: ""
@@ -16,7 +27,7 @@ const enviarInfo = async () => {
     const { email, contrasenya } = form.value;
 
     if (!email || !contrasenya) {
-        alert("Rellena los campos obligatorios");
+        lanzarToast("Rellena los campos obligatorios");
         return;
     }
 
@@ -40,7 +51,7 @@ const enviarInfo = async () => {
         form.value = { email: '', contrasenya: '' };
     } catch (error) {
         console.error("Error en el login:", error.response?.data || error.message);
-        alert("Credenciales incorrectas");
+        lanzarToast("Credenciales incorrectas");
     } finally {
         setLoading(false);
     }
@@ -66,6 +77,9 @@ const enviarInfo = async () => {
 
             <button :disabled="loading" type="submit" class="boton-submit">Iniciar Sesión</button>
         </form>
+    </div>
+    <div v-if="toastVisible" class="toast-notificacion">
+        {{ toastMensaje }}
     </div>
 </template>
 
@@ -168,6 +182,23 @@ input::placeholder {
 
 .boton-submit:disabled:hover {
     background: #cccccc;
+}
+
+.toast-notificacion {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    z-index: 99999;
+    animation: subida 0.3s ease-out;
+}
+
+@keyframes subida {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
 }
 
 @media (min-width: 1200px) {
