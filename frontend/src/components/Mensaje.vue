@@ -1,26 +1,14 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import axios from "axios";
+import api from "@/api/axios";
+import { useAuth } from '@/composables/useAuth';
 import NavBar from "./NavBar.vue";
 import ChatDetalle from "./Chat.vue";
 import Footer from "./Footer.vue";
 
 const chats = ref([]);
 const chatSeleccionadoId = ref(null);
-const idUsuarioLogueado = ref(null);
-
-// saber si eres comprador o vendedor
-const obtenerDatosUsuario = async () => {
-    try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:8080/api/datosuser', {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        idUsuarioLogueado.value = res.data.id;
-    } catch (error) {
-        console.error("Error obteniendo usuario:", error);
-    }
-};
+const { usuario, fetchUsuario } = useAuth();
 
 // esta funcio es pa pasarli al fill quin chat has seleccionat
 const chatActivo = computed(() => {
@@ -29,9 +17,9 @@ const chatActivo = computed(() => {
 
 // comprobar qui es qui (vendedor, comprador)
 const idReceptorDinamico = computed(() => {
-    if (!chatActivo.value || !idUsuarioLogueado.value) return null;
+    if (!chatActivo.value || !usuario.value?.id) return null;
 
-    if (chatActivo.value.id_vendedor === idUsuarioLogueado.value) {
+    if (chatActivo.value.id_vendedor === usuario.value.id) {
         // si el id del vendedor del chat es el meu, jo soc el vendedor
         return chatActivo.value.id_comprador;
     } else {
@@ -42,19 +30,18 @@ const idReceptorDinamico = computed(() => {
 
 const obtenerChats = async () => {
     try {
-        const token = localStorage.getItem('token');
-        const respuesta = await axios.get('http://localhost:8080/api/mis-chats', {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        const respuesta = await api.get('/mis-chats');
         chats.value = respuesta.data;
     } catch (error) {
         console.error("Error obteniendo chats:", error);
     }
 }
 
-onMounted(() => {
-    obtenerChats();
-    obtenerDatosUsuario();
+onMounted(async () => {
+    await fetchUsuario();
+    if (usuario.value?.id) {
+        obtenerChats();
+    }
 });
 </script>
 
@@ -66,7 +53,7 @@ onMounted(() => {
                 <div v-for="chat in chats" :key="chat.id" @click="chatSeleccionadoId = chat.id"
                     :class="['item-chat', { activo: chatSeleccionadoId === chat.id }]">
                     <h3>
-                        {{ chat.id_vendedor === idUsuarioLogueado ? chat.comprador.nombre_usuario :
+                        {{ chat.id_vendedor === usuario.id ? chat.comprador?.nombre_usuario :
                             chat.vendedor.nombre_usuario }}
                     </h3>
                     <p>{{ chat.producto.nombre_producto }}</p>
@@ -77,8 +64,8 @@ onMounted(() => {
                 <!-- si es selecciona un chat i el usuari esta logejat
                  enviem al component fill el qui el recibix, 
                  el producte, y el id de la persona logejada   -->
-                <ChatDetalle v-if="chatActivo && idUsuarioLogueado" :id_receptor="idReceptorDinamico"
-                    :id_producto="chatActivo.id_producto" :chatid="chatActivo.id" :mi_id="idUsuarioLogueado" />
+                <ChatDetalle v-if="chatActivo && usuario?.id" :id_receptor="idReceptorDinamico"
+                    :id_producto="chatActivo.id_producto" :chatid="chatActivo.id" :mi_id="usuario.id" />
                 <div v-else class="vacio">
                     <p>Selecciona una conversación</p>
                 </div>

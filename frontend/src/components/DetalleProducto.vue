@@ -1,24 +1,23 @@
 <script setup>
 import SolicitarCompra from './SolicitarCompra.vue';
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import api from '@/api/axios';
 import NavBar from "@/components/NavBar.vue";
 import { useAuth } from '@/composables/useAuth';
 import Footer from "./Footer.vue";
 
 const props = defineProps(['id']);
 const producto = ref(null);
-const { usuario, fetchUsuario } = useAuth();
+const { usuario, fetchUsuario, loading, setLoading } = useAuth();
 
 const obtenerProducto = async () => {
-    const response = await axios.get(`http://localhost:8080/api/productos/${props.id}`);
+    const response = await api.get(`/productos/${props.id}`);
     producto.value = response.data;
     // console.log(producto.value)
 }
 
-const token = localStorage.getItem('token');
-
 const crearCompraventa = async (datosCompra) => {
+    setLoading(true);
     const payload = {
         id_producto: producto.value.id,
         id_vendedor: producto.value.id_usuario,
@@ -34,29 +33,22 @@ const crearCompraventa = async (datosCompra) => {
                 id_vendedor: producto.value.id_usuario,
                 id_producto: producto.value.id,
                 contenido: datosCompra.mensaje
-
             }
-            await axios.post('http://localhost:8080/api/enviar-mensaje', datosChat, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
+            await api.post('/enviar-mensaje', datosChat);
         }
-        await axios.post(`http://localhost:8080/api/compraventa/${props.id}`, payload, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
+        await api.post(`/compraventa/${props.id}`, payload);
         alert("Solicitud correcta");
     } catch (err) {
         alert("Solicitud incorrecta");
         console.error(err);
+    } finally {
+        setLoading(false);
     }
 }
 
 onMounted(async () => {
-    if (!usuario.value?.id) await fetchUsuario();
-    obtenerProducto()
+    await fetchUsuario();
+    if (usuario.value?.id) obtenerProducto()
 });
 </script>
 
@@ -108,7 +100,7 @@ onMounted(async () => {
                 </div>
 
                 <div class="form-container">
-                    <SolicitarCompra :precio="producto.precio" :ids="[producto.id_vendedor, usuario.id]"
+                    <SolicitarCompra :precio="producto.precio" :ids="[producto.id_vendedor, usuario?.id]"
                         @enviar-solicitud="crearCompraventa" />
                 </div>
             </div>

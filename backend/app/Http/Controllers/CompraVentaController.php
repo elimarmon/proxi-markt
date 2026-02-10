@@ -97,7 +97,7 @@ class CompraVentaController extends Controller
 
     public function actualizarEstado(Request $request, CompraVenta $compraventa) {
         $request->validate([
-            'estado' => 'required|string|in:pendiente,en curso,cancelado,completado'
+            'estado' => 'required|string|in:pendiente,en curso,cancelado,completado,valorado'
         ]);
         
         try {

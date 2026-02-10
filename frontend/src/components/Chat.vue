@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted, nextTick } from "vue";
-import axios from "axios";
+import api from "@/api/axios";
 
 // id_receptor es la persona que rep el mensatge
 const props = defineProps(['id_receptor', 'id_producto', 'chatid', 'mi_id']);
@@ -43,10 +43,7 @@ const cargarMensajes = async () => {
     //si no hi ha id de chat para la funcio
     if (!props.chatid) return;
     try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`http://localhost:8080/api/chat/${props.chatid}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await api.get(`/chat/${props.chatid}`);
 
         //comparar si els mensatges han aumentat
         const mensajesNuevos = res.data.mensajes.length !== mensajes.value.length;
@@ -67,15 +64,13 @@ const enviarMensaje = async () => {
     // per a que el mensatge este bonico sense espais inneccesaris
     if (!nuevoMensaje.value.trim()) return;
     try {
-        const token = localStorage.getItem('token');
-
         //peticio al backend
-        await axios.post('http://localhost:8080/api/enviar-mensaje', {
+        await api.post('/enviar-mensaje', {
             id_chat: props.chatid,   // id del chat actual
             id_vendedor: props.id_receptor, // a qui li arriba el mensatge
             id_producto: props.id_producto, // el producte del que estem parlant
             contenido: nuevoMensaje.value   // el mensatge que senvia
-        }, { headers: { Authorization: `Bearer ${token}` } });
+        });
 
         //netejar el mensatge
         nuevoMensaje.value = "";
@@ -105,7 +100,6 @@ watch(() => props.chatid, () => {
     iniciarPolling();
 });
 
-
 onMounted(() => {
     cargarMensajes();
     iniciarPolling();
@@ -116,13 +110,13 @@ onMounted(() => {
 onUnmounted(() => {
     if (polling) clearInterval(polling);
 });
-
 </script>
 
 <template>
     <div class="chat-hijo">
         <div class="caja-mensajes" ref="bajarMensajes">
-            <div v-for="m in mensajes" :key="m.id" :class="['burbuja', m.id_envio === props.mi_id ? 'propio' : 'ajeno']">
+            <div v-for="m in mensajes" :key="m.id"
+                :class="['burbuja', m.id_envio === props.mi_id ? 'propio' : 'ajeno']">
                 <!-- açi lo que fem es que si el id del que envia el mensatge no es el
                  que ta la sesio inicia es pinta a un costat o al altre -->
                 <div class="contenido">{{ m.contenido }}</div>

@@ -1,10 +1,13 @@
 <script setup>
-import axios from 'axios';
-import { onMounted, ref, watch } from 'vue';
+import api from '@/api/axios';
+import { onMounted, ref } from 'vue';
 
 const props = defineProps({
-    eleccion: String
-})
+    eleccion: {
+        type: String,
+        required: true
+    }
+});
 
 const mostrar = ref([]);
 // guarda tots els datos que mos pasa laravel
@@ -12,44 +15,18 @@ const pagination = ref({});
 // el numero de pagina que estem veguent
 const paginaActual = ref(1);
 
-
-const misventas = async (pagina = 1) => {
-    const token = localStorage.getItem('token')
-    // li pasem el numero de pagina per a que laravel soles el porte els
-    //el numero de elements que li has indicat en la query ->paginate(9)
-    const response = await axios.get('http://localhost:8080/api/mis-ventas', {
+const misCompras = async (pagina = 1) => {
+    const response = await api.get('/mis-compras', {
         params: {
             page: pagina
-        },
-        headers: {
-            Authorization: `Bearer ${token}`
         }
-    })
+    });
     mostrar.value = response.data.data;
     pagination.value = response.data;
     paginaActual.value = response.data.current_page;
 
-    console.log("ventas: ", mostrar.value)
-    console.log("paginacion", pagination.value)
-}
-
-const miscompras = async (pagina = 1) => {
-    
-    const token = localStorage.getItem('token')
-    const response = await axios.get('http://localhost:8080/api/mis-compras', {
-        params: {
-            page: pagina
-        },
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    })
-    mostrar.value = response.data.data;
-    pagination.value = response.data;
-    paginaActual.value = response.data.current_page;
-
-    console.log("compras: ", mostrar.value)
-    console.log("paginacion", pagination.value)
+    // console.log("compras: ", mostrar.value)
+    // console.log("paginacion", pagination.value)
 }
 
 const formatearFecha = (fechaRaw) => {
@@ -63,20 +40,9 @@ const formatearFecha = (fechaRaw) => {
     }).format(fecha);
 };
 
-const cargarDatos = () => {
-    if (props.eleccion === 'ventas') {
-        misventas();
-    } else if (props.eleccion === 'compras') {
-        miscompras();
-    }
-};
-
-onMounted(cargarDatos);
-
-watch(() => props.eleccion, () => {
-    cargarDatos();
-});
+onMounted(() => misCompras())
 </script>
+
 <template>
     <div v-if="mostrar && mostrar.length > 0">
         <div v-for="elemento in mostrar" :key="elemento.id" class="elemento-item">
@@ -98,7 +64,7 @@ watch(() => props.eleccion, () => {
                 <p class="detalle">
                     <img src="../assets/iconos/mi_cuenta_verde.png" alt="" class="icono">
                     {{ props.eleccion === 'ventas' ? 'Comprador: ' : 'Vendedor: ' }}
-                    {{ props.eleccion === 'ventas' ? elemento.comprador?.nombre_usuario :
+                    {{ props.eleccion === 'ventas' ? elemento.id_comprador?.nombre_usuario :
                         elemento.vendedor?.nombre_usuario }}
                 </p>
             </div>
@@ -106,12 +72,7 @@ watch(() => props.eleccion, () => {
         </div>
     </div>
     <div v-else class="card-vacia">
-        <div v-if="props.eleccion === 'ventas'">
-            No hay ventas para mostrar en este momento.
-        </div>
-        <div v-else-if="props.eleccion === 'compras'">
-            No hay compras para mostrar en este momento.
-        </div>
+        No hay compras para mostrar en este momento.
     </div>
     <!-- Paginacion -->
     <!-- Soles mostra la paginacio si hi ha mes de una pagina -->
@@ -119,7 +80,7 @@ watch(() => props.eleccion, () => {
         <!-- El disabled lo que fa es bloquejar el 
              boto si esta en la pagina indica -->
         <button :disabled="paginaActual === 1"
-            @click="props.eleccion === 'ventas' ? misventas(paginaActual - 1) : miscompras(paginaActual - 1)"> Anterior
+            @click="props.eleccion === 'ventas' ? misVentas(paginaActual - 1) : misCompras(paginaActual - 1)"> Anterior
         </button>
 
         <span>Página {{ paginaActual }} de {{ pagination.last_page }}</span>
@@ -127,10 +88,11 @@ watch(() => props.eleccion, () => {
         <!-- El @click suma 1 o resta 1 al numero de 
              la pagina actual per a cambiar -->
         <button :disabled="paginaActual === pagination.last_page"
-            @click="props.eleccion === 'ventas' ? misventas(paginaActual + 1) : miscompras(paginaActual + 1)"> Siguiente
+            @click="props.eleccion === 'ventas' ? misVentas(paginaActual + 1) : misCompras(paginaActual + 1)"> Siguiente
         </button>
     </div>
 </template>
+
 <style scoped>
 .elemento-item {
     display: flex;

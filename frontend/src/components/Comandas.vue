@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import axios from "axios";
+import api from "@/api/axios";
 import NavBar from "./NavBar.vue";
 import ValoracionForm from "./ValoracionForm.vue";
 import { useAuth } from "@/composables/useAuth";
@@ -8,7 +8,6 @@ import { useAuth } from "@/composables/useAuth";
 const comandas = ref([]);
 const cargando = ref(true);
 const { usuario, fetchUsuario } = useAuth();
-const token = localStorage.getItem("token");
 const aValorar = ref(null);
 
 // --- VARIABLES PARA EL TOAST ---
@@ -26,13 +25,7 @@ const lanzarToast = (mensaje) => {
 
 const obtenerComandas = async () => {
     try {
-        const response = await axios.get("http://localhost:8080/api/mis-comandas", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: "application/json",
-                "Content-Type": "application/json",
-            },
-        });
+        const response = await api.get("/mis-comandas");
         comandas.value = response.data.datos;
     } catch (error) {
         console.error("Error al cargar:", error);
@@ -46,19 +39,12 @@ const comandasPendientes = computed(() => {
 });
 
 const historialComandas = computed(() => {
-    return comandas.value.filter(c => c.estado == 'completado' || c.estado == 'cancelado');
+    return comandas.value.filter(c => c.estado == 'completado' || c.estado == 'cancelado' || c.estado == 'valorado');
 });
 
 const actualizarComanda = async (id, nuevoEstado) => {
     try {
-        await axios.put(`http://localhost:8080/api/mis-comandas-ROTO/${id}`,
-            { estado: nuevoEstado },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/json"
-                }
-            });
+        await api.put(`/mis-comandas/${id}`, { estado: nuevoEstado });
         const comandaEncontrada = comandas.value.find(c => c.id === id);
         if (comandaEncontrada) comandaEncontrada.estado = nuevoEstado;
     } catch (err) {
@@ -76,7 +62,8 @@ const getColoresEstado = (estado) => {
         'pendiente': '#ff7519',
         'en curso': '#3498db',
         'completado': '#4CA626',
-        'cancelado': '#e74c3c'
+        'cancelado': '#e74c3c',
+        'valorado': '#4CA626',
     };
     return paleta[estado] || '#64748b';
 };
@@ -95,8 +82,8 @@ const getNombreContraparte = (comanda) => {
 };
 
 onMounted(async () => {
-    if (!usuario.value?.id) await fetchUsuario();
-    obtenerComandas();
+    await fetchUsuario();
+    if (usuario.value?.id) obtenerComandas();
 });
 
 const getUrlImagen = (rutaRelativa) => {
@@ -104,12 +91,14 @@ const getUrlImagen = (rutaRelativa) => {
 };
 
 const postValoracion = async (idCompraventa, datos) => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
     try {
-        await axios.post(`http://localhost:8080/api/valoraciones/${idCompraventa}`, datos, {
-            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
-        });
+        await api.post(`/valoraciones/${idCompraventa}`, datos);
+        alert("Valoración realizada.")
+        aValorar.value = null;
+        const comanda = comandas.value.find(c => c.id === idCompraventa);
+        if (comanda) {
+            comanda.estado = 'valorado';
+        }
     } catch (err) {
         lanzarToast("Algo ha ido mal.");
         console.log(err);
@@ -141,7 +130,6 @@ const postValoracion = async (idCompraventa, datos) => {
 
             <div v-for="comanda in comandasPendientes" :key="comanda.id" class="tarjeta-comanda"
                 :style="{ borderLeftColor: getColoresEstado(comanda.estado) }">
-                
                 <div class="info-principal">
                     <img :src="getUrlImagen(comanda.producto?.imagen)" class="img-producto" />
                     <div class="detalles">
@@ -159,12 +147,12 @@ const postValoracion = async (idCompraventa, datos) => {
                 </div>
 
                 <div class="acciones">
-                    <button v-if="comanda.estado == 'en curso' && comanda.id_comprador !== usuario.id" 
-                            class="btn-accion finalizar" @click="actualizarComanda(comanda.id, 'completado')">
+                    <button v-if="comanda.estado == 'en curso' && comanda.id_comprador !== usuario.id"
+                        class="btn-accion finalizar" @click="actualizarComanda(comanda.id, 'completado')">
                         Finalizar
                     </button>
-                    <button v-else-if="comanda.id_comprador !== usuario.id" 
-                            class="btn-accion aceptar" @click="actualizarComanda(comanda.id, 'en curso')">
+                    <button v-else-if="comanda.id_comprador !== usuario.id" class="btn-accion aceptar"
+                        @click="actualizarComanda(comanda.id, 'en curso')">
                         Aceptar
                     </button>
                     <button class="btn-accion rechazar" @click="actualizarComanda(comanda.id, 'cancelado')">
@@ -209,9 +197,17 @@ const postValoracion = async (idCompraventa, datos) => {
                     </div>
                 </div>
 
+                <!-- No es pot dependre d'un estat global. He de registrar qui ha valorat i qui no -->
                 <div class="acciones">
-                    <button v-if="item.estado == 'completado'" class="btn-accion valorar" @click="abrirModalValoracion(item.id)">
-                        Valorar
+                    <button v-if="item.estado == 'completado' || item.estado == 'valorado'"
+                        :disabled="item.estado == 'valorado'" class="btn-accion valorar"
+                        @click="abrirModalValoracion(item.id)">
+
+                        <span v-if="item.estado == 'completado'">Valorar</span>
+
+                        <span v-else class="d-flex align-items-center gap-1">
+                            <i class="bi bi-check-circle-fill"></i> Ya valorado
+                        </span>
                     </button>
                 </div>
 
@@ -232,11 +228,7 @@ const postValoracion = async (idCompraventa, datos) => {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Segoe UI", "Arial";
-}
-
-body {
-    min-width: 400px;
+    font-family: "Segoe UI", "Arial", sans-serif;
 }
 
 .contenedor-pagina {
@@ -281,7 +273,7 @@ body {
 }
 
 .contador-badge {
-    background-color: #B9E2A6; /* De tu paleta */
+    background-color: #B9E2A6;
     color: #4CA626;
     padding: 6px 15px;
     border-radius: 8px;
@@ -298,7 +290,7 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
     position: relative;
 }
 
@@ -319,6 +311,7 @@ body {
     margin: 0 0 5px 0;
     font-size: 1.1rem;
     color: #1e293b;
+    font-weight: 700;
 }
 
 .fila-datos {
@@ -327,6 +320,7 @@ body {
     font-size: 0.9rem;
     color: #64748b;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .precio {
@@ -336,6 +330,7 @@ body {
 
 .separador {
     color: #cbd5e1;
+    font-size: 10px;
 }
 
 .acciones {
@@ -353,9 +348,48 @@ body {
     transition: 0.2s;
 }
 
-.aceptar, .finalizar { background: #4CA626; color: white; }
-.rechazar { background: #fee2e2; color: #e74c3c; border: 1px solid #e74c3c; }
-.valorar { background: #3498db; color: white; }
+.btn-accion:disabled {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    cursor: not-allowed;
+    border: 1px solid #e2e8f0;
+    transform: none;
+    box-shadow: none;
+}
+
+.valorar:disabled {
+    opacity: 0.8;
+    font-style: italic;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.gap-1 {
+    gap: 4px;
+}
+
+.aceptar,
+.finalizar {
+    background: #4CA626;
+    color: white;
+}
+
+.rechazar {
+    background: #fee2e2;
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+}
+
+.valorar {
+    background: #3498db;
+    color: white;
+}
 
 .etiqueta-estado {
     position: absolute;
@@ -377,157 +411,26 @@ body {
     border: 1px dashed #ddd;
 }
 
+.texto-info {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
 @media (max-width: 900px) {
     .tarjeta-comanda {
         flex-direction: column;
         align-items: flex-start;
         gap: 15px;
     }
+
     .acciones {
         margin-right: 0;
         width: 100%;
     }
+
     .etiqueta-estado {
         top: 15px;
-    }
-}
-
-.historial {
-    margin-top: 50px;
-    max-width: 90%;
-    margin: auto;
-}
-
-.titulo-historial {
-    margin-top: 50px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.titulo-historial h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: #333;
-}
-
-.icono-titulo {
-    width: 25px;
-    height: 25px;
-}
-
-.tarjeta-producto {
-    background-color: white;
-    border: 1px solid #e2e8f0;
-    border-left: 6px solid #22c55e;
-    border-radius: 8px;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-}
-
-.info-izquierda {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.img-producto {
-    width: 60px;
-    height: 60px;
-    border-radius: 8px;
-    object-fit: cover;
-}
-
-.detalles h3 {
-    margin: 0 0 5px 0;
-    font-size: 16px;
-    font-weight: 700;
-    color: #1e293b;
-}
-
-.fila-datos {
-    font-size: 14px;
-    color: #64748b;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-
-.separador {
-    font-size: 10px;
-    color: #cbd5e1;
-}
-
-.precio {
-    color: #22c55e;
-    font-weight: 600;
-}
-
-.fecha {
-    color: #22c55e;
-}
-
-.etiqueta-estado {
-    background-color: #0f172a;
-    color: white;
-    padding: 6px 16px;
-    border-radius: 9999px;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: capitalize;
-    white-space: nowrap;
-}
-
-.toast-notificacion {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #333;
-    color: white;
-    padding: 12px 24px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-    font-weight: 500;
-    font-size: 0.95rem;
-    animation: fadeInOut 0.3s ease-in-out;
-    text-align: center;
-    min-width: 300px;
-}
-
-@keyframes fadeInOut {
-    from { opacity: 0; transform: translate(-50%, 20px); }
-    to { opacity: 1; transform: translate(-50%, 0); }
-}
-
-@media (max-width: 768px) {
-    .comanda-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    .comanda-actions {
-        flex-direction: column;
-    }
-
-    .empty-header-row {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .badge-pendientes-empty {
-        margin-left: 0;
     }
 }
 </style>
