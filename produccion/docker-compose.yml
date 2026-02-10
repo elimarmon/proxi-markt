@@ -18,6 +18,7 @@ services:
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls.certresolver=myresolver"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      - "traefik.http.routers.frontend.priority=1" # Prioridad baja para el front
 
   # --- BACKEND (Laravel) ---
   backend:
@@ -38,6 +39,7 @@ services:
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certresolver=myresolver"
       - "traefik.http.services.backend.loadbalancer.server.port=80"
+      - "traefik.http.routers.backend.priority=100" # Prioridad alta para que el /api funcione
 
   # --- BASE DE DATOS (MySQL) ---
   mysql:
@@ -45,7 +47,7 @@ services:
     container_name: proximarkt-mysql
     restart: always
     environment:
-      MMYSQL_DATABASE: proxi_markt
+      MYSQL_DATABASE: proxi_markt 
       MYSQL_ROOT_PASSWORD: alumno  
       MYSQL_USER: alumno           
       MYSQL_PASSWORD: alumno
@@ -57,7 +59,7 @@ services:
 
 networks:
   proxy_net:
-    external: true  # Usa la red creada por Traefik
+    external: true  
   backend_net:
     driver: bridge
 
