@@ -8,6 +8,14 @@ use App\Models\Valoracion;
 
 class ValoracionController extends Controller
 {
+    public function index() {
+        $valoraciones = Valoracion::where("id_resenyado", "=", auth()->id())
+            ->with(['emisor', 'compraventa.producto'])
+            ->latest()
+            ->paginate(5);
+
+        return response()->json($valoraciones);
+    }
     public function store(StoreValoracionRequest $request, CompraVenta $compraventa) {
         // comprobar que no se dejan reseñas a sí mismos
         $idEmisor = auth()->id();
@@ -21,5 +29,7 @@ class ValoracionController extends Controller
             'comentario' => $request->comentario
         ]);
 
+        $compraventa::update(['estado' => 'valorado']);
+        return response()->json(['status' => 'success']);
     }
 }

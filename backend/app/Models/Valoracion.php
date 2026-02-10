@@ -17,7 +17,7 @@ class Valoracion extends Model
     ];
 
     public function compraventa() {
-        return $this->belongsTo(CompraVenta::class, 'id_compraventa', 'id');
+        return $this->belongsTo(CompraVenta::class, 'id_venta', 'id');
     }
 
     public function emisor() {

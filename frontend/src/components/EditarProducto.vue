@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, onMounted, ref } from 'vue';
-import axios from 'axios';
+import api from '@/api/axios';
 import NavBar from './NavBar.vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
@@ -10,7 +10,7 @@ const router = useRouter();
 const PuntosEntrega = ref([]);
 const archivoImagen = ref(null);
 const imagenPreview = ref(null);
-const { usuario, fetchUsuario } = useAuth();
+const { usuario, fetchUsuario, loading, setLoading } = useAuth();
 
 const props = defineProps({
     id: {
@@ -39,7 +39,7 @@ const seleccionarArchivo = (e) => {
 
 const cargarProducto = async () => {
     try {
-        const respuesta = await axios.get(`http://localhost:8080/api/productos/${props.id}`);
+        const respuesta = await api.get(`/productos/${props.id}`);
         Object.assign(formulario, respuesta.data);
         imagenPreview.value = null;
         archivoImagen.value = null;
@@ -49,7 +49,8 @@ const cargarProducto = async () => {
 }
 
 const editarProducto = async () => {
-    const token = localStorage.getItem('token');
+
+    setLoading(true);
 
     const data = new FormData();
     // Laravel requiere _method PUT cuando se envía FormData via POST
@@ -65,30 +66,25 @@ const editarProducto = async () => {
     }
 
     try {
-        const respuesta = await axios.post(`http://localhost:8080/api/productos/${props.id}`, data, {
+        await api.post(`/productos/${props.id}`, data, {
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'multipart/form-data'
             }
         });
+        alert("Producto actualizado con éxito.")
+        router.push('/cuenta');
 
-        if (respuesta.status === 200 || respuesta.status === 204) {
-            router.push('/cuenta');
-        }
     } catch (error) {
         console.error("Error al editar:", error);
+        alert("No se pudo actualizar el producto");
+    } finally {
+        setLoading(false);
     }
 }
 
 const cargarPuntos = async () => {
-    const token = localStorage.getItem('token');
     try {
-        const resposta = await axios.get(`http://localhost:8080/api/usuarios/${usuario.value.id}/puntos`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
-        });
+        const resposta = await api.get(`/usuarios/${usuario.value.id}/puntos`);
         PuntosEntrega.value = resposta.data;
     } catch (error) {
         console.error("Error cargando puntos:", error);
@@ -96,9 +92,13 @@ const cargarPuntos = async () => {
 }
 
 onMounted(async () => {
-    if (!usuario.value?.id) await fetchUsuario();
-    cargarProducto();
-    cargarPuntos();
+    await fetchUsuario();
+    if (usuario.value?.id) {
+        await Promise.all([
+            cargarProducto(),
+            cargarPuntos()
+        ]);
+    }
 });
 </script>
 
@@ -169,8 +169,9 @@ onMounted(async () => {
                     <button @click="router.back()" type="button" class="boton-cancelar">
                         Cancelar
                     </button>
-                    <button type="submit" class="boton-actualizar">
-                        Actualizar Producto
+                    <button type="submit" class="boton-actualizar" :disabled="loading">
+                        <span v-if="!loading">Actualizar Producto</span>
+                        <span v-else>Guardando cambios...</span>
                     </button>
                 </div>
             </form>

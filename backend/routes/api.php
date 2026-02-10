@@ -77,6 +77,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Rutas de valoraciones
 
+    Route::get('/valoraciones', [ValoracionController::class, 'index']);
     Route::post('/valoraciones/{compraventa}', [ValoracionController::class, 'store']);
 
 });

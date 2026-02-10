@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
-import axios from "axios";
+import api from "@/api/axios";
 import NavBar from "./NavBar.vue";
 import { useAuth } from '@/composables/useAuth';
 import MostrarProductosMain from './MostrarProductosMain.vue';
@@ -15,7 +15,7 @@ const radioActual = ref(
 
 const { usuario, fetchUsuario } = useAuth();
 const categoriasSeleccionadas = ref([]);
-const todasLasCategorias = ref([]); 
+const todasLasCategorias = ref([]);
 const menuAbierto = ref(false);
 const cargando = ref(false);
 const textoBusqueda = ref("");
@@ -41,22 +41,15 @@ const calcularDistanciaReal = (latV, lngV) => {
 
 const mostrarProductos = async (pagina = 1) => {
     cargando.value = true;
-    const token = localStorage.getItem('token');
-
-    // Si el radio es Infinity, mandamos un número muy grande al backend
-    const radioParaAPI = radioActual.value === Infinity ? 99999 : radioActual.value;
+    const radio = radioActual.value === Infinity ? 99999 : radioActual.value;
 
     try {
-        const response = await axios.get("http://localhost:8080/api/productos", {
+        const response = await api.get("/productos", {
             params: {
+                km: radio,
                 page: pagina,
-                km: radioParaAPI,
                 search: textoBusqueda.value,
                 categorias: categoriasSeleccionadas.value.join(',')
-            },
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
             }
         });
 
@@ -73,9 +66,7 @@ const mostrarProductos = async (pagina = 1) => {
 
 const cargarCategorias = async () => {
     try {
-        const response = await axios.get("http://localhost:8080/api/categorias", {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        });
+        const response = await api.get("/categorias");
         todasLasCategorias.value = response.data.map(c => c.nombre_categoria).sort();
     } catch (error) {
         console.error("Error cargando categorías:", error);
@@ -106,9 +97,8 @@ const toggleMenu = () => {
 }
 
 onMounted(async () => {
-    if (!usuario.value?.id) await fetchUsuario();
-    cargarCategorias(); 
-    mostrarProductos(); 
+    await fetchUsuario();
+    if (usuario.value?.id) mostrarProductos();
 });
 </script>
 

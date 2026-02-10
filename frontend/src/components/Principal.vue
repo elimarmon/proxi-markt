@@ -1,3 +1,18 @@
+<script setup>
+import { useRouter } from "vue-router";
+import NavBar from "./NavBar.vue";
+const router = useRouter();
+
+const irAuth = (modo) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        router.push({ name: 'auth', state: { modo: modo } });
+    } else {
+        router.push('/cuenta');
+    }
+};
+</script>
+
 <template>
     <div class="contenedor-principal">
         <header>
@@ -130,21 +145,6 @@
         </footer>
     </div>
 </template>
-
-<script setup>
-import { useRouter } from "vue-router";
-import NavBar from "./NavBar.vue";
-const router = useRouter();
-
-const irAuth = (modo) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        router.push({ name: 'auth', state: { modo: modo } });
-    } else {
-        router.push('/cuenta');
-    }
-};
-</script>
 
 <style scoped>
 * {
