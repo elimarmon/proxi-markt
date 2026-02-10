@@ -46,7 +46,7 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: proximarkt
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root_password_seguro}
+      MYSQL_ROOT_PASSWORD: alumno
     volumes:
       - db_data:/var/lib/mysql
     networks:
