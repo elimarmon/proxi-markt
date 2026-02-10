@@ -1,28 +1,35 @@
 #!/bin/bash
 set -e
 
-# 1. Sincronizar código
-echo "==> Actualizando código desde Git..."
+# 1. Sincronizar código desde la rama de despliegue
+echo "==> [1/5] Actualizando código desde Git..."
 git fetch origin
 git reset --hard origin/despliegue
 
-# 2. Configuración de Nginx (SPA + API)
+# 2. Configurar Nginx para SPA (Vue) y API (Laravel)
+echo "==> [2/5] Configurando Nginx..."
 cat << 'EOF' > docker/nginx/default.conf
 server {
     listen 80;
+    
+    # Ruta donde Nginx busca el index.html de tu build de Vue
     root /var/www/html/frontend/dist; 
     index index.html;
 
     location / {
+        # Si la ruta no es un archivo real, se la entrega a Vue (index.html)
         try_files $uri $uri/ /index.html;
     }
 
+    # Redirigir peticiones de lógica al contenedor de PHP
     location ~ ^/(api|auth|login|logout|register|sanctum|_debugbar) {
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
         fastcgi_pass backend:9000;
         fastcgi_index index.php;
         include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME /var/www/html/backend/public/index.php;
+        
+        # Ruta REAL dentro del contenedor proximarkt-backend comprobada con ls
+        fastcgi_param SCRIPT_FILENAME /var/www/html/public/index.php;
         fastcgi_param PATH_INFO $fastcgi_path_info;
     }
 }
@@ -30,17 +37,15 @@ EOF
 
 # 3. Reiniciar contenedores
 cd produccion
-echo "==> Reiniciando contenedores..."
+echo "==> [3/5] Reiniciando contenedores de Docker..."
 docker-compose down
 docker-compose up -d --build
 
-# 4. CONTROL DE TIMING: Esperar a MySQL
-echo "==> Esperando a que MySQL acepte conexiones..."
+# 4. Control de Timing: Esperar a que MySQL esté listo
+echo "==> [4/5] Esperando conexión estable con MySQL..."
 MAX_RETRIES=30
 COUNT=0
 
-# Intentamos hacer un ping a MySQL desde el contenedor de PHP
-# para asegurar que la RED y el USUARIO funcionan.
 until docker exec proximarkt-backend php -r "
     try {
         new PDO('mysql:host=mysql;dbname=proxi_markt', 'alumno', 'alumno');
@@ -51,18 +56,20 @@ until docker exec proximarkt-backend php -r "
 " > /dev/null 2>&1; do
     COUNT=$((COUNT+1))
     if [ $COUNT -ge $MAX_RETRIES ]; then
-        echo "Error: MySQL no respondió tras 30 segundos. Revisa los logs de proximarkt-mysql."
+        echo "Error: MySQL no está disponible después de 60 segundos."
         exit 1
     fi
-    echo "MySQL sigue arrancando... (Intento $COUNT/$MAX_RETRIES)"
+    echo "MySQL arrancando... (Intento $COUNT/$MAX_RETRIES)"
     sleep 2
 done
 
-echo "==> ¡MySQL conectado con éxito!"
+echo "==> ¡MySQL conectado!"
 
-# 5. Limpieza profunda y Migraciones
-echo "==> Preparando Laravel..."
+# 5. Limpieza de caché y Migraciones
+echo "==> [5/5] Ejecutando limpieza y migraciones de Laravel..."
 docker exec proximarkt-backend php artisan optimize:clear
 docker exec proximarkt-backend php artisan migrate --force
 
-echo "==> Despliegue completado con éxito."
+echo "----------------------------------------------------"
+echo "==> ¡DESPLIEGUE FINALIZADO CON ÉXITO! <=="
+echo "----------------------------------------------------"
