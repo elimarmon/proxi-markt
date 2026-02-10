@@ -1,50 +1,42 @@
 #!/bin/bash
 set -e
 
-# 1. Sincronizar
+# 1. Sincronizar (traerá la carpeta dist que acabas de subir)
 git fetch origin
 git reset --hard origin/despliegue
-echo "traefik/" > .dockerignore
 
-# 2. CORRECCIÓN DE NGINX (Esto evita el error de Restarting)
-# Escribimos el archivo directamente para que el reset no nos lo pise
+# 2. Configurar Nginx para que "vea" Vue y Laravel a la vez
 cat << 'EOF' > docker/nginx/default.conf
 server {
     listen 80;
-    server_name localhost;
-    root /var/www/html/public;
-    index index.php index.html;
+    # IMPORTANTE: Ruta a los archivos que generó el build de Vue
+    root /var/www/html/frontend/dist; 
+    index index.html;
 
     location / {
-        try_files $uri $uri/ /index.php?$query_string;
+        # Esto soluciona el 404 de /auth: redirige todo a index.html
+        try_files $uri $uri/ /index.html;
     }
 
-    location ~ \.php$ {
+    # Redirigir peticiones de API o autenticación al contenedor de Laravel
+    location ~ ^/(api|auth|login|logout|register|sanctum|_debugbar) {
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
-        # Usamos el nombre del servicio definido en el docker-compose
         fastcgi_pass backend:9000;
         fastcgi_index index.php;
         include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        # Ruta interna del contenedor backend donde está el index.php de Laravel
+        fastcgi_param SCRIPT_FILENAME /var/www/html/backend/public/index.php;
         fastcgi_param PATH_INFO $fastcgi_path_info;
     }
 }
 EOF
 
-# 3. Reiniciar
+# 3. Reiniciar con limpieza de volúmenes para asegurar que no hay restos viejos
 cd produccion
 docker-compose down -v --remove-orphans
 docker-compose up -d --build
 
-# 4. Espera
-echo "==> Esperando 30s..."
-sleep 30
-
-# 5. Laravel
-echo "==> Configurando Laravel..."
-docker exec proximarkt-backend composer install --no-dev --optimize-autoloader
+# 4. Limpiar Laravel
+echo "==> Optimizando Laravel..."
 docker exec proximarkt-backend php artisan config:clear
 docker exec proximarkt-backend php artisan route:clear
-docker exec proximarkt-backend chown -R www-data:www-data storage bootstrap/cache
-docker exec proximarkt-backend chmod -R 775 storage bootstrap/cache
-docker exec proximarkt-backend php artisan migrate --force
