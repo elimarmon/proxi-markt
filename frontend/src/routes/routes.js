@@ -82,4 +82,26 @@ const router = createRouter({
     routes,
 });
 
+router.beforeEach(async (to) => {
+    const token = localStorage.getItem('token');
+
+    // definim les rutes que no son privaes
+    const publicRoutes = ['/auth', '/'];
+
+    // si la ruta a la que va esta en la llista se li deixa pasar
+    if (publicRoutes.includes(to.path)) {
+        return true;
+    }
+
+    // si no nia token tenvia al login de cap
+    if (!token || token === "") {
+        return {
+            path: '/auth',
+            query: { next: to.fullPath }
+        };
+    }
+
+    return true;
+});
+
 export default router;

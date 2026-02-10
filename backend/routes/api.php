@@ -80,3 +80,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/valoraciones/{compraventa}', [ValoracionController::class, 'store']);
 
 });
+
+
