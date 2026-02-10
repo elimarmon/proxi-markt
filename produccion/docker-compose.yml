@@ -34,16 +34,20 @@ services:
       - proxy_net
       - backend_net
 
-  # --- BASE DE DATOS (Cambiado de 'db' a 'mysql') ---
+  # --- BASE DE DATOS (MySQL) ---
   mysql:
     image: mysql:8.0
     container_name: proximarkt-db
     restart: always
     environment:
-      # Asegúrate de que este nombre de DB coincida con tu .env
-      MYSQL_DATABASE: proximarkt
-      # Si en tu .env usas DB_PASSWORD, aquí debe ir igual
+      # Debe coincidir con DB_DATABASE en tu .env
+      MYSQL_DATABASE: proxi_markt
+      # Contraseña del usuario root
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root_password_seguro}
+      # CREA EL USUARIO QUE PIDE LARAVEL
+      MYSQL_USER: alumno
+      # CONTRASEÑA PARA EL USUARIO 'alumno' (debe coincidir con DB_PASSWORD en .env)
+      MYSQL_PASSWORD: ${DB_PASSWORD:-alumno_password}
     volumes:
       - db_data:/var/lib/mysql
     networks:
