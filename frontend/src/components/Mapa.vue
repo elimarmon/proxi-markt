@@ -5,6 +5,7 @@ import api from "@/api/axios";
 import NavBar from "./NavBar.vue";
 import MostrarProductosMain from './MostrarProductosMain.vue';
 import { useAuth } from '@/composables/useAuth';
+import Footer from "./Footer.vue";
 
 let map = null;
 let markersLayer = null;
@@ -183,6 +184,7 @@ onMounted(async () => {
             </div>
         </div>
     </div>
+    <Footer></Footer>
 </template>
 
 <style scoped>

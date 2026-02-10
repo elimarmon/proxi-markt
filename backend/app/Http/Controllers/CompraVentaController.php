@@ -12,7 +12,7 @@ class CompraVentaController extends Controller
 {
     public function store(Request $request, Producto $producto) {
         $compraVentaValidada = $request->validate([
-            'id_vendedor' => 'required|exists:usuarios,id|not_in:' . auth()->id(),
+            'id_vendedor' => 'required|exists:usuarios,id|not_in:' . Auth::id(),
             'id_punto' => 'required|exists:puntos_entrega,id',
             'fecha_prevista' => 'required|date',
             'cantidad' => "required|integer|min:1|lte:{$producto->stock_real}",
@@ -95,7 +95,7 @@ class CompraVentaController extends Controller
         }
     }
 
-    public function actualizarEstado(Request $request, Compraventa $compraventa) {
+    public function actualizarEstado(Request $request, CompraVenta $compraventa) {
         $request->validate([
             'estado' => 'required|string|in:pendiente,en curso,cancelado,completado,valorado'
         ]);

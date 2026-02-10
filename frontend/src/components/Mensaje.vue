@@ -4,6 +4,7 @@ import api from "@/api/axios";
 import { useAuth } from '@/composables/useAuth';
 import NavBar from "./NavBar.vue";
 import ChatDetalle from "./Chat.vue";
+import Footer from "./Footer.vue";
 
 const chats = ref([]);
 const chatSeleccionadoId = ref(null);
@@ -71,6 +72,7 @@ onMounted(async () => {
             </div>
         </div>
     </div>
+    <Footer></Footer>
 </template>
 
 

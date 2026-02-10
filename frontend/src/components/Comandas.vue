@@ -61,6 +61,7 @@ const actualizarComanda = async (id, nuevoEstado) => {
         if (comandaEncontrada) comandaEncontrada.estado = nuevoEstado;
     } catch (err) {
         lanzarToast("Ha ocurrido un error al actualizar la comanda.");
+        lanzarToast("Ha ocurrido un error al actualizar la comanda.");
         console.error(err);
     }
 }
@@ -110,6 +111,7 @@ const postValoracion = async (idCompraventa, datos) => {
         });
     } catch (err) {
         lanzarToast("Algo ha ido mal.");
+        lanzarToast("Algo ha ido mal.");
         console.log(err);
     }
 };
@@ -139,7 +141,7 @@ const postValoracion = async (idCompraventa, datos) => {
 
             <div v-for="comanda in comandasPendientes" :key="comanda.id" class="tarjeta-comanda"
                 :style="{ borderLeftColor: getColoresEstado(comanda.estado) }">
-                
+
                 <div class="info-principal">
                     <img :src="getUrlImagen(comanda.producto?.imagen)" class="img-producto" />
                     <div class="detalles">

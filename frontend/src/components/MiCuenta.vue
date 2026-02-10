@@ -344,6 +344,7 @@ onUnmounted(() => {
             {{ toastMensaje }}
         </div>
     </div>
+    <Footer></Footer>
 </template>
 
 <style scoped>
