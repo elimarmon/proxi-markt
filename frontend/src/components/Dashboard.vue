@@ -4,6 +4,7 @@ import api from "@/api/axios";
 import { useAuth } from '@/composables/useAuth';
 import NavBar from "./NavBar.vue";
 import Footer from "./Footer.vue";
+import { storageUrl } from "@/utils/storage";
 
 const productosUser = ref([]);
 const misCompras = ref([]);
@@ -109,7 +110,7 @@ onMounted(async () => {
                 <div v-if="ventasCompletadas.length > 0" class="lista-scroll">
                     <div class="producto-ventas" v-for="venta in ventasCompletadas" :key="venta.id">
 
-                        <img :src="venta.producto?.imagen ? `http://localhost:8080/storage/${venta.producto.imagen}` : 'https://via.placeholder.com/150'"
+                        <img :src="venta.producto?.imagen ? storageUrl(venta.producto.imagen) : 'https://via.placeholder.com/150'"
                             class="imagen-producto">
 
                         <p id="nombre-producto">{{ venta.producto?.nombre_producto || 'Producto no disponible' }}</p>
@@ -129,7 +130,7 @@ onMounted(async () => {
 
                 <div v-if="productosUser.length > 0" class="lista-scroll">
                     <div class="producto-disponible" v-for="producto in productosOrdenados" :key="producto.id">
-                        <img :src="producto.imagen ? `http://localhost:8080/storage/${producto.imagen}` : 'https://via.placeholder.com/150'"
+                        <img :src="producto.imagen ? storageUrl(producto.imagen) : 'https://via.placeholder.com/150'"
                             class="imagen-producto">
                         <p id="nombre-producto">{{ producto.nombre_producto }}</p>
                         <p id="precio-producto">{{ producto.precio }}€</p>
@@ -149,7 +150,7 @@ onMounted(async () => {
                 <div v-if="comprasCompletadas.length > 0" class="lista-scroll">
                     <div class="compras-producto" v-for="compra in misCompras.filter(c => c.estado === 'completado')"
                         :key="compra.id">
-                        <img :src="compra.producto?.imagen ? `http://localhost:8080/storage/${compra.producto.imagen}` : 'https://via.placeholder.com/150'"
+                        <img :src="compra.producto?.imagen ? storageUrl(compra.producto.imagen) : 'https://via.placeholder.com/150'"
                             class="imagen-producto">
 
                         <p id="nombre-producto">{{ compra.producto?.nombre_producto || 'Producto no disponible' }}</p>

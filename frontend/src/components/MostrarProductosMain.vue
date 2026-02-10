@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import { storageUrl } from "@/utils/storage";
 const props = defineProps({
     productos: {
         type: Array,
@@ -39,7 +40,7 @@ const calcularKm = (latVendedor, lngVendedor) => {
                 <router-link :to="{ name: 'detalle-productos', params: { id: producto.id } }" class="carta-link">
 
                     <div class="imagen-contenedor">
-                        <img :src="producto.imagen ? `http://localhost:8080/storage/${producto.imagen}` : 'https://via.placeholder.com/400x300'"
+                        <img :src="producto.imagen ? storageUrl(producto.imagen) : 'https://via.placeholder.com/400x300'"
                             alt="Imagen producto" class="imagen-producto">
                         <span class="categoria">{{ producto.categoria?.nombre_categoria || 'Sin categoría' }}</span>
                     </div>

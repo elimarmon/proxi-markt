@@ -5,6 +5,7 @@ import api from '@/api/axios';
 import NavBar from "@/components/NavBar.vue";
 import { useAuth } from '@/composables/useAuth';
 import Footer from "./Footer.vue";
+import { storageUrl } from "@/utils/storage";
 
 const props = defineProps(['id']);
 const producto = ref(null);
@@ -66,7 +67,7 @@ onMounted(async () => {
                     <span class="badge-overlay" v-if="producto.categoria">
                         {{ producto.categoria.nombre_categoria }}
                     </span>
-                    <img :src="`http://localhost:8080/storage/${producto.imagen}`" :alt="producto.nombre_producto" />
+                    <img :src="storageUrl(producto.imagen)" :alt="producto.nombre_producto" />
                 </div>
 
                 <div class="description-section">

@@ -4,6 +4,7 @@ import api from "@/api/axios";
 import NavBar from "./NavBar.vue";
 import ValoracionForm from "./ValoracionForm.vue";
 import { useAuth } from "@/composables/useAuth";
+import { storageUrl, storageDefaultProductUrl } from "@/utils/storage";
 
 const comandas = ref([]);
 const cargando = ref(true);
@@ -87,7 +88,7 @@ onMounted(async () => {
 });
 
 const getUrlImagen = (rutaRelativa) => {
-    return rutaRelativa ? `http://localhost:8080/storage/${rutaRelativa}` : "http://localhost:8080/storage/productos/default.png";
+    return rutaRelativa ? storageUrl(rutaRelativa) : storageDefaultProductUrl();
 };
 
 const postValoracion = async (idCompraventa, datos) => {
