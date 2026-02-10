@@ -1,24 +1,34 @@
 #!/bin/bash
 set -e
 
-echo "==> 📥 Sincronizando con GitHub (Forzado)..."
+echo "==> 📥 Sincronizando con GitHub..."
 git fetch origin
 git reset --hard origin/despliegue
 git clean -fd -e traefik/letsencrypt/
 
+echo "==> 🌐 Verificando red proxy_net..."
+# Crea la red si no existe para evitar el error de 'external network not found'
+docker network inspect proxy_net >/dev/null 2>&1 || docker network create proxy_net
+
 echo "==> 🚀 Reiniciando Contenedores..."
 cd produccion
-# Usamos -v para que MySQL lea el base.sql de nuevo desde cero
-docker-compose down -v
+
+# Limpieza total incluyendo contenedores antiguos (orphans) y volumen de base de datos (-v)
+docker-compose down -v --remove-orphans
 docker-compose up -d --build
 
-echo "==> ⏳ Esperando a MySQL (15s)..."
+echo "==> ⏳ Esperando 15 segundos a MySQL (initdb)..."
 sleep 15
 
-echo "==> 🛠️ Arreglando permisos y Laravel..."
-docker exec proximarkt-backend chown -R www-data:www-data storage bootstrap/cache
-docker exec proximarkt-backend chmod -R 775 storage bootstrap/cache
+echo "==> 🛠️ Reparando permisos de Laravel..."
+# Usamos las rutas directas del contenedor
+docker exec proximarkt-backend chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+docker exec proximarkt-backend chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+echo "==> 📋 Ejecutando comandos de Laravel..."
 docker exec proximarkt-backend php artisan migrate --force
 docker exec proximarkt-backend php artisan config:clear
+docker exec proximarkt-backend php artisan storage:link || echo "Aviso: El link de storage ya existe"
 
-echo "==> ✅ ¡Despliegue terminado!"
+echo "==> ✅ DESPLIEGUE FINALIZADO"
+docker-compose ps
