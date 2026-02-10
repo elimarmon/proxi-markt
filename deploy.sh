@@ -2,9 +2,7 @@
 
 echo "📥 1. Actualizando código desde Git..."
 # Guardamos cambios del .env local para que no den error al hacer pull
-git stash
 git pull 
-git stash pop
 
 echo "🌐 2. Asegurando infraestructura (Traefik)..."
 cd traefik
