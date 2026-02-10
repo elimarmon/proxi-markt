@@ -6,30 +6,45 @@ git fetch origin
 git reset --hard origin/despliegue
 echo "traefik/" > .dockerignore
 
-# 2. Reiniciar
+# 2. CORRECCIÓN DE NGINX (Esto evita el error de Restarting)
+# Escribimos el archivo directamente para que el reset no nos lo pise
+cat << 'EOF' > docker/nginx/default.conf
+server {
+    listen 80;
+    server_name localhost;
+    root /var/www/html/public;
+    index index.php index.html;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        # Usamos el nombre del servicio definido en el docker-compose
+        fastcgi_pass backend:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+    }
+}
+EOF
+
+# 3. Reiniciar
 cd produccion
 docker-compose down -v --remove-orphans
 docker-compose up -d --build
 
-# 3. Espera CRÍTICA
-echo "==> Esperando a que MySQL esté totalmente listo (30s)..."
-# MySQL en frío con un .sql de carga tarda más de 15s
+# 4. Espera
+echo "==> Esperando 30s..."
 sleep 30
 
-# 4. Instalación y Limpieza
-echo "==> Instalando dependencias y limpiando caché..."
+# 5. Laravel
+echo "==> Configurando Laravel..."
 docker exec proximarkt-backend composer install --no-dev --optimize-autoloader
-
-# Forzamos la regeneración de la clave y limpieza de rutas
-docker exec proximarkt-backend php artisan key:generate --force || true
-docker exec proximarkt-backend php artisan config:cache
-docker exec proximarkt-backend php artisan route:cache
-docker exec proximarkt-backend php artisan view:cache
-
-# 5. Permisos
+docker exec proximarkt-backend php artisan config:clear
+docker exec proximarkt-backend php artisan route:clear
 docker exec proximarkt-backend chown -R www-data:www-data storage bootstrap/cache
 docker exec proximarkt-backend chmod -R 775 storage bootstrap/cache
-
-# 6. Migraciones (Ahora MySQL debería responder)
-echo "==> Ejecutando migraciones..."
 docker exec proximarkt-backend php artisan migrate --force
