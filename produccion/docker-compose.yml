@@ -42,7 +42,7 @@ services:
   # --- BASE DE DATOS (MySQL) ---
   mysql:
     image: mysql:8.0
-    container_name: proximarkt-db
+    container_name: proximarkt-mysql
     restart: always
     environment:
       MYSQL_DATABASE: proximarkt
