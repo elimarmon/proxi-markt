@@ -11,6 +11,19 @@ const { usuario, fetchUsuario } = useAuth();
 const token = localStorage.getItem("token");
 const aValorar = ref(null);
 
+// --- VARIABLES PARA EL TOAST ---
+const toastVisible = ref(false);
+const toastMensaje = ref("");
+
+// --- FUNCIÓN PARA ACTIVAR EL TOAST ---
+const lanzarToast = (mensaje) => {
+    toastMensaje.value = mensaje;
+    toastVisible.value = true;
+    setTimeout(() => {
+        toastVisible.value = false;
+    }, 3000); // Se oculta a los 3 segundos
+};
+
 const obtenerComandas = async () => {
     try {
         const response = await axios.get("http://localhost:8080/api/mis-comandas", {
@@ -38,7 +51,7 @@ const historialComandas = computed(() => {
 
 const actualizarComanda = async (id, nuevoEstado) => {
     try {
-        await axios.put(`http://localhost:8080/api/mis-comandas/${id}`,
+        await axios.put(`http://localhost:8080/api/mis-comandas-ROTO/${id}`,
             { estado: nuevoEstado },
             {
                 headers: {
@@ -49,7 +62,7 @@ const actualizarComanda = async (id, nuevoEstado) => {
         const comandaEncontrada = comandas.value.find(c => c.id === id);
         if (comandaEncontrada) comandaEncontrada.estado = nuevoEstado;
     } catch (err) {
-        alert("Ha ocurrido un error al actualizar la comanda.");
+        lanzarToast("Ha ocurrido un error al actualizar la comanda.");
         console.error(err);
     }
 }
@@ -98,7 +111,7 @@ const postValoracion = async (idCompraventa, datos) => {
             headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
         });
     } catch (err) {
-        alert("Algo ha ido mal.");
+        lanzarToast("Algo ha ido mal.");
         console.log(err);
     }
 };
@@ -472,6 +485,29 @@ body {
     font-weight: 700;
     text-transform: capitalize;
     white-space: nowrap;
+}
+
+.toast-notificacion {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    font-weight: 500;
+    font-size: 0.95rem;
+    animation: fadeInOut 0.3s ease-in-out;
+    text-align: center;
+    min-width: 300px;
+}
+
+@keyframes fadeInOut {
+    from { opacity: 0; transform: translate(-50%, 20px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
 }
 
 @media (max-width: 768px) {
