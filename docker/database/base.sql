@@ -75,6 +75,7 @@ CREATE TABLE mensajes (
     id_chat INT,
     id_envio INT,
     contenido TEXT NOT NULL,
+    leido BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_chat) REFERENCES chats (id),
@@ -120,5 +121,3 @@ CREATE TABLE valoraciones (
     FOREIGN KEY (id_resenyado) REFERENCES usuarios (id),
     UNIQUE (id_venta, id_resenyador)
 );
-
-ALTER TABLE mensajes ADD COLUMN leido BOOLEAN DEFAULT FALSE;
