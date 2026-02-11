@@ -180,11 +180,23 @@ onUnmounted(() => {
     position: absolute;
     top: 10px;
     right: 10px;
-    width: 12px;
-    height: 12px;
-    background-color: #ff3b30; /* Rojo vibrante */
-    border-radius: 50%;
-    border: 2px solid #fff; /* Borde blanco para que resalte */
+    /* Hacemos el círculo un poco más grande (antes era 18px) */
+    min-width: 22px; 
+    height: 22px;
+    
+    padding: 0 4px;
+    background-color: #ff3b30;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 12px; /* Ajustamos el radio para que siga siendo redondo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* HE BORRADO EL BORDE BLANCO (border: 2px solid white;) */
+    border: none; 
+    
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     z-index: 10;
 }

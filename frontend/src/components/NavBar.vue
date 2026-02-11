@@ -12,8 +12,11 @@ const emit = defineEmits(['cambiar-radio']);
 // DATOS
 const DatosUser = ref({});
 const radioActual = ref(Number(localStorage.getItem('distancia_guardada')) || 10);
-const tieneNotificacion = ref(false); // Estado interno del punto rojo
-let intervaloNotificacion = null;     // Variable para el temporizador
+
+// --- ESTADOS PARA LOS PUNTOS ROJOS ---
+const tieneNotificacion = ref(false); // Mensajes
+const tieneComandas = ref(false);     // Comandas
+let intervaloNotificacion = null;     
 
 // 1. CERRAR SESIÓN
 const cerrarSesion = () => {
@@ -45,33 +48,48 @@ const nombreUsuario = async () => {
     }
 }
 
-// 4. --- LA "ANTENA" INTEGRADA ---
-// Esta función busca si hay mensajes no leídos
+// 4. --- LA "ANTENA" INTEGRADA (MENSAJES Y COMANDAS) ---
 const comprobarNotificaciones = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
+    // Obtenemos mi ID actual para saber si soy vendedor o comprador
+    const miId = DatosUser.value.id;
+
+    // A) COMPROBAR MENSAJES
     try {
-        const res = await axios.get('http://localhost:8080/api/mischats', {
+        const resChat = await axios.get('http://localhost:8080/api/mischats', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (Array.isArray(resChat.data)) {
+            tieneNotificacion.value = resChat.data.some(chat => chat.mensajes_no_leidos > 0);
+        }
+    } catch (error) { /* Silent error */ }
+
+    // B) COMPROBAR COMANDAS (SOLO SI SOY VENDEDOR)
+    try {
+        const resComandas = await axios.get('http://localhost:8080/api/miscomandas', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         
-        // Si la respuesta es un array, miramos si alguno tiene mensajes_no_leidos > 0
-        if (Array.isArray(res.data)) {
-             // Comprobamos si hay ALGUN chat con mensajes sin leer
-            const hayMensajes = res.data.some(chat => chat.mensajes_no_leidos > 0);
-            tieneNotificacion.value = hayMensajes;
+        const listaComandas = resComandas.data.datos;
+        
+        if (Array.isArray(listaComandas) && miId) {
+            // Buscamos si hay alguna pendiente DONDE YO SEA EL VENDEDOR
+            tieneComandas.value = listaComandas.some(c => 
+                c.estado === 'pendiente' && c.id_vendedor === miId
+            );
         }
-    } catch (error) {
-        // Ignoramos errores silenciosamente para no llenar la consola
-    }
+    } catch (error) { /* Silent error */ }
 };
 
 // 5. CICLO DE VIDA
-onMounted(() => {
-    nombreUsuario();
+onMounted(async () => {
+    // Es importante esperar a tener el usuario antes de comprobar las notificaciones
+    // para poder usar "miId" correctamente en el filtro de vendedor.
+    await nombreUsuario();
     
-    // Comprobar inmediatamente al cargar la barra
+    // Comprobar inmediatamente
     comprobarNotificaciones();
 
     // Comprobar repetidamente cada 3 segundos
@@ -79,7 +97,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-    // Limpiar el intervalo si se desmonta la barra
     if (intervaloNotificacion) clearInterval(intervaloNotificacion);
 });
 </script>
@@ -116,14 +133,14 @@ onUnmounted(() => {
                         <router-link to="/mensaje" class="enlace-con-notificacion">
                             <img class="logos-nav" src="../assets/iconos/chat_verde.png" alt="logo_mensajes">
                             Mensajes
-                            
                             <span v-if="tieneNotificacion" class="punto-nav"></span>
                         </router-link>
                     </li>
                     <li>
-                        <router-link to="/comandas">
+                        <router-link to="/comandas" class="enlace-con-notificacion">
                             <img class="logos-nav" src="../assets/iconos/comandas.png" alt="logo_comandas">
                             Comandas
+                            <span v-if="tieneComandas" class="punto-nav"></span>
                         </router-link>
                     </li>
                     <li>
@@ -264,13 +281,13 @@ nav li a {
 
 .punto-nav {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 10px;
-    height: 10px;
+    top: 3px;            /* Subido */
+    right: 3px;          /* A la derecha */
+    width: 13px;         /* Tamaño aumentado (antes 10px) */
+    height: 13px;        /* Tamaño aumentado */
     background-color: #ff3b30;
     border-radius: 50%;
-    border: 2px solid white;
+    border: none;        /* <--- AQUÍ QUITAMOS EL BORDE BLANCO */
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     z-index: 10;
 }
@@ -418,11 +435,17 @@ nav li a:hover .logos-nav {
     }
     
     .punto-nav {
-        top: 2px;
-        right: 2px;
-        width: 8px;
-        height: 8px;
-    }
+    position: absolute;
+    top: 3px;           /* Lo subimos un poquito más */
+    right: 3px;         /* Lo movemos un poco más a la derecha */
+    width: 13px;        /* Antes era 10px (Ahora es más grande) */
+    height: 13px;       /* Antes era 10px */
+    background-color: #ff3b30;
+    border-radius: 50%;
+    /* border: 2px solid white;  <-- HE BORRADO ESTA LÍNEA */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 10;
+}
 }
 
 @media (max-width: 768px) {
