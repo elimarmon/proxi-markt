@@ -30,7 +30,7 @@ class ValoracionController extends Controller
             'comentario' => $request->comentario
         ]);
 
-        $compraventa::update(['estado' => 'valorado']);
+        // $compraventa::update(['estado' => 'valorado']);
         return response()->json(['status' => 'success']);
     }
 }

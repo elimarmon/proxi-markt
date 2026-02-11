@@ -80,10 +80,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/valoraciones', [ValoracionController::class, 'index']);
     Route::post('/valoraciones/{compraventa}', [ValoracionController::class, 'store']);
 
-    // Rutas de valoraciones
-
-    Route::post('/valoraciones/{compraventa}', [ValoracionController::class, 'store']);
-
     // Ruta de notificaciones
 
     Route::put('/chats/{id}/leer', [App\Http\Controllers\ChatController::class, 'marcarLeido']);
