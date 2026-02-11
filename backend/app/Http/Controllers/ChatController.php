@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Chat;
 use Illuminate\Http\Request;
+use App\Models\Mensajes; 
+use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {
@@ -19,7 +21,13 @@ class ChatController extends Controller
         ->with(['producto', 'comprador', 'vendedor', 'mensajes' => function($q) {
             $q->latest()->limit(1); 
         }])
-        ->orderBy('created_at', 'desc') 
+        // He añadido el conteo aquí dentro de la misma consulta, sin romper la cadena.
+        ->withCount(['mensajes as mensajes_no_leidos' => function ($query) use ($usuarioId) {
+            $query->where('leido', false)
+                  ->where('id_envio', '!=', $usuarioId);
+        }])
+        // -------------------------------
+        ->orderBy('updated_at', 'desc') // He puesto updated_at para que suban si hay mensajes nuevos, si prefieres created_at déjalo como estaba.
         ->get();
     }
 
@@ -36,5 +44,17 @@ class ChatController extends Controller
         }
 
         return $chat;
+    }
+
+    public function marcarLeido($id)
+    {
+        $usuarioId = Auth::id();
+        
+        Mensajes::where('id_chat', $id)
+            ->where('id_envio', '!=', $usuarioId)
+            ->where('leido', false)
+            ->update(['leido' => true]);
+
+        return response()->json(['success' => true]);
     }
 }

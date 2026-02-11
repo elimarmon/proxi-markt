@@ -120,3 +120,5 @@ CREATE TABLE valoraciones (
     FOREIGN KEY (id_resenyado) REFERENCES usuarios (id),
     UNIQUE (id_venta, id_resenyador)
 );
+
+ALTER TABLE mensajes ADD COLUMN leido BOOLEAN DEFAULT FALSE;

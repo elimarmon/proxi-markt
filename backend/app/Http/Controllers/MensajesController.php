@@ -6,19 +6,19 @@ use App\Models\Chat;
 use App\Models\Mensajes;
 use App\Events\MessageSent;
 use Illuminate\Http\Request;
+use App\Events\NotificacionUpdate;
 
 class MensajesController extends Controller
 {
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $request->validate([
             'id_vendedor' => 'required|exists:usuarios,id',
             'id_producto' => 'required|exists:productos,id',
             'contenido' => 'required|string'
         ]);
 
-        $authId = $request->user()->id; 
-        $receptorId = $request->id_vendedor; 
+        $authId = $request->user()->id;
+        $receptorId = $request->id_vendedor;
         $productoId = $request->id_producto;
 
         // aço es per a la diferenciacio de rols per al chat
@@ -33,19 +33,19 @@ class MensajesController extends Controller
                 });
             })->first();
 
-            // si no existix el chat el creem
+        // si no existix el chat el creem
         if (!$chat) {
             $chat = Chat::create([
                 'id_comprador' => $authId,
-                'id_vendedor'  => $receptorId,
-                'id_producto'  => $productoId,
+                'id_vendedor' => $receptorId,
+                'id_producto' => $productoId,
             ]);
         }
 
         // creem el mensaje
         $mensaje = Mensajes::create([
-            'id_chat'   => $chat->id,
-            'id_envio'  => $authId,
+            'id_chat' => $chat->id,
+            'id_envio' => $authId,
             'contenido' => $request->contenido,
         ]);
 
