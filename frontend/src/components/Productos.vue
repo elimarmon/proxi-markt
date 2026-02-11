@@ -110,7 +110,7 @@ onMounted(async () => {
     <NavBar @cambiar-radio="manejarCambioRadio" />
     <div class="contenedor-pagina">
         <div class="zona-fija">
-            <h1 class="titulo-verde">Productos Frescos y Locales</h1>
+            <h1 class="titulo">Productos Frescos y Locales</h1>
             <p class="subtitulo">Conecta directamente con productores de tu zona (radio: {{ radioActual === Infinity ?
                 '∞' : radioActual }} km)</p>
 
@@ -188,19 +188,19 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 380px 40px 40px;
-    font-family: 'Segoe UI', 'Arial';
 }
 
-.titulo-verde {
+.titulo {
+    font-family: sans-serif;
     color: #4CA626;
-    font-size: 2rem;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
     font-weight: bold;
 }
 
 .subtitulo {
+    font-family: sans-serif;
     color: #666666;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .zona-fija {

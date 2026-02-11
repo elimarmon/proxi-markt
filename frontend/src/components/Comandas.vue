@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import NavBar from "./NavBar.vue";
+import Footer from "./Footer.vue";
 import ValoracionForm from "./ValoracionForm.vue";
 import { useAuth } from "@/composables/useAuth";
 
@@ -228,10 +229,10 @@ const postValoracion = async (idCompraventa, datos) => {
             {{ toastMensaje }}
         </div>
     </div>
+    <Footer></Footer>
 </template>
 
 <style scoped>
-
 * {
     margin: 0;
     padding: 0;
@@ -245,25 +246,31 @@ body {
 
 .contenedor-pagina {
     margin-top: 80px;
-    padding: 20px 5%;
+    padding: 20px 50px;
 }
 
 #contenedor-titulo {
-    margin-bottom: 40px;
+    max-width: 90%;
+    margin: 10px auto 0 auto;
 }
-
 .titulo {
-    color: #4ca626;
+    font-family: sans-serif;
+    color: #4CA626;
+    margin-bottom: 10px;
     font-weight: bold;
-    font-size: 2rem;
 }
 
 .subtitulo {
-    color: #666;
+    font-family: sans-serif;
+    color: #666666;
+    margin-bottom: 20px;
 }
 
 .seccion-comandas {
     margin-bottom: 50px;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .cabecera-seccion {
@@ -271,6 +278,7 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    color: #4CA626;
 }
 
 .titulo-grupo {
@@ -285,7 +293,7 @@ body {
 }
 
 .contador-badge {
-    background-color: #B9E2A6; /* De tu paleta */
+    background-color: #B9E2A6;
     color: #4CA626;
     padding: 6px 15px;
     border-radius: 8px;
@@ -428,7 +436,7 @@ body {
 .tarjeta-producto {
     background-color: white;
     border: 1px solid #e2e8f0;
-    border-left: 6px solid #22c55e;
+    border-left: 6px solid #4CA626;
     border-radius: 8px;
     padding: 15px 20px;
     display: flex;
@@ -472,12 +480,12 @@ body {
 }
 
 .precio {
-    color: #22c55e;
+    color: #4CA626;
     font-weight: 600;
 }
 
 .fecha {
-    color: #22c55e;
+    color: #4CA626;
 }
 
 .etiqueta-estado {

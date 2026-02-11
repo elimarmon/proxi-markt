@@ -48,6 +48,10 @@ onMounted(async () => {
 <template>
     <NavBar />
     <div class="contenedor-pagina">
+        <div id="contenedor-titulo">
+            <h1 class="titulo">Mensajes</h1>
+            <p class="subtitulo">Conversaciones con compradores y vendedores</p>
+        </div>
         <div id="layout-chat">
             <div class="lista-chats">
                 <div v-for="chat in chats" :key="chat.id" @click="chatSeleccionadoId = chat.id"
@@ -77,23 +81,54 @@ onMounted(async () => {
 
 
 <style scoped>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", "Arial";
+}
+
+body {
+    min-width: 400px;
+}
+
 .contenedor-pagina {
-    padding: 50px;
+    padding: 20px 50px;
     padding-top: 130px;
-    height: 100vh;
+    min-height: 100vh; 
+    height: auto;
     box-sizing: border-box;
     background-color: #f5f5f5;
+    padding-bottom: 40px; 
+}
+
+#contenedor-titulo {
+    max-width: 90%;
+    margin: 10px auto 0 auto;
+}
+
+.titulo {
+    font-family: sans-serif;
+    color: #4CA626;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.subtitulo {
+    font-family: sans-serif;
+    color: #666666;
+    margin-bottom: 20px;
 }
 
 #layout-chat {
     display: grid;
     grid-template-columns: 350px 1fr;
-    height: 75vh;
+    height: 80vh;
     background: #ffffff;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
     overflow: hidden;
-    max-width: 95%;
+    max-width: 90%;
     margin: 20px auto;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }

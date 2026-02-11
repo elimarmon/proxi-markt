@@ -352,7 +352,7 @@ onUnmounted(() => {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', 'Arial';
+    font-family: "Segoe UI", "Arial";
 }
 
 body {
@@ -371,7 +371,7 @@ body {
 
 .contenedor-titulo {
     max-width: 90%;
-    margin: 40px auto 0 auto;
+    margin: 10px auto 0 auto;
 }
 
 .titulo {

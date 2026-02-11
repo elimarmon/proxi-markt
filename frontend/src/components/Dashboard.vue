@@ -169,7 +169,7 @@ body {
 
 #contenedor-titulo {
     max-width: 90%;
-    margin: 40px auto 0 auto;
+    margin: 10px auto 0 auto;
 }
 
 .titulo {

@@ -205,7 +205,7 @@ onMounted(async () => {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', 'Arial';
+    font-family: "Segoe UI", "Arial";
 }
 
 body {
@@ -223,13 +223,15 @@ body {
 }
 
 .contenedor-pagina {
-    margin-top: 80px;
+    margin-top: 45px;
     padding: 20px 50px;
 }
 
 #contenedor-titulo {
-    max-width: 90%;
-    margin: 40px auto 0 auto;
+    width: 100%;
+    max-width: 650px;
+    margin: 40px auto 20px auto;
+    padding: 0;
 }
 
 .titulo {
