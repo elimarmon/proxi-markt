@@ -9,15 +9,15 @@ import Footer from "./Footer.vue";
 const chats = ref([]);
 const chatSeleccionadoId = ref(null);
 const { usuario, fetchUsuario } = useAuth();
+let intervaloChat = ref(null);
 
-// --- COMPUTADAS ---
 const chatActivo = computed(() => {
     return chats.value.find(c => c.id === chatSeleccionadoId.value);
 });
 
 const idReceptorDinamico = computed(() => {
-    if (!chatActivo.value || !idUsuarioLogueado.value) return null;
-    return chatActivo.value.id_vendedor === idUsuarioLogueado.value
+    if (!chatActivo.value || !usuario.value?.id) return null;
+    return chatActivo.value.id_vendedor === usuario.value.id
         ? chatActivo.value.id_comprador
         : chatActivo.value.id_vendedor;
 });
@@ -64,12 +64,12 @@ onMounted(async () => {
     if (usuario.value?.id) {
         obtenerChats();
         // Auto-refresco cada 3 segundos para ver si llegan mensajes nuevos
-        intervaloChat = setInterval(obtenerChats, 3000);
+        intervaloChat.value = setInterval(obtenerChats, 3000);
     }
 });
 
 onUnmounted(() => {
-    if (intervaloChat) clearInterval(intervaloChat);
+    if (intervaloChat.value) clearInterval(intervaloChat);
 });
 </script>
 

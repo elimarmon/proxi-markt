@@ -199,6 +199,7 @@ header {
     align-items: center;
     gap: 12px;
     flex-shrink: 0;
+    text-decoration: none !important;
 }
 
 #logo img {
@@ -231,7 +232,6 @@ header {
     list-style: none;
     gap: 5px;
     margin: 0 auto;
-    padding: 0;
 }
 
 .enlaces-paginas li a {
@@ -243,7 +243,6 @@ header {
     font-weight: 600;
     padding: 8px 12px;
     border-radius: 10px;
-    transition: all 0.2s ease;
 }
 
 .enlaces-paginas li a:hover,
@@ -255,29 +254,14 @@ header {
 .logos-nav {
     width: 24px;
     height: 24px;
-    margin-right: 10px;
-}
-
-.enlace-con-notificacion {
-    position: relative !important;
-}
-
-.punto-nav {
-    position: absolute;
-    top: 4px;
-    right: 6px;
-    width: 12px;
-    height: 12px;
-    background-color: #ff3b30;
-    border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    z-index: 10;
+    margin-right: 8px;
 }
 
 .utilidades-usuario {
     display: flex;
     align-items: center;
     gap: 15px;
+    flex-shrink: 0;
 }
 
 #radio_busqueda {
@@ -290,11 +274,7 @@ header {
 }
 
 #radio_busqueda img {
-    width: 32px;
-}
-
-.contenedor-perfil {
-    position: relative;
+    width: 35px;
 }
 
 #usuario {
@@ -316,40 +296,6 @@ header {
     margin-right: 8px;
 }
 
-.menu-desplegable {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    width: 180px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-    margin-top: 8px;
-    border: 1px solid #eee;
-    overflow: hidden;
-}
-
-.menu-desplegable ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.item-logout {
-    display: flex;
-    align-items: center;
-    padding: 12px 15px;
-    gap: 10px;
-    cursor: pointer;
-    color: #5F6368;
-    transition: background 0.2s;
-}
-
-.item-logout:hover {
-    background: #fff5f5;
-    color: #d32f2f;
-}
-
 .botones-acceso {
     display: flex;
     gap: 12px;
@@ -360,6 +306,7 @@ header {
     border-radius: 8px;
     font-weight: 700;
     cursor: pointer;
+    transition: 0.3s;
     border: 2px solid transparent;
 }
 
@@ -371,6 +318,45 @@ header {
 .btn-outline {
     border-color: #4CA626;
     color: #4CA626;
+    background: transparent;
+}
+
+.menu-desplegable {
+    position: absolute;
+    top: 100%;
+    right: 5px;
+    width: 180px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    margin-top: 5px;
+    border: 1px solid #eee;
+}
+
+.menu-desplegable ul {
+    padding: 0;
+    margin-top: 1rem;
+}
+
+.item-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    color: #5F6368;
+    font-size: 14px;
+}
+
+.item-logout img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+
+.item-logout:hover {
+    background: #fff5f5;
+    color: #d32f2f;
 }
 
 @media (max-width: 1200px) {
@@ -383,11 +369,8 @@ header {
 
     .logos-nav {
         margin-right: 0;
-    }
-
-    .punto-nav {
-        right: 0;
-        top: 0;
+        width: 28px;
+        height: 28px;
     }
 }
 
@@ -395,19 +378,30 @@ header {
     header {
         height: auto;
         padding: 10px 0;
-        position: static;
     }
 
     #nav-contenedor {
+        flex-wrap: wrap;
+    }
+
+    .nav-autenticado {
         flex-direction: column;
-        gap: 15px;
+        width: 100%;
     }
 
     .enlaces-paginas {
         width: 100%;
         overflow-x: auto;
+        padding: 10px 0;
         justify-content: flex-start;
-        padding-bottom: 5px;
+        border-top: 1px solid #eee;
+        margin-top: 10px;
+    }
+
+    .utilidades-usuario {
+        width: 100%;
+        justify-content: flex-end;
+        margin-bottom: 5px;
     }
 }
 </style>

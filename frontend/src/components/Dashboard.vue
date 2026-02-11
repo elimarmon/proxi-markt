@@ -25,7 +25,7 @@ const ingresos = computed(() => {
 // que en este cas carrega fins a 7 productes
 const cargarProductosUser = async () => {
     try {
-        const response = await api.get(`/usuarios/${userId.value}/productos`);
+        const response = await api.get(`/usuarios/${usuario.value?.id}/productos`);
         productosUser.value = response.data.data;
         // console.log(response.data.data);
     } catch (error) {
@@ -35,12 +35,12 @@ const cargarProductosUser = async () => {
 
 const obtenerCompras = async () => {
     const response = await api.get('/mis-compras');
-    misCompras.value = response.data;
+    misCompras.value = response.data.data;
 };
 
 const obtenerVentas = async () => {
     const response = await api.get('/mis-ventas');
-    misVentas.value = response.data;
+    misVentas.value = response.data.data;
 };
 
 const comprasCompletadas = computed(() => {
