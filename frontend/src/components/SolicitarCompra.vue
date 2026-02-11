@@ -3,13 +3,22 @@ import { reactive } from "vue";
 
 const emit = defineEmits(['enviar-solicitud']);
 
-const props = defineProps({ precio: { type: [Number, String], required: true } })
+const props = defineProps({
+    precio: {
+        type: [Number, String],
+        required: true
+    },
+    ids: {
+        type: Array,
+        required: true,
+    }
+});
 
 const form = reactive({
     cantidad: null,
     fecha: null,
     mensaje: '',
-})
+});
 
 const enviarSolicitud = async () => {
     emit('enviar-solicitud', {
@@ -40,7 +49,8 @@ const enviarSolicitud = async () => {
 
         <div class="campo">
             <label for="mensaje">Mensaje al vendedor (opcional)</label>
-            <textarea v-model="form.mensaje" id="mensaje" placeholder="Escribe un mensaje para el productor..."></textarea>
+            <textarea v-model="form.mensaje" id="mensaje"
+                placeholder="Escribe un mensaje para el vendedor."></textarea>
         </div>
 
         <div class="resumen-total" v-if="precio && form.cantidad">
@@ -50,33 +60,33 @@ const enviarSolicitud = async () => {
 
         <div class="acciones">
             <button type="reset" class="boton-cancelar">Limpiar</button>
-            <button type="submit" class="boton-primario">Enviar solicitud</button>
+            <button type="submit" :disabled="ids[0] == ids[1]" class="boton-primario">Enviar solicitud</button>
         </div>
     </form>
 </template>
 
 <style scoped>
-.formulario-compra{
+.formulario-compra {
     padding-right: 20px;
 }
 
 .formulario-compra h3 {
     font-size: 1.15rem;
     color: #333;
-    margin-bottom: 24px; /* Mayor separación del título */
+    margin-bottom: 24px;
     font-weight: 700;
 }
 
 .campo {
-    margin-bottom: 20px; /* Aumentado de 15px a 20px para mayor aire entre campos */
+    margin-bottom: 20px;
 }
 
 label {
     display: block;
     font-size: 0.8rem;
     font-weight: 700;
-    color: #666; /* Un tono un poco más suave para los labels */
-    margin-bottom: 6px; /* Reducido ligeramente para pegar más el label a su input */
+    color: #666;
+    margin-bottom: 6px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -84,15 +94,14 @@ label {
 input,
 textarea {
     width: 100%;
-    padding: 12px 14px; /* Un poco más de padding lateral */
-    border: 1px solid #e2e8f0; /* Borde un poco más definido pero suave */
+    padding: 12px 14px;
+    border: 1px solid #e2e8f0;
     border-radius: 8px;
     background-color: #fcfcfc;
     font-size: 0.95rem;
     color: #333;
     outline: none;
     transition: all 0.2s ease-in-out;
-    /* Corrección del margen derecho: asegura que el padding no desborde el 100% de ancho */
     box-sizing: border-box;
 }
 
@@ -100,7 +109,7 @@ input:focus,
 textarea:focus {
     border-color: #4CA626;
     background-color: #fff;
-    box-shadow: 0 0 0 3px rgba(76, 166, 38, 0.1); /* Efecto de foco sutil */
+    box-shadow: 0 0 0 3px rgba(76, 166, 38, 0.1);
 }
 
 textarea {
@@ -125,13 +134,13 @@ textarea {
 
 .resumen-total strong {
     font-size: 1.4rem;
-    color: #4CA626; /* El total resalta en el color corporativo */
+    color: #4CA626;
 }
 
 .acciones {
     display: flex;
     gap: 12px;
-    margin-top: 15px; /* Separación respecto al total */
+    margin-top: 15px;
 }
 
 .boton-primario {
@@ -154,6 +163,11 @@ textarea {
 
 .boton-primario:active {
     transform: translateY(0);
+}
+
+.boton-primario:disabled {
+    background: #888;
+    cursor: not-allowed;
 }
 
 .boton-cancelar {

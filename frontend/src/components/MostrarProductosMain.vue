@@ -1,20 +1,25 @@
 <script setup>
-import { useAuth } from '@/composables/useAuth';
-
+import { computed } from 'vue';
 const props = defineProps({
     productos: {
         type: Array,
         required: true
+    },
+    usuario: {
+        type: Object,
+        required: true
     }
 });
 
-const { usuario } = useAuth();
+const productosAjenos = computed(() => {
+    return props.productos.filter((producto) => producto.id_usuario !== props.usuario.id);
+});
 
 const calcularKm = (latVendedor, lngVendedor) => {
-    if (!usuario.value?.latitud || !latVendedor || !lngVendedor) return '--';
+    if (!props.usuario.latitud || !latVendedor || !lngVendedor) return '--';
 
-    const miLat = parseFloat(usuario.value.latitud);
-    const miLng = parseFloat(usuario.value.longitud);
+    const miLat = parseFloat(props.usuario.latitud);
+    const miLng = parseFloat(props.usuario.longitud);
     const vLat = parseFloat(latVendedor);
     const vLng = parseFloat(lngVendedor);
 
@@ -29,8 +34,8 @@ const calcularKm = (latVendedor, lngVendedor) => {
 
 <template>
     <div class="contenedor-seccion-productos">
-        <div v-if="productos && productos.length > 0" class="grid-productos">
-            <div v-for="producto in productos" :key="producto.id" class="carta-producto">
+        <div v-if="productosAjenos && productosAjenos.length > 0" class="grid-productos">
+            <div v-for="producto in productosAjenos" :key="producto.id" class="carta-producto">
                 <router-link :to="{ name: 'detalle-productos', params: { id: producto.id } }" class="carta-link">
 
                     <div class="imagen-contenedor">

@@ -18,3 +18,5 @@ repomix-output.*
 site/
 .venv/
 __pycache__/
+
+/produccion/.env

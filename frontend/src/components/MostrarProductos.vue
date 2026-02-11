@@ -42,13 +42,13 @@ const cambiarpagina = (pagina) => {
                             producto.stock_total }}</span>
                     </div>
                 </div>
-                <div class="acciones-producto">
-                    <router-link :to="{ name: 'editar_producto', params: { id: producto.id } }"
-                        class="btn-accion btn-editar" title="Editar producto">
+                
+                <div class="d-flex justify-content-end gap-2 me-3 mb-2">
+                    <router-link :to="{ name: 'editar_producto', params: { id: producto.id } }" class="btn btn-success"
+                        title="Editar producto">
                         Editar
                     </router-link>
-                    <button @click="eliminarproducto(producto.id)" class="btn-accion btn-eliminar"
-                        title="Eliminar producto">
+                    <button @click="eliminarproducto(producto.id)" class="btn btn-danger" title="Eliminar producto">
                         Eliminar
                     </button>
                 </div>

@@ -95,7 +95,8 @@ CREATE TABLE compraventas (
         'pendiente',
         'en curso',
         'completado',
-        'cancelado'
+        'cancelado',
+        'valorado'
     ) DEFAULT 'pendiente',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

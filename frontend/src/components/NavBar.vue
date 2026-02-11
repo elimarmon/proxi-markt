@@ -2,27 +2,25 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import ModalRadio from './ModalRadio.vue';
-import axios from 'axios';
+import { useAuth } from '@/composables/useAuth';
+import api from '@/api/axios';
 
 const router = useRouter();
 const mostrarMenu = ref(false);
 const isModalOpen = ref(false);
 const emit = defineEmits(['cambiar-radio']);
-
-// DATOS
-const DatosUser = ref({});
+const { usuario, fetchUsuario, estarAutenticado, logout } = useAuth();
 const radioActual = ref(Number(localStorage.getItem('distancia_guardada')) || 10);
 
 // --- ESTADOS PARA LOS PUNTOS ROJOS ---
 const tieneNotificacion = ref(false); // Mensajes
 const tieneComandas = ref(false);     // Comandas
-let intervaloNotificacion = null;     
+let intervaloNotificacion = null;
 
-// 1. CERRAR SESIÓN
 const cerrarSesion = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('datos_usuario');
-    router.push('/login');
+    if (intervaloNotificacion) clearInterval(intervaloNotificacion);
+    logout();
+    router.push('/');
 };
 
 // 2. CONFIRMAR RADIO (MODAL)
@@ -33,34 +31,12 @@ const confirmarNuevoRadio = (valor) => {
     emit('cambiar-radio', valor);
 };
 
-// 3. OBTENER DATOS USUARIO
-const nombreUsuario = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    try {
-        const respuesta = await axios.get('http://localhost:8080/api/datosuser', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        DatosUser.value = respuesta.data;
-    } catch (error) {
-        console.error("Error al obtener usuario:", error);
-    }
-}
-
 // 4. --- LA "ANTENA" INTEGRADA (MENSAJES Y COMANDAS) ---
 const comprobarNotificaciones = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    // Obtenemos mi ID actual para saber si soy vendedor o comprador
-    const miId = DatosUser.value.id;
 
     // A) COMPROBAR MENSAJES
     try {
-        const resChat = await axios.get('http://localhost:8080/api/mischats', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const resChat = await api.get('/mis-chats');
         if (Array.isArray(resChat.data)) {
             tieneNotificacion.value = resChat.data.some(chat => chat.mensajes_no_leidos > 0);
         }
@@ -68,32 +44,29 @@ const comprobarNotificaciones = async () => {
 
     // B) COMPROBAR COMANDAS (SOLO SI SOY VENDEDOR)
     try {
-        const resComandas = await axios.get('http://localhost:8080/api/miscomandas', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
+        const resComandas = await api.get('/mis-comandas');
+
         const listaComandas = resComandas.data.datos;
-        
-        if (Array.isArray(listaComandas) && miId) {
+
+        if (Array.isArray(listaComandas) && usuario.value?.id) {
             // Buscamos si hay alguna pendiente DONDE YO SEA EL VENDEDOR
-            tieneComandas.value = listaComandas.some(c => 
-                c.estado === 'pendiente' && c.id_vendedor === miId
+            tieneComandas.value = listaComandas.some(c =>
+                c.estado === 'pendiente' && c.id_vendedor === usuario.value?.id
             );
         }
     } catch (error) { /* Silent error */ }
 };
 
-// 5. CICLO DE VIDA
-onMounted(async () => {
-    // Es importante esperar a tener el usuario antes de comprobar las notificaciones
-    // para poder usar "miId" correctamente en el filtro de vendedor.
-    await nombreUsuario();
-    
-    // Comprobar inmediatamente
-    comprobarNotificaciones();
+const irAuth = (modo) => {
+    router.push({ name: 'auth', state: { modo: modo } });
+}
 
-    // Comprobar repetidamente cada 3 segundos
-    intervaloNotificacion = setInterval(comprobarNotificaciones, 3000);
+onMounted(async () => {
+    await fetchUsuario();
+    if (usuario.value?.id) {
+        comprobarNotificaciones();
+        intervaloNotificacion = setInterval(comprobarNotificaciones, 3000);
+    }
 });
 
 onUnmounted(() => {
@@ -103,30 +76,33 @@ onUnmounted(() => {
 
 <template>
     <header>
-        <div id="nav-contenedor">
-            <div id="logo">
+        <nav id="nav-contenedor">
+            <div @click="router.push('/')" id="logo">
                 <img src="../assets/logos/logo_peq.png" alt="Logo ProxiMarkt" />
-                <p class="titulo">ProxiMarkt</p>
-                <p class="subtitulo">Frutas y verduras frescas</p>
+                <div class="texto-logo">
+                    <p class="titulo">ProxiMarkt</p>
+                    <p class="subtitulo">Frutas y verduras frescas</p>
+                </div>
             </div>
-            <nav>
-                <ul>
+
+            <div v-if="estarAutenticado" class="nav-autenticado">
+                <ul class="enlaces-paginas">
                     <li>
                         <router-link to="/dashboard">
-                            <img class="logos-nav" src="../assets/iconos/dashboard_verde.png" alt="logo_dashboard">
-                            Dashboard
+                            <img class="logos-nav" src="../assets/iconos/dashboard_verde.png" alt="icon">
+                            <span>Dashboard</span>
                         </router-link>
                     </li>
                     <li>
                         <router-link to="/productos">
-                            <img class="logos-nav" src="../assets/iconos/productos_verde.png" alt="logo_productos">
-                            Productos
+                            <img class="logos-nav" src="../assets/iconos/productos_verde.png" alt="icon">
+                            <span>Productos</span>
                         </router-link>
                     </li>
                     <li>
                         <router-link to="/mapa">
-                            <img class="logos-nav" src="../assets/iconos/ubicacion.png" alt="logo_mapa">
-                            Mapa
+                            <img class="logos-nav" src="../assets/iconos/ubicacion.png" alt="icon">
+                            <span>Mapa</span>
                         </router-link>
                     </li>
                     <li>
@@ -145,57 +121,57 @@ onUnmounted(() => {
                     </li>
                     <li>
                         <router-link to="/publicar">
-                            <img class="logos-nav" src="../assets/iconos/publicar_verde.png" alt="logo_publicar">
-                            Publicar</router-link>
+                            <img class="logos-nav" src="../assets/iconos/publicar_verde.png" alt="icon">
+                            <span>Publicar</span>
+                        </router-link>
                     </li>
                     <li>
                         <router-link to="/cuenta">
-                            <img class="logos-nav" src="../assets/iconos/mi_cuenta_verde.png" alt="logo_mi_cuenta">
-                            Mi cuenta
+                            <img class="logos-nav" src="../assets/iconos/mi_cuenta_verde.png" alt="icon">
+                            <span>Mi cuenta</span>
                         </router-link>
                     </li>
                 </ul>
-            </nav>
 
-            <div id="radio_busqueda" @click="isModalOpen = true" style="cursor: pointer;">
-                <p>
-                    <img src="../assets/iconos/tuerca_verde.png" alt="logo_tuerca">
-                    <span :class="{ 'simbolo-infinito-nav': radioActual === Infinity }">
-                        {{ radioActual === Infinity ? '∞' : radioActual + 'km' }}
-                    </span>
-                </p>
+                <div class="utilidades-usuario">
+                    <div id="radio_busqueda" @click="isModalOpen = true">
+                        <img src="../assets/iconos/tuerca_verde.png" alt="radio">
+                        <span :class="{ 'simbolo-infinito-nav': radioActual === Infinity }">
+                            {{ radioActual === Infinity ? '∞' : radioActual + 'km' }}
+                        </span>
+                    </div>
+
+                    <div class="contenedor-perfil">
+                        <div id="usuario" @click="mostrarMenu = !mostrarMenu">
+                            <img src="../assets/iconos/cuenta.png" alt="perfil">
+                            <span class="nombre-user">{{ usuario?.nombre_usuario || 'Usuario' }}</span>
+                            <span class="triangulo"> ▼ </span>
+                        </div>
+
+                        <div v-if="mostrarMenu" class="menu-desplegable">
+                            <ul>
+                                <li @click="cerrarSesion" class="item-logout">
+                                    <img src="../assets/iconos/rechazar.png" alt="salir">
+                                    <span>Cerrar sesión</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="contenedor-perfil">
-                <div id="usuario" @click="mostrarMenu = !mostrarMenu">
-                    <img src="../assets/iconos/cuenta.png" alt="icono_perfil">
-                    {{ DatosUser.nombre_usuario }}
-                    <span class="triangulo"> ▼ </span>
-                </div>
-
-                <div v-if="mostrarMenu" class="menu-desplegable">
-                    <ul>
-                        <li @click="cerrarSesion">
-                            <img src="../assets/iconos/rechazar.png" alt="cerrar sesión" class="icono-salir"> Cerrar
-                            sesión
-                        </li>
-                    </ul>
-                </div>
+            <div v-else class="botones-acceso">
+                <button @click="irAuth('login')" class="btn-nav btn-outline">Iniciar Sesión</button>
+                <button @click="irAuth('register')" class="btn-nav btn-gradient">Registrarse</button>
             </div>
-        </div>
+        </nav>
+
         <ModalRadio :mostrar="isModalOpen" :distanciaInicial="radioActual" @cerrar="isModalOpen = false"
             @confirmar="confirmarNuevoRadio" />
     </header>
 </template>
 
 <style scoped>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', 'Arial';
-}
-
 header {
     width: 100%;
     background-color: #ffffff;
@@ -218,150 +194,126 @@ header {
 }
 
 #logo {
-    display: grid;
-    grid-template-columns: min-content max-content;
-    grid-template-rows: auto auto;
-    column-gap: 12px;
+    cursor: pointer;
+    display: flex;
     align-items: center;
-    margin-right: 40px;
+    gap: 12px;
+    flex-shrink: 0;
 }
 
 #logo img {
-    grid-row: 1 / 3;
     height: 50px;
-    width: auto;
     border-radius: 12px;
 }
 
 .titulo {
-    grid-column: 2;
-    font-size: 25px;
-    font-weight: 600;
+    font-size: 22px;
+    font-weight: 700;
     color: #4CA626;
-    line-height: 1.2;
+    margin: 0;
 }
 
 .subtitulo {
-    grid-column: 2;
-    font-size: 15px;
+    font-size: 13px;
     color: #757575;
-    line-height: 1.2;
+    margin: 0;
 }
 
-nav {
+.nav-autenticado {
     display: flex;
-    justify-content: center;
+    align-items: center;
     flex: 1;
+    justify-content: space-between;
 }
 
-nav ul {
+.enlaces-paginas {
     display: flex;
     list-style: none;
-    align-self: flex-start;
     gap: 5px;
-    margin-left: 50px;
-    align-items: center;
+    margin: 0 auto;
+    padding: 0;
 }
 
-nav li a {
+.enlaces-paginas li a {
     display: flex;
     align-items: center;
     text-decoration: none;
     color: #5F6368;
-    font-size: 18px;
-    font-weight: 500;
-    padding: 10px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 8px 12px;
     border-radius: 10px;
+    transition: all 0.2s ease;
 }
 
-/* --- ESTILOS DEL PUNTO ROJO --- */
+.enlaces-paginas li a:hover,
+.router-link-active {
+    background-color: #4CA62615;
+    color: #4CA626;
+}
+
+.logos-nav {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
 .enlace-con-notificacion {
     position: relative !important;
 }
 
 .punto-nav {
     position: absolute;
-    top: 3px;            /* Subido */
-    right: 3px;          /* A la derecha */
-    width: 13px;         /* Tamaño aumentado (antes 10px) */
-    height: 13px;        /* Tamaño aumentado */
+    top: 4px;
+    right: 6px;
+    width: 12px;
+    height: 12px;
     background-color: #ff3b30;
     border-radius: 50%;
-    border: none;        /* <--- AQUÍ QUITAMOS EL BORDE BLANCO */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     z-index: 10;
 }
-/* ------------------------------ */
 
-nav li a .logos-nav {
-    width: 30px;
-    height: 30px;
-    margin-right: 10px;
-}
-
-nav li a:hover {
-    background-color: #4CA6264A;
-    color: #4CA626;
-}
-
-nav li a:hover .logos-nav {
-    filter: none;
-    opacity: 1;
-}
-
-.router-link-active,
-.router-link-exact-active {
-    background-color: #4CA6264A;
-    color: #4CA626;
+.utilidades-usuario {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
 #radio_busqueda {
-    margin-right: 25px;
-}
-
-#radio_busqueda p {
     display: flex;
     align-items: center;
+    gap: 5px;
+    font-weight: 700;
     color: #5F6368;
-    font-size: 14px;
-    font-weight: 600;
-    gap: 8px;
     cursor: pointer;
 }
 
 #radio_busqueda img {
-    width: 40px;
-    height: 40px;
+    width: 32px;
 }
 
-.simbolo-infinito-nav {
-    font-size: 22px;
-    line-height: 1;
-    margin-top: -2px;
+.contenedor-perfil {
+    position: relative;
 }
 
 #usuario {
     display: flex;
     align-items: center;
-    background-color: #4CA6264A;
-    color: #757575;
-    padding: 6px 20px 6px 6px;
+    background-color: #4CA62615;
+    padding: 6px 15px;
     border-radius: 50px;
+    cursor: pointer;
     font-size: 14px;
     font-weight: 600;
+    color: #5F6368;
 }
 
 #usuario img {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    margin-right: 10px;
-    object-fit: cover;
-}
-
-.contenedor-perfil {
-    position: relative;
-    cursor: pointer;
+    margin-right: 8px;
 }
 
 .menu-desplegable {
@@ -369,14 +321,12 @@ nav li a:hover .logos-nav {
     top: 100%;
     right: 0;
     width: 180px;
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
-    margin-top: 10px;
-    padding: 10px 0;
-    z-index: 2000;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    margin-top: 8px;
+    border: 1px solid #eee;
     overflow: hidden;
-    border: 1px solid #EEEEEE;
 }
 
 .menu-desplegable ul {
@@ -385,130 +335,79 @@ nav li a:hover .logos-nav {
     margin: 0;
 }
 
-.menu-desplegable li {
-    padding: 12px 20px;
+.item-logout {
     display: flex;
     align-items: center;
+    padding: 12px 15px;
     gap: 10px;
-    color: #5F6368;
-    font-weight: 500;
     cursor: pointer;
+    color: #5F6368;
     transition: background 0.2s;
-    font-size: 14px;
 }
 
-.menu-desplegable li:hover {
-    background-color: #FFECEC;
-    color: #D32F2F;
+.item-logout:hover {
+    background: #fff5f5;
+    color: #d32f2f;
 }
 
-.icono-salir {
-    width: 18px;
-    height: 18px;
-    opacity: 0.6;
+.botones-acceso {
+    display: flex;
+    gap: 12px;
 }
 
-.triangulo {
-    font-size: 10px;
-    margin-left: 5px;
+.btn-nav {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.btn-gradient {
+    background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
+    color: white;
+}
+
+.btn-outline {
+    border-color: #4CA626;
+    color: #4CA626;
 }
 
 @media (max-width: 1200px) {
-    #nav-contenedor {
-        padding: 0 15px;
+
+    .enlaces-paginas span,
+    .subtitulo,
+    .nombre-user {
+        display: none;
     }
 
-    nav li a {
-        font-size: 0;
-        padding: 10px;
-    }
-
-    nav li a .logos-nav {
+    .logos-nav {
         margin-right: 0;
-        width: 24px;
-        height: 24px;
     }
 
-    nav ul {
-        margin-left: 20px;
-        gap: 15px;
-    }
-    
     .punto-nav {
-    position: absolute;
-    top: 3px;           /* Lo subimos un poquito más */
-    right: 3px;         /* Lo movemos un poco más a la derecha */
-    width: 13px;        /* Antes era 10px (Ahora es más grande) */
-    height: 13px;       /* Antes era 10px */
-    background-color: #ff3b30;
-    border-radius: 50%;
-    /* border: 2px solid white;  <-- HE BORRADO ESTA LÍNEA */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    z-index: 10;
-}
+        right: 0;
+        top: 0;
+    }
 }
 
 @media (max-width: 768px) {
     header {
         height: auto;
         padding: 10px 0;
+        position: static;
     }
 
     #nav-contenedor {
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 10px;
+        flex-direction: column;
+        gap: 15px;
     }
 
-    .titulo,
-    .subtitulo {
-        display: none;
-    }
-
-    #logo {
-        margin-right: 0;
-        display: flex;
-    }
-
-    #usuario {
-        font-size: 16px;
-        background-color: #4CA6264A;
-        color: #757575;
-        padding: 6px 20px 6px 6px;
-        border-radius: 50px;
-    }
-
-    #usuario img {
-        margin-right: 0;
-        width: 40px;
-        height: 40px;
-    }
-
-    #radio_busqueda {
-        margin-right: 0;
-        order: 2;
-    }
-
-    #radio_busqueda p {
-        font-size: 16px;
-    }
-
-    nav {
-        order: 3;
-        flex-basis: 100%;
+    .enlaces-paginas {
+        width: 100%;
         overflow-x: auto;
-        padding-bottom: 5px;
-        margin-top: 5px;
-    }
-
-    nav ul {
-        margin-left: 0;
         justify-content: flex-start;
-        padding-left: 5px;
-    }
-
-    nav li a {
-        background-color: #F5F5F5;
+        padding-bottom: 5px;
     }
 }
 </style>

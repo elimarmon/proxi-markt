@@ -1,14 +1,22 @@
+<script setup>
+import { useRouter } from "vue-router";
+import NavBar from "./NavBar.vue";
+const router = useRouter();
+
+const irAuth = (modo) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        router.push({ name: 'auth', state: { modo: modo } });
+    } else {
+        router.push('/cuenta');
+    }
+};
+</script>
+
 <template>
     <div class="contenedor-principal">
         <header>
-            <div id="nav-contenedor">
-                <div id="logo">
-                    <img src="../assets/logos/logo_peq.png" alt="Logo ProxiMarkt" />
-                    <p class="titulo">ProxiMarkt</p>
-                    <p class="subtitulo">Frutas y verduras frescas</p>
-                </div>
-                <router-link to="/login" class="boton-iniciosesion">Iniciar Sesion</router-link>
-            </div>
+            <NavBar />
         </header>
         <section class="seccion-portada">
             <div class="contenido-portada">
@@ -19,7 +27,7 @@
                     la compra-venta de frutas y verduras de kilómetro cero, con sistema de geolocalización avanzado y
                     gestión integral de pedidos.
                 </p>
-                <button class="boton-primario" @click="irRegistro">Comenzar Ahora</button>
+                <button class="boton-primario" @click="irAuth('register')">Comenzar Ahora</button>
             </div>
         </section>
 
@@ -123,30 +131,11 @@
         <section class="seccion-llamada">
             <h2>¿Listo para Comenzar?</h2>
             <p>Únete a ProxiMarkt hoy y descubre la mejor manera de comprar y vender productos frescos locales</p>
-            <button class="boton-blanco" @click="irRegistro">Crear Cuenta Gratis</button>
+            <button class="boton-blanco" @click="irAuth('register')">Crear Cuenta Gratis</button>
         </section>
-
-        <footer class="pie-pagina-principal">
-            <div class="fondo-pie">
-                <div class="marca">
-                    <img src="../assets/logos/logo_peq.png" alt="logo pequeño"> ProxiMarkt
-                </div>
-                <p class="derechos">Frutas y Verduras Frescas de tu vecindario</p>
-                <p class="derechos pequeno">© 2026 ProxiMarkt. Todos los derechos reservados.</p>
-            </div>
-        </footer>
     </div>
+    <Footer></Footer>
 </template>
-
-<script setup>
-import { useRouter } from "vue-router";
-
-const router = useRouter();
-
-const irRegistro = () => {
-    router.push('/login');
-};
-</script>
 
 <style scoped>
 * {
@@ -602,45 +591,5 @@ header {
 
 .boton-blanco:hover {
     transform: scale(1.05);
-}
-
-.pie-pagina-principal {
-    background-color: #FFFFFF;
-    padding: 40px 20px;
-    text-align: center;
-}
-
-.fondo-pie {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.marca {
-    font-size: 20px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-    color: #4CA626;
-}
-
-.marca img {
-    width: 30px;
-    height: 30px;
-    border-radius: 5px;
-}
-
-.derechos {
-    font-size: 14px;
-    color: #333333;
-    margin-bottom: 5px;
-}
-
-.derechos.pequeno {
-    font-size: 12px;
-    color: #888888;
 }
 </style>

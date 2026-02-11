@@ -1,14 +1,14 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue';
 import axios from 'axios';
+import api from '@/api/axios';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
 
 const router = useRouter()
 
-const { usuario, fetchUsuario } = useAuth();
+const { usuario, fetchUsuario, setLoading, loading } = useAuth();
 const latitud = ref(null);
 const longitud = ref(null);
 const direccion = ref('');
@@ -31,63 +31,68 @@ const inicializarMapa = async () => {
 
     await nextTick();
 
+    const limitesVerticales = [
+        [-89.9, -180],
+        [89.9, 180]
+    ];
+
     map = L.map('map', {
         minZoom: 3,
+        worldCopyJump: true,
+        maxBounds: limitesVerticales,
+        maxBoundsViscosity: 1.0
     }).setView(centroInicial, 13);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        minzoom: 3,
+        minZoom: 3,
         attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 
     markerseleccion = L.marker(centroInicial).addTo(map);
 
     map.on('click', async (e) => {
-        latitud.value = e.latlng.lat;
-        longitud.value = e.latlng.lng;
+        const { lat, lng } = e.latlng;
+        latitud.value = lat;
+        longitud.value = lng;
 
+        // 1. Mover el marcador a la nueva posición
+        if (markerseleccion) {
+            markerseleccion.setLatLng([lat, lng]);
+        } else {
+            markerseleccion = L.marker([lat, lng]).addTo(map);
+        }
+
+        // 2. Centrar ligeramente el mapa (opcional)
+        map.panTo([lat, lng]);
+
+        // 3. Obtener la dirección automáticamente al pinchar
         try {
             const response = await axios.get("https://nominatim.openstreetmap.org/reverse", {
                 params: {
                     format: 'jsonv2',
-                    lat: latitud.value,
-                    lon: longitud.value
+                    lat: lat,
+                    lon: lng
                 }
             });
 
-            const address = response.data.address;
-
-            direccion.value = [
-                address.road,
-                address.city || address.town || address.village,
-                address.postcode,
-                address.country
-            ]
-
-            direccion.value = direccion.value.filter(Boolean).join(", ");
-
-            markerseleccion
-                .setLatLng(e.latlng)
-                .bindPopup("Ubicación seleccionada")
-                .openPopup();
-
+            if (response.data.address) {
+                const address = response.data.address;
+                direccion.value = [
+                    address.road,
+                    address.city || address.town || address.village,
+                    address.postcode,
+                    address.country
+                ].filter(Boolean).join(", ");
+            }
         } catch (error) {
             console.error("Error al obtener dirección:", error);
-            direccion.value = "Dirección no encontrada";
+            alert("La dirección no es válida");
         }
     });
 };
-
 const guardarUbicacion = async () => {
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-        alert("Sesión no válida. Por favor, inicia sesión.");
-        return;
-    }
-
-    cargando.value = true;
+    setLoading(true);
 
     const datos = {
         direccion: direccion.value,
@@ -96,24 +101,21 @@ const guardarUbicacion = async () => {
     };
 
     try {
-        const respuesta = await axios.put(`http://localhost:8080/api/usuarios/${usuario.value.id}/ubicacion`, datos, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
-        });
+        await api.put(`usuarios/${usuario.value.id}/ubicacion`, datos);
 
-        if (respuesta.status >= 200 && respuesta.status < 300) {
-            alert("Dirección actualizada correctamente.");
-            console.log("Respuesta:", respuesta.data);
-            router.push('/cuenta');
-        }
-
+        // actualitzar l'objecte usuari manualment per no fer una nova petició a la base de dates
+        usuario.value = {
+            ...usuario.value,
+            ...datos
+        };
+        alert("Dirección actualizada correctamente.");
+        // console.log("Respuesta:", respuesta.data);
+        router.push('/cuenta');
     } catch (error) {
         console.error("Error al guardar:", error.response?.data);
         alert("Hubo un error al guardar los datos.");
     } finally {
-        cargando.value = false;
+        setLoading(false);
     }
 };
 
@@ -127,11 +129,64 @@ const cancelar = () => {
     }
 }
 
+const obtenerUbicacionActual = () => {
+    if (!navigator.geolocation) {
+        alert("Tu navegador no soporta geolocalización");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+
+        latitud.value = lat;
+        longitud.value = lng;
+
+        if (map && markerseleccion) {
+            const nuevaPos = [lat, lng];
+            map.setView(nuevaPos, 16);
+            markerseleccion.setLatLng(nuevaPos);
+        }
+
+        try {
+            const response = await axios.get("https://nominatim.openstreetmap.org/reverse", {
+                params: {
+                    format: 'jsonv2',
+                    lat: lat,
+                    lon: lng
+                }
+            });
+
+            const address = response.data.address;
+            direccion.value = [
+                address.road,
+                address.city || address.town || address.village,
+                address.postcode,
+                address.country
+            ].filter(Boolean).join(", ");
+
+            markerseleccion.bindPopup("Ubicación actual detectada").openPopup();
+
+        } catch (error) {
+            console.error("Error en reverse geocoding:", error);
+            direccion.value = "Ubicación detectada (dirección no encontrada)";
+        }
+    }, (error) => {
+        let mensaje = "No se pudo obtener tu ubicación.";
+        if (error.code === 1) mensaje = "Por favor, permite el acceso a la ubicación en tu navegador.";
+        alert(mensaje);
+    }, {
+        enableHighAccuracy: true,
+        timeout: 10000
+    });
+};
+
 onMounted(async () => {
     await fetchUsuario();
-    inicializarMapa();
+    if (usuario.value?.id) inicializarMapa();
 });
 </script>
+
 <template>
     <div class="main-container">
         <div class="card">
@@ -151,15 +206,23 @@ onMounted(async () => {
                             Cancelar
                         </button>
 
+                        <button @click="obtenerUbicacionActual" type="button" class="boton-geo-inline"
+                            :disabled="cargando">
+                            📍 Mi ubicación
+                        </button>
+
                         <button @click="guardarUbicacion" :disabled="cargando || !latitud" class="boton-primary">
-                            <span v-if="!cargando">Confirmar y Guardar</span>
-                            <span v-else>Procesando...</span>
+                            <span v-if="!cargando">Guardar</span>
+                            <span v-else>...</span>
                         </button>
                     </div>
                 </div>
 
                 <div v-else class="empty-state">
-                    <p>Haz clic en el mapa para marcar tu posición en el mapa</p>
+                    <p>Haz clic en el mapa o usa el botón:</p>
+                    <button @click="obtenerUbicacionActual" type="button" class="btn-geo-grande">
+                        📍 Detectar mi ubicación actual
+                    </button>
                 </div>
             </div>
         </div>
@@ -205,15 +268,15 @@ onMounted(async () => {
 }
 
 .info-box {
-    background-color: #B9E2A6;
-    padding: 15px;
-    border-radius: 10px;
-    border: 1px solid #8BD16A;
+    background-color: #f9fdf7;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #e2f0da;
 }
 
 .label {
     color: #2c5d18;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: bold;
     text-transform: uppercase;
     margin-bottom: 5px;
@@ -223,54 +286,66 @@ onMounted(async () => {
     color: #333333;
     font-weight: 500;
     margin-bottom: 15px;
+    line-height: 1.4;
 }
 
 .button-group {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     margin-top: 15px;
+    flex-wrap: wrap;
 }
 
-.boton-primary {
-    flex: 2;
-    background-color: #4CA626;
-    color: white;
-    width: 100%;
-    padding: 12px;
-    border: none;
+.boton-primary,
+.boton-secondary,
+.boton-geo-inline {
+    flex: 1;
+    padding: 12px 5px;
     border-radius: 8px;
     font-weight: 600;
+    font-size: 0.85rem;
     cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.boton-primary:hover {
-    background-color: #8BD16A;
-}
-
-.boton-primary:disabled {
-    background-color: #B9E2A6;
-    cursor: not-allowed;
+    border: none;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 110px;
 }
 
 .boton-secondary {
-    flex: 1;
-    background-color: #f0f7ed; /* Un blanco con un toque de verde */
-    color: #4CA626;            /* El mismo verde que tu título */
-    border: 1px solid #c2e0b5; /* Un borde sutil */
-    padding: 12px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    background-color: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
 }
 
-.boton-secondary:hover {
-    background-color: #e2f0da; /* Se oscurece un poco al pasar el ratón */
-    border-color: #8BD16A;
+.boton-secondary:hover:not(:disabled) {
+    background-color: #fca5a5;
+    color: #ffffff;
 }
 
-.boton-secondary:disabled {
+.boton-geo-inline {
+    background-color: #FFFFFF;
+    color: #4CA626;
+    border: 1px solid #4CA626;
+}
+
+.boton-geo-inline:hover:not(:disabled) {
+    background-color: #f0f7ed;
+}
+
+.boton-primary {
+    background-color: #4CA626;
+    color: white;
+}
+
+.boton-primary:hover:not(:disabled) {
+    background-color: #3d851e;
+}
+
+.boton-primary:disabled,
+.boton-secondary:disabled,
+.boton-geo-inline:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
@@ -279,17 +354,33 @@ onMounted(async () => {
     text-align: center;
     color: #8BD16A;
     font-style: italic;
-    padding: 10px;
+    padding: 20px;
+}
+
+.btn-geo-grande {
+    margin-top: 15px;
+    background-color: #4CA626;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.btn-geo-grande:hover {
+    background-color: #3d851e;
 }
 
 .animate-in {
-    animation: fadeIn 0.5s ease-out;
+    animation: fadeIn 0.4s ease-out;
 }
 
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(8px);
     }
 
     to {

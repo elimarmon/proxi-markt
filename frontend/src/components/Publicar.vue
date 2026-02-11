@@ -1,25 +1,27 @@
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
-import axios from 'axios';
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import L from 'leaflet';
 import Navbar from './NavBar.vue'
+import Footer from "./Footer.vue";
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import axios from 'axios';
+import api from '@/api/axios';
 
 const router = useRouter()
 const { usuario, fetchUsuario } = useAuth();
 
 const puntosEntrega = ref([])
+const puntoEntrega = ref('');
 const categorias = ref([])
+const categoria = ref('');
 const nombreProducto = ref('');
 const descripcion = ref('');
 const precio = ref('');
 const stock = ref('');
-const puntoEntrega = ref('');
-const categoria = ref('');
 const imagen = ref(null);
 const imagenPreview = ref(null);
+
 const cargando = ref(false);
 const errores = ref({});
 
@@ -34,6 +36,7 @@ let map = null;
 const guardarImagen = (event) => {
     const file = event.target.files[0];
     if (file) {
+        if (imagenPreview.value) URL.revokeObjectURL(imagenPreview.value);
         imagen.value = file;
         imagenPreview.value = URL.createObjectURL(file);
     }
@@ -41,11 +44,8 @@ const guardarImagen = (event) => {
 
 const cargarPuntos = async () => {
     cargando.value = true;
-    const token = localStorage.getItem('token');
     try {
-        const response = await axios.get(`http://localhost:8080/api/usuarios/${usuario.value.id}/puntos`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await api.get(`/usuarios/${usuario.value.id}/puntos`);
         puntosEntrega.value = response.data;
     } catch (err) {
         console.error("Error cargando puntos:", err);
@@ -56,10 +56,10 @@ const cargarPuntos = async () => {
 
 const cargarCategorias = async () => {
     try {
-        const response = await axios.get('http://localhost:8080/api/categorias');
+        const response = await api.get('/categorias');
         categorias.value = response.data;
     } catch (err) {
-        console.error(err);
+        console.error("Error cargando categorías:", err);
     }
 }
 
@@ -75,7 +75,7 @@ const iniciarMapa = () => {
         map = null;
     }
 
-    const centroInicial = (usuario.value.latitud && usuario.value.longitud)
+    const centroInicial = (usuario.value?.latitud && usuario.value?.longitud)
         ? [usuario.value.latitud, usuario.value.longitud]
         : [39.4699, -0.3763];
 
@@ -101,6 +101,7 @@ const iniciarMapa = () => {
             .setOpacity(1)
             .bindPopup("Ubicación seleccionada")
             .openPopup();
+
         try {
             const response = await axios.get("https://nominatim.openstreetmap.org/reverse", {
                 params: {
@@ -112,17 +113,16 @@ const iniciarMapa = () => {
 
             const address = response.data.address;
             const partesDireccion = [
-                address?.road,
-                address?.house_number,
-                address?.city || address?.town || address?.village,
-                address?.postcode
+                address.road,
+                address.house_number,
+                address.city || address.town || address.village,
+                address.postcode
             ].filter(Boolean);
 
             nuevoPuntoDireccion.value = partesDireccion.join(", ") || "Ubicación seleccionada";
 
         } catch (error) {
             console.error("Error obteniendo dirección:", error);
-            nuevoPuntoDireccion.value = "Coordenadas seleccionadas";
         }
     });
 }
@@ -134,7 +134,6 @@ const guardarNuevoPunto = async () => {
     }
 
     cargandoNuevoPunto.value = true;
-    const token = localStorage.getItem('token');
 
     try {
         const datosPunto = {
@@ -145,28 +144,16 @@ const guardarNuevoPunto = async () => {
             longitud: nuevaLongitud.value
         };
 
-        const respuesta = await axios.post('http://localhost:8080/api/puntos', datosPunto, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
+        const respuesta = await api.post('/puntos', datosPunto);
+        await cargarPuntos();
 
-        if (respuesta.status === 201 || respuesta.status === 200) {
-            await cargarPuntos();
-
-            if (puntosEntrega.value.length > 0) {
-                const nuevoId = respuesta.data.id;
-                if (nuevoId) {
-                    puntoEntrega.value = nuevoId;
-                    if (errores.value) errores.value.punto = false;
-                } else {
-                    const nuevo = puntosEntrega.value.find(p => p.nombre_punto === nuevoPuntoNombre.value);
-                    if (nuevo) puntoEntrega.value = nuevo.id;
-                }
-            }
-            mostrarModalPunto.value = false;
+        // Intentar seleccionar el punto recién creado
+        const nuevoId = respuesta.data.id;
+        if (nuevoId) {
+            puntoEntrega.value = nuevoId;
         }
+
+        mostrarModalPunto.value = false;
     } catch (error) {
         alert("Error al crear punto: " + (error.response?.data?.message || error.message));
     } finally {
@@ -179,8 +166,8 @@ const intentarPublicar = () => {
 
     if (!nombreProducto.value) errores.value.nombre = true;
     if (!descripcion.value) errores.value.descripcion = true;
-    if (precio.value <= 0) errores.value.precio = true;
-    if (stock.value <= 0) errores.value.stock = true;
+    if (!precio.value || precio.value <= 0) errores.value.precio = true;
+    if (!stock.value || stock.value <= 0) errores.value.stock = true;
     if (!categoria.value) errores.value.categoria = true;
 
     if (puntosEntrega.value.length === 0) {
@@ -199,7 +186,6 @@ const intentarPublicar = () => {
 }
 
 const insertarProducto = async () => {
-    const token = localStorage.getItem('token');
     try {
         const datos = new FormData();
         datos.append('nombre_producto', nombreProducto.value);
@@ -213,34 +199,34 @@ const insertarProducto = async () => {
             datos.append('imagen', imagen.value);
         }
 
-        const respuesta = await axios.post('http://localhost:8080/api/productos', datos, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'multipart/form-data'
-            }
+        await api.post('/productos', datos, {
+            headers: { 'Content-Type': 'multipart/form-data' }
         });
 
-        if (respuesta.status === 201 || respuesta.status === 200) {
-            alert('¡Producto creado correctamente!');
-            router.push('/cuenta');
-        }
+        alert('¡Producto creado correctamente!');
+        router.push('/cuenta');
+
     } catch (error) {
-        console.error("Error:", error.response?.data);
         alert('Error: ' + (error.response?.data?.message || 'No se pudo crear'));
     }
 }
 
 onMounted(async () => {
     await fetchUsuario();
-    if (usuario.value) {
+    if (usuario.value?.id) {
         cargarPuntos();
+        cargarCategorias();
     }
-    cargarCategorias();
+});
+
+onBeforeUnmount(() => {
+    if (map) map.remove();
+    if (imagenPreview.value) URL.revokeObjectURL(imagenPreview.value);
 });
 </script>
 
 <template>
-    <Navbar></Navbar>
+    <Navbar />
     <div class="contenedor-pagina">
         <div id="contenedor-titulo">
             <h1 class="titulo">Publicar Producto</h1>
@@ -299,8 +285,9 @@ onMounted(async () => {
                     <select v-if="puntosEntrega.length > 0" v-model="puntoEntrega"
                         :class="{ 'input-error': errores.punto }">
                         <option value="" disabled>Selecciona un punto de entrega</option>
-                        <option v-for="punto in puntosEntrega" :key="punto.id" :value="punto.id">{{ punto.nombre_punto
-                            }}</option>
+                        <option v-for="punto in puntosEntrega" :key="punto.id" :value="punto.id">
+                            {{ punto.nombre_punto }}
+                        </option>
                     </select>
 
                     <div v-else-if="!cargando && puntosEntrega.length === 0" class="alerta-sin-puntos">
@@ -309,21 +296,18 @@ onMounted(async () => {
                             Crear uno ahora
                         </button>
                     </div>
-                    <span v-if="errores.punto && puntosEntrega.length > 0" class="texto-validacion">Selecciona un
-                        punto</span>
+                    <span v-if="errores.punto && puntosEntrega.length > 0" class="texto-validacion">Selecciona un punto</span>
                 </div>
 
                 <div class="campo">
                     <label>Imagen del producto (opcional)</label>
                     <div class="zona-upload" :class="{ 'con-imagen': imagenPreview }">
                         <input type="file" @change="guardarImagen" accept="image/*" class="input-file-oculto">
-
                         <div v-if="!imagenPreview" class="diseno-upload">
                             <span class="icono-nube">↑</span>
                             <p>Haz clic para subir o arrastra una imagen</p>
                             <small>PNG, JPG o WEBP (máx. 5MB)</small>
                         </div>
-
                         <div v-else class="preview-contenedor">
                             <img :src="imagenPreview" alt="Previsualización" class="img-preview-real">
                             <div class="overlay-cambiar">
@@ -366,7 +350,13 @@ onMounted(async () => {
             </div>
         </div>
     </div>
+    <Footer />
 </template>
+
+<style scoped>
+/* Tu CSS se mantiene igual, es correcto para el diseño planteado */
+/* ... (estilos omitidos por brevedad pero deben mantenerse) ... */
+</style>
 
 <style scoped>
 * {

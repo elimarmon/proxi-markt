@@ -1,27 +1,14 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from "vue";
-import axios from "axios";
+import { ref, onMounted, computed, onUnmounted } from "vue";
+import api from "@/api/axios";
+import { useAuth } from '@/composables/useAuth';
 import NavBar from "./NavBar.vue";
-import ChatDetalle from "./chat.vue"; 
+import ChatDetalle from "./Chat.vue";
+import Footer from "./Footer.vue";
 
 const chats = ref([]);
 const chatSeleccionadoId = ref(null);
-const idUsuarioLogueado = ref(null); 
-let intervaloChat = null; // Variable para el auto-refresco
-
-// --- LÓGICA DE USUARIO ---
-const obtenerDatosUsuario = async () => {
-    try {
-        const token = localStorage.getItem('token');
-        if(!token) return;
-        const res = await axios.get('http://localhost:8080/api/datosuser', {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        idUsuarioLogueado.value = res.data.id;
-    } catch (error) {
-        console.error("Error obteniendo usuario:", error);
-    }
-};
+const { usuario, fetchUsuario } = useAuth();
 
 // --- COMPUTADAS ---
 const chatActivo = computed(() => {
@@ -30,8 +17,8 @@ const chatActivo = computed(() => {
 
 const idReceptorDinamico = computed(() => {
     if (!chatActivo.value || !idUsuarioLogueado.value) return null;
-    return chatActivo.value.id_vendedor === idUsuarioLogueado.value 
-        ? chatActivo.value.id_comprador 
+    return chatActivo.value.id_vendedor === idUsuarioLogueado.value
+        ? chatActivo.value.id_comprador
         : chatActivo.value.id_vendedor;
 });
 
@@ -41,20 +28,12 @@ const hayNotificacionesGlobales = computed(() => {
 });
 
 // --- API CHATS ---
-const obtenerchats = async () => {
+const obtenerChats = async () => {
     try {
-        const token = localStorage.getItem('token');
-        if(!token) return;
-
-        const respuesta = await axios.get('http://localhost:8080/api/mischats', {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        const respuesta = await api.get('/mis-chats');
         chats.value = respuesta.data;
     } catch (error) {
-        // Ignoramos errores de auth en el polling
-        if (error.response && error.response.status !== 401) {
-            console.error("Error obteniendo chats:", error);
-        }
+        console.error("Error obteniendo chats:", error);
     }
 }
 
@@ -72,22 +51,21 @@ const seleccionarChat = async (chatId) => {
         chat.mensajes_no_leidos = 0;
 
         try {
-            const token = localStorage.getItem('token');
             // Avisar a Laravel
-            await axios.put(`http://localhost:8080/api/chats/${chatId}/leer`, {}, {
-                 headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.put(`/chats/${chatId}/leer`);
         } catch (e) {
             console.error("Error marcando leído:", e);
         }
     }
 }
 
-onMounted(() => {
-    obtenerchats();
-    obtenerDatosUsuario();
-    // Auto-refresco cada 3 segundos para ver si llegan mensajes nuevos
-    intervaloChat = setInterval(obtenerchats, 3000);
+onMounted(async () => {
+    await fetchUsuario();
+    if (usuario.value?.id) {
+        obtenerChats();
+        // Auto-refresco cada 3 segundos para ver si llegan mensajes nuevos
+        intervaloChat = setInterval(obtenerChats, 3000);
+    }
 });
 
 onUnmounted(() => {
@@ -96,71 +74,68 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <NavBar :tiene-notificacion="hayNotificacionesGlobales"/>
+    <NavBar :tiene-notificacion="hayNotificacionesGlobales" />
 
     <div class="contenedor-pagina">
         <div id="layout-chat">
-            
+
             <div class="lista-chats">
-                <div v-for="chat in chats" :key="chat.id" 
-                     @click="seleccionarChat(chat.id)"
-                     :class="['item-chat', { activo: chatSeleccionadoId === chat.id }]">
-                    
+                <div v-for="chat in chats" :key="chat.id" @click="seleccionarChat(chat.id)"
+                    :class="['item-chat', { activo: chatSeleccionadoId === chat.id }]">
+
                     <div v-if="chat.mensajes_no_leidos > 0" class="punto-rojo"></div>
 
                     <h3>
-                        {{ chat.id_vendedor === idUsuarioLogueado ? chat.comprador.nombre_usuario : chat.vendedor.nombre_usuario }}
+                        {{ chat.id_vendedor === usuario.id ? chat.comprador?.nombre_usuario :
+                            chat.vendedor.nombre_usuario }}
                     </h3>
                     <p>{{ chat.producto.nombre_producto }}</p>
                 </div>
             </div>
 
             <div class="ventana-mensajes">
-                <ChatDetalle 
-                    v-if="chatActivo && idUsuarioLogueado" 
-                    :id_receptor="idReceptorDinamico" 
-                    :id_producto="chatActivo.id_producto" 
-                    :chatid="chatActivo.id"
-                    :mi_id="idUsuarioLogueado"
-                />
+                <!-- si es selecciona un chat i el usuari esta logejat enviem al component fill el qui el recibix, el producte, y el id de la persona logejada -->
+                <ChatDetalle v-if="chatActivo && usuario?.id" :id_receptor="idReceptorDinamico"
+                    :id_producto="chatActivo.id_producto" :chatid="chatActivo.id" :mi_id="usuario.id" />
                 <div v-else class="vacio">
                     <p>Selecciona una conversación</p>
                 </div>
             </div>
         </div>
     </div>
+    <Footer></Footer>
 </template>
 
 <style scoped>
 .contenedor-pagina {
     padding: 50px;
     padding-top: 130px;
-    height: 100vh; 
+    height: 100vh;
     box-sizing: border-box;
     background-color: #f5f5f5;
 }
 
 #layout-chat {
     display: grid;
-    grid-template-columns: 350px 1fr; 
-    height: 75vh; 
+    grid-template-columns: 350px 1fr;
+    height: 75vh;
     background: #ffffff;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
-    overflow: hidden; 
+    overflow: hidden;
     max-width: 95%;
     margin: 20px auto;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 .lista-chats {
     border-right: 1px solid #f0f0f0;
     overflow-y: auto;
     background: #fdfdfd;
-    padding: 15px;      
+    padding: 15px;
     display: flex;
     flex-direction: column;
-    gap: 12px;          
+    gap: 12px;
 }
 
 .item-chat {
@@ -170,9 +145,9 @@ onUnmounted(() => {
     cursor: pointer;
     transition: all 0.2s ease;
     background-color: white;
-    
+
     /* IMPORTANTE: Relative para poder posicionar el punto rojo dentro */
-    position: relative; 
+    position: relative;
 }
 
 /* ESTILO DEL PUNTO ROJO */
@@ -181,23 +156,24 @@ onUnmounted(() => {
     top: 10px;
     right: 10px;
     /* Hacemos el círculo un poco más grande (antes era 18px) */
-    min-width: 22px; 
+    min-width: 22px;
     height: 22px;
-    
+
     padding: 0 4px;
     background-color: #ff3b30;
     color: white;
     font-size: 11px;
     font-weight: bold;
-    border-radius: 12px; /* Ajustamos el radio para que siga siendo redondo */
+    border-radius: 12px;
+    /* Ajustamos el radio para que siga siendo redondo */
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
     /* HE BORRADO EL BORDE BLANCO (border: 2px solid white;) */
-    border: none; 
-    
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    border: none;
+
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     z-index: 10;
 }
 
@@ -227,7 +203,7 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     background: #ffffff;
-    height: 100%; 
+    height: 100%;
     overflow: hidden;
     position: relative;
 }
