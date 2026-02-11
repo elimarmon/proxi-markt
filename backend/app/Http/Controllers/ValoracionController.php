@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 class ValoracionController extends Controller
 {
     public function index() {
-        $valoraciones = Valoracion::where("id_resenyado", "=", auth()->id())
+        $valoraciones = Valoracion::where("id_valorado", "=", auth()->id())
             ->with(['emisor', 'compraventa.producto'])
             ->latest()
             ->paginate(5);
@@ -23,8 +23,8 @@ class ValoracionController extends Controller
         $idReceptor = $idEmisor == $compraventa->id_comprador ? $compraventa->id_vendedor : $compraventa->id_comprador;
 
         Valoracion::create([
-            'id_resenyador' => $idEmisor,
-            'id_resenyado' => $idReceptor,
+            'id_valorador' => $idEmisor,
+            'id_valorado' => $idReceptor,
             'id_venta' => $compraventa->id,
             'valoracion' => $request->valoracion,
             'comentario' => $request->comentario

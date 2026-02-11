@@ -67,7 +67,7 @@ class CompraVentaController extends Controller
             ->with(['producto', 'comprador', 'vendedor'])
             ->withExists([
                 'valoraciones as ya_valorado' => function ($query) use ($userId) {
-                    $query->where('id_resenyador', $userId);
+                    $query->where('id_valorador', $userId);
                 }
             ])
             ->orderBy('created_at', 'desc')

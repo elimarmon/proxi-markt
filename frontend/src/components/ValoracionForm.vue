@@ -29,10 +29,12 @@ const enviarValoracion = () => {
                         </h5>
 
                         <div class="mb-2 text-start">
-                            <label class="form-label mb-0 small fw-bold color-corporativo opacity-75">
+                            <label class="form-label d-block mb-1 small fw-bold color-corporativo opacity-75">
                                 PUNTUACIÓN
                             </label>
-                            <ValoracionEstrellas v-model="form.valoracion" :solo-lectura="false" />
+                            <div class="d-block">
+                                <ValoracionEstrellas v-model="form.valoracion" :solo-lectura="false" />
+                            </div>
                         </div>
 
                         <div class="mb-4 text-start">
