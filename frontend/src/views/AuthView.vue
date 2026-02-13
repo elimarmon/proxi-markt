@@ -1,6 +1,7 @@
 <script setup>
 import LoginForm from '../components/LoginForm.vue';
 import RegisterForm from '../components/RegistroForm.vue';
+import Footer from '@/components/Footer.vue';
 import { ref, onMounted } from 'vue';
 
 const eleccionActual = ref('login')
@@ -41,6 +42,7 @@ onMounted(() => {
             </div>
         </div>
     </div>
+    <Footer></Footer>
 </template>
 
 <style scoped>
@@ -54,28 +56,19 @@ html {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     background-color: #ffffff;
-    box-sizing: border-box;
-    font-family: "Segoe UI", Helvetica, Arial, sans-serif;
     min-height: 100vh;
     width: 100%;
     padding: 20px;
-}
-
-.login-contenedor.centrado {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    padding: 0;
-    overflow: hidden;
+    box-sizing: border-box;
 }
 
 .contenido-responsive {
     width: 100%;
     max-width: 500px;
     text-align: center;
-    margin: 0 auto;
+    margin: 0 auto; 
 }
 
 .logo {

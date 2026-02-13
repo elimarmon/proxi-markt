@@ -3,6 +3,7 @@ import { ref } from "vue";
 import api from "@/api/axios";
 import { useAuth } from '@/composables/useAuth';
 import { useRouter } from 'vue-router';
+
 const emit = defineEmits(['registro-completado']);
 const mostrar = ref({
     pass1: false,
@@ -101,35 +102,36 @@ const enviarInfo = async () => {
                 <input v-model="form.email" type="email" id="email" placeholder="tu@gmail.com" />
             </div>
 
-            <div class="form-group">
-                <label for="contrasenya">Contraseña</label>
-                <div class="password-wrapper">
-                    <input 
-                        v-model="form.contrasenya" 
-                        :type="mostrar.pass1 ? 'text' : 'password'" 
-                        id="contrasenya" 
-                        placeholder="••••••••" 
-                    />
-                    <span class="icono-ojo" @click="mostrar.pass1 = !mostrar.pass1">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" :d="mostrar.pass1 ? ojoTachado : ojoNormal" />
-                        </svg>
-                    </span>
+            <div class="row-passwords">
+                <div class="form-group">
+                    <label for="contrasenya">Contraseña</label>
+                    <div class="password-wrapper">
+                        <input 
+                            v-model="form.contrasenya" 
+                            :type="mostrar.pass1 ? 'text' : 'password'" 
+                            id="contrasenya" 
+                            placeholder="••••••••" 
+                        />
+                        <span class="icono-ojo" @click="mostrar.pass1 = !mostrar.pass1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" :d="mostrar.pass1 ? ojoTachado : ojoNormal" />
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmar_contrasenya">Confirmar Contraseña</label>
+                    <div class="password-wrapper">
+                        <input v-model="form.confirmar_contrasenya" :type="mostrar.pass2 ? 'text' : 'password'" id="confirmar_contrasenya" placeholder="••••••••"/>
+                        <span class="icono-ojo" @click="mostrar.pass2 = !mostrar.pass2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" :d="mostrar.pass2 ? ojoTachado : ojoNormal" />
+                            </svg>
+                        </span>
+                    </div>
                 </div>
             </div>
-
-            <div class="form-group">
-                <label for="confirmar_contrasenya">Confirmar Contraseña</label>
-                <div class="password-wrapper">
-                    <input v-model="form.confirmar_contrasenya" :type="mostrar.pass2 ? 'text' : 'password'" id="confirmar_contrasenya" placeholder="••••••••"/>
-                    <span class="icono-ojo" @click="mostrar.pass2 = !mostrar.pass2">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" :d="mostrar.pass2 ? ojoTachado : ojoNormal" />
-                        </svg>
-                    </span>
-                </div>
-            </div>
-
             <div class="form-group">
                 <label for="telefono">Teléfono</label>
                 <input v-model="form.telefono" type="tel" id="telefono" placeholder="123456789" />
@@ -151,6 +153,10 @@ const enviarInfo = async () => {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+body {
+    min-width: 400px;
 }
 
 .register-container {
@@ -292,6 +298,14 @@ input::placeholder {
     animation: subida 0.3s ease-out;
 }
 
+.row-passwords {
+    display: flex;
+    gap: 15px;
+}
+.row-passwords .form-group {
+    flex: 1;
+}
+
 @keyframes subida {
     from { transform: translateY(20px); opacity: 0; }
     to   { transform: translateY(0); opacity: 1; }
@@ -317,6 +331,11 @@ input::placeholder {
 
     h3 {
         font-size: 1.2rem;
+    }
+    
+    .row-passwords {
+        flex-direction: column;
+        gap: 0;
     }
 }
 </style>
