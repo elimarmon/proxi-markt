@@ -20,6 +20,29 @@ const ingresos = computed(() => {
     }, 0);
 });
 
+// sols està carregant els productes de la pàgina 1
+// data.data perque Laravel esta retornant un objecte de paginacio
+// que en este cas carrega fins a 7 productes
+const cargarProductosUser = async () => {
+    try {
+        const response = await api.get(`/usuarios/${usuario.value?.id}/productos`);
+        productosUser.value = response.data.data;
+        // console.log(response.data.data);
+    } catch (error) {
+        console.error("Error cargando productos:", error);
+    }
+};
+
+const obtenerCompras = async () => {
+    const response = await api.get('/mis-compras');
+    misCompras.value = response.data.data;
+};
+
+const obtenerVentas = async () => {
+    const response = await api.get('/mis-ventas');
+    misVentas.value = response.data.data;
+};
+
 const comprasCompletadas = computed(() => {
     return misCompras.value.filter(c => c.estado === 'completado');
 });

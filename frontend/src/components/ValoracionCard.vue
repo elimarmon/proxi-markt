@@ -126,7 +126,7 @@ const nombreProducto = computed(() => {
     align-items: center;
     gap: 4px;
     font-size: 0.75rem;
-    color: #4CA626; /* Usando tu verde corporativo */
+    color: #4CA626;
     font-weight: 500;
 }
 

@@ -65,7 +65,6 @@ const editarProducto = async () => {
     setLoading(true);
 
     const data = new FormData();
-    // Laravel requiere _method PUT cuando se envía FormData via POST
     data.append('_method', 'PUT');
     data.append('nombre_producto', formulario.nombre_producto);
     data.append('descripcion', formulario.descripcion || '');
@@ -131,8 +130,8 @@ onMounted(async () => {
 
                 <div class="grupo-campo">
                     <label for="descripcion">Descripción del producto</label>
-                    <input v-model="formulario.descripcion" type="text" id="descripcion"
-                        placeholder="Breve descripción...">
+                    <textarea v-model="formulario.descripcion" id="descripcion" rows="3"
+                        placeholder="Breve descripción..."></textarea>  
                 </div>
 
                 <div class="grupo-campo">
@@ -253,7 +252,8 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
     width: 100%;
     padding: 12px 14px;
     background-color: #f8fafc;
@@ -263,10 +263,17 @@ select {
     transition: all 0.2s ease;
     box-sizing: border-box;
     color: #2d3748;
+    resize: none;
+}
+
+textarea {
+    height: auto;
+    min-height: calc(1.5em * 3 + 24px);
 }
 
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
     outline: none;
     border-color: #4CA626;
     background-color: #ffffff;
