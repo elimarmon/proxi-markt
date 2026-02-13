@@ -12,9 +12,8 @@ const emit = defineEmits(['cambiar-radio']);
 const { usuario, fetchUsuario, estarAutenticado, logout } = useAuth();
 const radioActual = ref(Number(localStorage.getItem('distancia_guardada')) || 10);
 
-// --- ESTADOS PARA LOS PUNTOS ROJOS ---
-const tieneNotificacion = ref(false); // Mensajes
-const tieneComandas = ref(false);     // Comandas
+const tieneNotificacion = ref(false); 
+const tieneComandas = ref(false);     
 let intervaloNotificacion = null;
 
 const cerrarSesion = () => {
@@ -23,7 +22,6 @@ const cerrarSesion = () => {
     router.push('/');
 };
 
-// 2. CONFIRMAR RADIO (MODAL)
 const confirmarNuevoRadio = (valor) => {
     radioActual.value = valor;
     localStorage.setItem('distancia_guardada', valor);
@@ -31,30 +29,25 @@ const confirmarNuevoRadio = (valor) => {
     emit('cambiar-radio', valor);
 };
 
-// 4. --- LA "ANTENA" INTEGRADA (MENSAJES Y COMANDAS) ---
 const comprobarNotificaciones = async () => {
 
-    // A) COMPROBAR MENSAJES
     try {
         const resChat = await api.get('/mis-chats');
         if (Array.isArray(resChat.data)) {
             tieneNotificacion.value = resChat.data.some(chat => chat.mensajes_no_leidos > 0);
         }
-    } catch (error) { /* Silent error */ }
+    } catch (error) {  }
 
-    // B) COMPROBAR COMANDAS (SOLO SI SOY VENDEDOR)
     try {
         const resComandas = await api.get('/mis-comandas');
-
         const listaComandas = resComandas.data.datos;
 
         if (Array.isArray(listaComandas) && usuario.value?.id) {
-            // Buscamos si hay alguna pendiente DONDE YO SEA EL VENDEDOR
             tieneComandas.value = listaComandas.some(c =>
                 c.estado === 'pendiente' && c.id_vendedor === usuario.value?.id
             );
         }
-    } catch (error) { /* Silent error */ }
+    } catch (error) {  }
 };
 
 const irAuth = (modo) => {
@@ -172,6 +165,25 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+
+.enlace-con-notificacion {
+    position: relative; 
+}
+
+.punto-nav {
+    position: absolute;
+    top: 5px;           
+    right: 5px;         
+    width: 13px;         
+    height: 13px;
+    background-color: #ff3b30;
+    border-radius: 50%;
+    border: none;        
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 10;
+}
+
+
 header {
     width: 100%;
     background-color: #ffffff;
@@ -371,6 +383,12 @@ header {
         margin-right: 0;
         width: 28px;
         height: 28px;
+    }
+
+    
+    .punto-nav {
+        top: 2px;
+        right: 2px;
     }
 }
 
