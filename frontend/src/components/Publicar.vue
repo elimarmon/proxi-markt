@@ -53,27 +53,6 @@ const guardarImagen = (event) => {
     }
 }
 
-const cargarPuntos = async () => {
-    cargando.value = true;
-    try {
-        const response = await api.get(`/usuarios/${usuario.value.id}/puntos`);
-        puntosEntrega.value = response.data;
-    } catch (err) {
-        console.error("Error cargando puntos:", err);
-    } finally {
-        cargando.value = false;
-    }
-}
-
-const cargarCategorias = async () => {
-    try {
-        const response = await api.get('/categorias');
-        categorias.value = response.data;
-    } catch (err) {
-        console.error("Error cargando categorías:", err);
-    }
-}
-
 const abrirModalYMapa = async () => {
     mostrarModalPunto.value = true;
     await nextTick();
@@ -402,14 +381,6 @@ onBeforeUnmount(() => {
 
 body {
     min-width: 400px;
-}
-
-<style scoped>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', 'Arial';
 }
 
 .contenedor-pagina {
