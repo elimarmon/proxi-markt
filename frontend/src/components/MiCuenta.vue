@@ -459,6 +459,10 @@ hr {
     margin-bottom: 30px;
 }
 
+.card-perfil h3 {
+    color: #4CA626;
+}
+
 .contenedor-accion-superior {
     margin-bottom: 40px;
 }
