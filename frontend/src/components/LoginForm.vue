@@ -38,7 +38,7 @@ const enviarInfo = async () => {
     setLoading(true);
 
     try {
-        const response = await api.post('/login', form.value);
+        const response = await api.post('/api/login', form.value);
         const { token, user } = response.data;
         login(token, user);
 
