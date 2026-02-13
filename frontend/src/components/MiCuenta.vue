@@ -25,6 +25,17 @@ const eleccionActual = ref('productos');
 const pagination = ref({});
 const paginaActual = ref(1);
 
+const toastVisible = ref(false);
+const toastMensaje = ref("");
+
+const lanzarToast = (mensaje) => {
+    toastMensaje.value = mensaje;
+    toastVisible.value = true;
+    setTimeout(() => {
+        toastVisible.value = false;
+    }, 3000);
+};
+
 // console.log(puntosEntrega)
 
 const guardarPuntoEntrega = async () => {
@@ -117,7 +128,7 @@ async function onMapClick(e) {
         }
 
     } catch (error) {
-        alert("Punto no válido.")
+        lanzarToast("Punto no válido");
         console.error(error.message);
     }
 }
@@ -140,11 +151,11 @@ const crearPunto = async () => {
             longitud: longitud.value
         };
 
-        alert('Punto creado correctamente.')
+        lanzarToast("Punto creado correctamente.");
         puntosEntrega.value.push(nuevoPunto);
     } catch (error) {
         console.error("Error del servidor:", error.response ? error.response.data : error.message);
-        alert('Fallo al crear punto de entrega.');
+        lanzarToast("Fallo al crear punto de entrega.");
     }
 }
 
@@ -166,13 +177,13 @@ const eliminarPunto = async (id) => {
 
     try {
         await api.delete(`/puntos/${id}`);
-        alert('Punto eliminado correctamente');
+        lanzarToast("Punto eliminado correctamente.");
         puntosEntrega.value = puntosEntrega.value.filter(p => p.id !== id);
         if (activarMapa.value && map) {
             cargarMarcadores();
         }
     } catch (error) {
-        alert('No se pudo eliminar el punto.');
+        lanzarToast("No se ha podido eliminar el punto de entrega.");
         console.error("Error al eliminar:", error);
     }
 }
@@ -190,9 +201,13 @@ const cargarProductosUser = async (pagina = 1) => {
 }
 
 const eliminarProducto = async (id) => {
-    await api.delete('/productos/' + id);
-    alert('Producto eliminado correctamente');
-    productosUser.value = productosUser.value.filter(p => p.id !== id);
+    try {
+        await api.delete('/productos/' + id);
+        lanzarToast("Producto eliminado correctamente.");
+        productosUser.value = productosUser.value.filter(p => p.id !== id);
+    } catch (error) {
+        lanzarToast("No se pudo eliminar el producto.");
+    }
 }
 
 const irAlPunto = (punto) => {
@@ -325,6 +340,9 @@ onUnmounted(() => {
                 <ValoracionView v-else-if="eleccionActual === 'valoraciones'" />
             </div>
         </div>
+        <div v-if="toastVisible" class="toast-notificacion">
+            {{ toastMensaje }}
+        </div>
     </div>
     <Footer></Footer>
 </template>
@@ -334,7 +352,7 @@ onUnmounted(() => {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', 'Arial';
+    font-family: "Segoe UI", "Arial";
 }
 
 body {
@@ -353,7 +371,7 @@ body {
 
 .contenedor-titulo {
     max-width: 90%;
-    margin: 40px auto 0 auto;
+    margin: 10px auto 0 auto;
 }
 
 .titulo {
@@ -635,15 +653,30 @@ hr {
     outline: none;
 }
 
-/* Efecto cuando el usuario va a escribir */
 .controles-mapa input:focus {
     border-color: #4CA626;
     box-shadow: 0 0 0 3px rgba(76, 166, 38, 0.1);
 }
 
-/* Estilo para el placeholder (el texto de ayuda) */
 .controles-mapa input::placeholder {
     color: #9ca3af;
+}
+
+.toast-notificacion {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    z-index: 99999;
+    animation: subida 0.3s ease-out;
+}
+
+@keyframes subida {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
 }
 
 @media (max-width: 600px) {

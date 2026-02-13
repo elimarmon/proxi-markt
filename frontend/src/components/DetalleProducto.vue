@@ -10,6 +10,17 @@ const props = defineProps(['id']);
 const producto = ref(null);
 const { usuario, fetchUsuario, loading, setLoading } = useAuth();
 
+const toastVisible = ref(false);
+const toastMensaje = ref("");
+
+const lanzarToast = (mensaje) => {
+    toastMensaje.value = mensaje;
+    toastVisible.value = true;
+    setTimeout(() => {
+        toastVisible.value = false;
+    }, 3000);
+};
+
 const obtenerProducto = async () => {
     const response = await api.get(`/productos/${props.id}`);
     producto.value = response.data;
@@ -37,9 +48,9 @@ const crearCompraventa = async (datosCompra) => {
             await api.post('/enviar-mensaje', datosChat);
         }
         await api.post(`/compraventa/${props.id}`, payload);
-        alert("Solicitud correcta");
+        lanzarToast("¡Solicitud correcta!");
     } catch (err) {
-        alert("Solicitud incorrecta");
+        lanzarToast("Solicitud incorrecta");
         console.error(err);
     } finally {
         setLoading(false);
@@ -104,6 +115,9 @@ onMounted(async () => {
                         @enviar-solicitud="crearCompraventa" />
                 </div>
             </div>
+        </div>
+        <div v-if="toastVisible" class="toast-notificacion">
+            {{ toastMensaje }}
         </div>
     </div>
     <Footer></Footer>
@@ -259,6 +273,23 @@ onMounted(async () => {
     line-height: 1.5;
     font-size: 0.95rem;
     margin: 0;
+}
+
+.toast-notificacion {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    z-index: 99999;
+    animation: subida 0.3s ease-out;
+}
+
+@keyframes subida {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
 }
 
 @media (max-width: 992px) {

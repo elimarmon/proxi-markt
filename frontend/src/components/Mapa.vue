@@ -192,7 +192,11 @@ onMounted(async () => {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', 'Arial', sans-serif;
+    font-family: "Segoe UI", "Arial";
+}
+
+body {
+    min-width: 400px;
 }
 
 #map {
@@ -210,20 +214,21 @@ onMounted(async () => {
 
 #contenedor-titulo {
     max-width: 1200px;
-    margin: 40px auto 20px auto;
+    margin: 10px auto 20px auto;
     padding: 0 15px;
 }
 
 .titulo {
-    color: #4ca626;
-    font-size: 2rem;
-    margin-bottom: 8px;
-    font-weight: 700;
+    font-family: sans-serif;
+    color: #4CA626;
+    margin-bottom: 10px;
+    font-weight: bold;
 }
 
 .subtitulo {
-    color: #666;
-    font-size: 1.1rem;
+    font-family: sans-serif;
+    color: #666666;
+    margin-bottom: 20px;
 }
 
 #contenedor-mapa {

@@ -55,14 +55,23 @@ const productosOrdenados = computed(() => {
     return [...productosUser.value].sort((a, b) => a.id - b.id);
 });
 
+const cargarDatosDashboard = async () => {
+    try {
+        const response = await api.get('/dashboard'); 
+        
+        productosUser.value = response.data.productos;
+        misVentas.value = response.data.ventas;
+        misCompras.value = response.data.compras;
+        
+    } catch (error) {
+        console.error("Error cargando el dashboard:", error);
+    }
+};
+
 onMounted(async () => {
     await fetchUsuario();
     if (usuario.value?.id) {
-        await Promise.all([
-            cargarProductosUser(),
-            obtenerCompras(),
-            obtenerVentas()
-        ]);
+        await cargarDatosDashboard();
     }
 });
 </script>
@@ -112,11 +121,11 @@ onMounted(async () => {
                         <img :src="venta.producto?.imagen ? `http://localhost:8080/storage/${venta.producto.imagen}` : 'https://via.placeholder.com/150'"
                             class="imagen-producto">
 
-                        <p id="nombre-producto">{{ venta.producto?.nombre_producto || 'Producto no disponible' }}</p>
+                        <p id="nombre-producto">{{ venta.producto?.nombre_producto || 'Producto eliminado' }}</p>
 
                         <p id="precio">{{ (venta.cantidad * (venta.producto?.precio || 0)).toFixed(2) }}€</p>
 
-                        <p id="info">{{ venta.comprador.nombre_usuario }}</p>
+                        <p id="info">{{ venta.comprador?.nombre_usuario || 'Usuario desconocido' }}</p>
                         <p id="estado">{{ venta.estado }}</p>
                     </div>
                 </div>
@@ -136,24 +145,23 @@ onMounted(async () => {
                         <p id="stock-disponible">{{ producto.stock_total }} disponibles</p>
                     </div>
                 </div>
-                <p class="no-producto" v-else>No has publicado ningún productos aún.</p>
+                <p class="no-producto" v-else>No has publicado ningún producto aún.</p>
             </div>
         </div>
 
         <div class="cajas-informacion-tres">
-
             <div class="productos">
                 <img src="../assets/iconos/stock.png" class="icono" />
                 <h3>Mis Compras</h3>
 
                 <div v-if="comprasCompletadas.length > 0" class="lista-scroll">
-                    <div class="compras-producto" v-for="compra in misCompras.filter(c => c.estado === 'completado')"
-                        :key="compra.id">
+                    <div class="compras-producto" v-for="compra in comprasCompletadas" :key="compra.id">
                         <img :src="compra.producto?.imagen ? `http://localhost:8080/storage/${compra.producto.imagen}` : 'https://via.placeholder.com/150'"
                             class="imagen-producto">
 
-                        <p id="nombre-producto">{{ compra.producto?.nombre_producto || 'Producto no disponible' }}</p>
-                        <p id="info">{{ compra.vendedor.nombre_usuario }}</p>
+                        <p id="nombre-producto">{{ compra.producto?.nombre_producto || 'Producto eliminado' }}</p>
+                        
+                        <p id="info">{{ compra.vendedor?.nombre_usuario || 'Vendedor desconocido' }}</p>
                         <p id="estado">{{ compra.estado }}</p>
                         <p id="precio">{{ (compra.cantidad * (compra.producto?.precio || 0)).toFixed(2) }}€</p>
                     </div>
@@ -184,7 +192,7 @@ body {
 
 #contenedor-titulo {
     max-width: 90%;
-    margin: 40px auto 0 auto;
+    margin: 10px auto 0 auto;
 }
 
 .titulo {
@@ -427,4 +435,4 @@ body {
 .lista-scroll::-webkit-scrollbar-thumb:hover {
     background: #AAAAAA;
 }
-</style>
+</style> 

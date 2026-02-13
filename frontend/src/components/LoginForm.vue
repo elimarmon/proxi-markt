@@ -7,6 +7,16 @@ import { useAuth } from '@/composables/useAuth';
 const router = useRouter()
 const { login, loading, setLoading } = useAuth();
 
+const toastVisible = ref(false);
+const toastMensaje = ref("");
+
+const lanzarToast = (mensaje) => {
+    toastMensaje.value = mensaje;
+    toastVisible.value = true;
+    setTimeout(() => {
+        toastVisible.value = false;
+    }, 3000);
+};
 const mostrarPassword = ref(false);
 
 const ojoTachado = "M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88";
@@ -21,7 +31,7 @@ const enviarInfo = async () => {
     const { email, contrasenya } = form.value;
 
     if (!email || !contrasenya) {
-        alert("Rellena los campos obligatorios");
+        lanzarToast("Rellena los campos obligatorios");
         return;
     }
 
@@ -41,7 +51,7 @@ const enviarInfo = async () => {
         form.value = { email: '', contrasenya: '' };
     } catch (error) {
         console.error("Error en el login:", error.response?.data || error.message);
-        alert("Credenciales incorrectas");
+        lanzarToast("Credenciales incorrectas");
     } finally {
         setLoading(false);
     }
@@ -75,6 +85,9 @@ const enviarInfo = async () => {
 
             <button :disabled="loading" type="submit" class="boton-submit">Iniciar Sesión</button>
         </form>
+    </div>
+    <div v-if="toastVisible" class="toast-notificacion">
+        {{ toastMensaje }}
     </div>
 </template>
 
@@ -207,6 +220,23 @@ input::placeholder {
 
 .boton-submit:disabled:hover {
     background: #cccccc;
+}
+
+.toast-notificacion {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    z-index: 99999;
+    animation: subida 0.3s ease-out;
+}
+
+@keyframes subida {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
 }
 
 @media (min-width: 1200px) {
