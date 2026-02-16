@@ -1,7 +1,8 @@
 version: '3.8'
 
 services:
- # --- DOCKER PROXY (El Traductor Oficial) ---
+  # --- DOCKER PROXY ---
+  # Actúa como puente para que Traefik v3 hable con Docker Engine v29
   docker-proxy:
     image: tecnativa/docker-socket-proxy
     container_name: docker-proxy
@@ -9,9 +10,11 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
+      - DOCKER_API_VERSION=1.44
       - CONTAINERS=1
       - NETWORKS=1
-      - SERVICES=1  # Añadido para Traefik v3
+      - SERVICES=1
+      - VERSION=1 # Permite que Traefik verifique la versión del motor
     networks:
       - internal-net
 
@@ -28,7 +31,6 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.endpoint=tcp://docker-proxy:2375"
       - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.allowEmptyServices=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
@@ -67,7 +69,6 @@ services:
     restart: unless-stopped
     env_file: ../docker/.env.app
     volumes:
-      # IMPORTANTE: Mantenemos esto, pero hay que borrar el volumen antiguo
       - php_assets:/var/www/html
       - ./storage_data:/var/www/html/storage/app/public
     networks:
