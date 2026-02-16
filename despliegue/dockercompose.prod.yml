@@ -6,7 +6,8 @@ services:
     image: traefik:v2.5  # <--- Bajamos a la v2.5
     container_name: traefik
     restart: unless-stopped
-    # Quitamos la variable DOCKER_API_VERSION para que negocie automáticamente
+    environment:
+      - DOCKER_API_VERSION=1.24
     command:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
