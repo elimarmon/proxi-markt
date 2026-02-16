@@ -3,14 +3,20 @@ version: '3.8'
 services:
   # --- TRAEFIK ---
   traefik:
-    image: traefik:v2.5  # <--- Bajamos a la v2.5
+    image: traefik:v2.5
     container_name: traefik
     restart: unless-stopped
+    # Mantenemos el environment por si acaso
     environment:
-      - DOCKER_API_VERSION=1.24
+      - DOCKER_API_VERSION=1.44 
     command:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      # --- ESTA ES LA CLAVE: FORZAMOS LA API QUE ÉL QUIERE ---
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      # Probamos a engañarle diciendo que use una versión que acepte
+      - "--providers.docker.httpClientTimeout=300s"
+      # ------------------------------------------------------
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
