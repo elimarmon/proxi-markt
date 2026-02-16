@@ -39,4 +39,8 @@ class CompraVenta extends Model
     public function puntoEntrega() {
         return $this->belongsTo(PuntoEntrega::class, 'id_punto', 'id');
     }
+
+    public function valoraciones() {
+        return $this->hasMany(Valoracion::class, 'id_venta');
+    }
 }

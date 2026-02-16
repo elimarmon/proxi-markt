@@ -12,8 +12,8 @@ class Valoracion extends Model
         'valoracion',
         'comentario',
         'id_venta',
-        'id_resenyador',
-        'id_resenyado',
+        'id_valorador',
+        'id_valorado',
     ];
 
     public function compraventa() {
@@ -21,11 +21,11 @@ class Valoracion extends Model
     }
 
     public function emisor() {
-        return $this->belongsTo(User::class, 'id_resenyador', 'id');
+        return $this->belongsTo(User::class, 'id_valorador', 'id');
     }
 
     public function receptor() {
-        return $this->belongsTo(User::class, 'id_resenyado', 'id');
+        return $this->belongsTo(User::class, 'id_valorado', 'id');
     }
 
 }
