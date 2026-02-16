@@ -186,7 +186,7 @@ const insertarProducto = async () => {
         datos.append('id_puntoentrega', puntoEntrega.value);
 
         if (imagen.value) {
-            datos.append('imagen', imagen.value);
+            datos.append('imagen', imagen.value, imagen.value.name);
         }
 
         await api.post('/productos', datos);

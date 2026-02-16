@@ -74,7 +74,7 @@ const editarProducto = async () => {
     data.append('id_puntoentrega', formulario.id_puntoentrega);
 
     if (archivoImagen.value) {
-        data.append('imagen', archivoImagen.value);
+        data.append('imagen', archivoImagen.value, archivoImagen.value.name);
     }
 
     try {
