@@ -6,6 +6,8 @@ services:
     image: tecnativa/docker-socket-proxy
     container_name: docker-proxy
     restart: unless-stopped
+    depends_on:
+      - docker-proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
