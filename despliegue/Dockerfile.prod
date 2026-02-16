@@ -1,7 +1,6 @@
 # --- ETAPA 1: Frontend ---
 FROM node:22-alpine as build-frontend
 WORKDIR /app
-# Fíjate en los ".." para subir un nivel a la raíz
 COPY ../frontend/package*.json ./
 RUN npm install
 COPY ../frontend/ .
@@ -14,14 +13,16 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath opcache
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
-COPY --from=build-frontend /app/dist ./public/build
 
-# Subimos un nivel para copiar el backend
+# 1. COPIAR EL BACKEND PRIMERO
 COPY ../backend/ .
 
-# Copiamos el build del front a la carpeta public de Laravel
-# Asegúrate de si tu front genera 'dist' o 'build'
-COPY --from=build-frontend /app/dist ./public
-
+# 2. INSTALAR DEPENDENCIAS DE COMPOSER
 RUN composer install --optimize-autoloader --no-dev
+
+# 3. COPIAR EL FRONTEND AL FINAL (Para que no se sobrescriba)
+# Copiamos a public/build para que Vite funcione correctamente en Laravel
+COPY --from=build-frontend /app/dist ./public/build
+
+# 4. PERMISOS
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
