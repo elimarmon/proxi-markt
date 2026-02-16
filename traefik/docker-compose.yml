@@ -4,8 +4,8 @@ services:
     container_name: traefik
     restart: always
     environment:
-      # Fuerza la compatibilidad con el motor Docker de Azure
-      - DOCKER_API_VERSION=1.24
+      - DOCKER_API_VERSION=1.47
+      - COMPOSE_API_VERSION=1.47
     command:
       - "--log.level=DEBUG"
       - "--api.dashboard=true"
