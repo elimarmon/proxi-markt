@@ -12,7 +12,8 @@ const router = useRouter();
 const PuntosEntrega = ref([]);
 const archivoImagen = ref(null);
 const imagenPreview = ref(null);
-const { usuario, fetchUsuario, loading, setLoading } = useAuth();
+const isSubmitting = ref(false);
+const { usuario, fetchUsuario } = useAuth();
 
 const toastVisible = ref(false);
 const toastMensaje = ref("");
@@ -63,7 +64,8 @@ const cargarProducto = async () => {
 
 const editarProducto = async () => {
 
-    setLoading(true);
+    if (isSubmitting.value) return;
+    isSubmitting.value = true;
 
     const data = new FormData();
     data.append('_method', 'PUT');
@@ -88,7 +90,7 @@ const editarProducto = async () => {
         lanzarToast("No se pudo actualizar el producto");
         console.error("Error al editar:", error);
     } finally {
-        setLoading(false);
+        isSubmitting.value = false;
     }
 }
 
@@ -179,8 +181,8 @@ onMounted(async () => {
                     <button @click="router.back()" type="button" class="boton-cancelar">
                         Cancelar
                     </button>
-                    <button type="submit" class="boton-actualizar" :disabled="loading">
-                        <span v-if="!loading">Actualizar Producto</span>
+                    <button type="submit" class="boton-actualizar" :disabled="isSubmitting">
+                        <span v-if="!isSubmitting">Actualizar Producto</span>
                         <span v-else>Guardando cambios...</span>
                     </button>
                 </div>
