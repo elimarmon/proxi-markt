@@ -437,8 +437,4 @@ body {
 .lista-scroll::-webkit-scrollbar-thumb:hover {
     background: #AAAAAA;
 }
-<<<<<<< HEAD
 </style>
-=======
-</style> 
->>>>>>> 5cb1c23daa272443b40f242410fb05ee4eb5b8cd
