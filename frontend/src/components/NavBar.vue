@@ -395,11 +395,15 @@ header {
 }
 
 @media (max-width: 1200px) {
+    .enlaces-paginas li a {
+        font-size: 0 !important;
+        padding: 8px !important;
+    }
 
     .enlaces-paginas span,
     .subtitulo,
     .nombre-user {
-        display: none;
+        display: none !important;
     }
 
     .logos-nav {
@@ -408,10 +412,38 @@ header {
         height: 28px;
     }
 
-    
     .punto-nav {
         top: 2px;
         right: 2px;
+    }
+
+    
+}
+
+@media (max-width: 1200px) and (min-width: 769px) {
+    .enlaces-paginas li a {
+        position: relative !important;
+        display: flex !important;
+        padding: 10px !important;
+        font-size: 0 !important;
+    }
+
+    .enlace-con-notificacion .punto-nav {
+        display: block !important;
+        position: absolute !important;
+        top: 2px !important;
+        right: 2px !important;
+        width: 12px !important;
+        height: 12px !important;
+        background-color: #ff3b30 !important;
+        border: 2px solid #ff3b30 !important;
+        border-radius: 50% !important;
+        z-index: 50 !important;
+    }
+
+    .logos-nav {
+        display: block !important;
+        margin: 0 !important;
     }
 }
 
@@ -503,6 +535,18 @@ header {
         left: -5px;
         margin-left: 0px;
         flex-shrink: 0;
+    }
+
+    .nav-autenticado.abierto .enlaces-paginas li a {
+        font-size: 15px !important;
+    }
+
+    .nav-autenticado.abierto .punto-nav {
+        position: relative;
+        top: -8px;
+        left: 5px;
+        right: auto;
+        display: inline-block;
     }
 }
 </style>
