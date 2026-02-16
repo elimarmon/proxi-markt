@@ -1,8 +1,8 @@
 <?php
 
+// Importamos las herramientas y modelos necesarios de Laravel
 namespace App\Http\Controllers; 
 
-// Importamos las herramientas y modelos necesarios de Laravel
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginUserRequest;
