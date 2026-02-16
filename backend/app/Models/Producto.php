@@ -37,25 +37,4 @@ class Producto extends Model
     public function punto_entrega(){
         return $this->belongsTo(PuntoEntrega::class, 'id_puntoentrega', 'id');
     }
-
-    // Asegura que la ruta de imagen nunca se guarde como valor inválido (ej: "0").
-    public function setImagenAttribute($value): void
-    {
-        if ($value === null || $value === '' || $value === '0' || is_numeric($value)) {
-            $this->attributes['imagen'] = 'productos/default.jpg';
-            return;
-        }
-
-        $this->attributes['imagen'] = $value;
-    }
-
-    // Normaliza lecturas antiguas con valores inválidos para no romper el frontend.
-    public function getImagenAttribute($value): string
-    {
-        if ($value === null || $value === '' || $value === '0' || is_numeric($value)) {
-            return 'productos/default.jpg';
-        }
-
-        return $value;
-    }
 }

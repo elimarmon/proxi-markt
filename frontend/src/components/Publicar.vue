@@ -186,10 +186,12 @@ const insertarProducto = async () => {
         datos.append('id_puntoentrega', puntoEntrega.value);
 
         if (imagen.value) {
-            datos.append('imagen', imagen.value, imagen.value.name);
+            datos.append('imagen', imagen.value);
         }
 
-        await api.post('/productos', datos);
+        await api.post('/productos', datos, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
 
         lanzarToast("¡Producto creado correctamente!");
         setTimeout(() => {
