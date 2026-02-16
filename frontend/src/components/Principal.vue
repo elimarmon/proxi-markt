@@ -3,7 +3,6 @@ import { useRouter } from "vue-router";
 import NavBar from "./NavBar.vue";
 import Footer from "./Footer.vue";
 const router = useRouter();
-import Footer from "./Footer.vue"
 
 const irAuth = (modo) => {
     const token = localStorage.getItem('token');

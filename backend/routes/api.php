@@ -84,6 +84,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Ruta de notificaciones
     Route::put('/chats/{id}/leer', [App\Http\Controllers\ChatController::class, 'marcarLeido']);
 
+    // Ruta de Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 });
 
 
