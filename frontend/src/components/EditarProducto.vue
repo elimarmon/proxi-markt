@@ -78,11 +78,7 @@ const editarProducto = async () => {
     }
 
     try {
-        await api.post(`/productos/${props.id}`, data, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
+        await api.post(`/productos/${props.id}`, data);
         lanzarToast("¡Producto actualizado con éxito!");
         setTimeout(() => {
             router.push('/cuenta');

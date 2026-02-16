@@ -189,9 +189,7 @@ const insertarProducto = async () => {
             datos.append('imagen', imagen.value);
         }
 
-        await api.post('/productos', datos, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await api.post('/productos', datos);
 
         lanzarToast("¡Producto creado correctamente!");
         setTimeout(() => {
