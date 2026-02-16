@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Models\Chat;
 use Illuminate\Http\Request;
 
@@ -31,7 +32,7 @@ class ChatController extends Controller
         $chat = Chat::with('mensajes.emisor', 'producto', 'comprador', 'vendedor')->findOrFail($id);
         
         // per a que ningun usuario sense loguejar puga vore els mensatges
-        if (auth()->id() !== $chat->id_comprador && auth()->id() !== $chat->id_vendedor) {
+        if (Auth::id() !== $chat->id_comprador && Auth::id() !== $chat->id_vendedor) {
             return response()->json(['error' => 'No autorizado'], 403);
         }
 

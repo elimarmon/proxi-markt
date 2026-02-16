@@ -9,6 +9,8 @@ import MostrarProductos from './MostrarProductos.vue'
 import MisVentas from './MisVentas.vue';
 import MisCompras from './MisCompras.vue';
 import ValoracionView from './ValoracionView.vue';
+import Footer from './Footer.vue';
+import ValoracionEstrellas from './ValoracionEstrellas.vue';
 
 let map = null;
 let layerPuntos = null;
@@ -24,6 +26,17 @@ const productosUser = ref([])
 const eleccionActual = ref('productos');
 const pagination = ref({});
 const paginaActual = ref(1);
+
+const toastVisible = ref(false);
+const toastMensaje = ref("");
+
+const lanzarToast = (mensaje) => {
+    toastMensaje.value = mensaje;
+    toastVisible.value = true;
+    setTimeout(() => {
+        toastVisible.value = false;
+    }, 3000);
+};
 
 // console.log(puntosEntrega)
 
@@ -117,7 +130,7 @@ async function onMapClick(e) {
         }
 
     } catch (error) {
-        alert("Punto no válido.")
+        lanzarToast("Punto no válido");
         console.error(error.message);
     }
 }
@@ -140,11 +153,11 @@ const crearPunto = async () => {
             longitud: longitud.value
         };
 
-        alert('Punto creado correctamente.')
+        lanzarToast("Punto creado correctamente.");
         puntosEntrega.value.push(nuevoPunto);
     } catch (error) {
         console.error("Error del servidor:", error.response ? error.response.data : error.message);
-        alert('Fallo al crear punto de entrega.');
+        lanzarToast("Fallo al crear punto de entrega.");
     }
 }
 
@@ -166,13 +179,13 @@ const eliminarPunto = async (id) => {
 
     try {
         await api.delete(`/puntos/${id}`);
-        alert('Punto eliminado correctamente');
+        lanzarToast("Punto eliminado correctamente.");
         puntosEntrega.value = puntosEntrega.value.filter(p => p.id !== id);
         if (activarMapa.value && map) {
             cargarMarcadores();
         }
     } catch (error) {
-        alert('No se pudo eliminar el punto.');
+        lanzarToast("No se ha podido eliminar el punto de entrega.");
         console.error("Error al eliminar:", error);
     }
 }
@@ -190,9 +203,13 @@ const cargarProductosUser = async (pagina = 1) => {
 }
 
 const eliminarProducto = async (id) => {
-    await api.delete('/productos/' + id);
-    alert('Producto eliminado correctamente');
-    productosUser.value = productosUser.value.filter(p => p.id !== id);
+    try {
+        await api.delete('/productos/' + id);
+        lanzarToast("Producto eliminado correctamente.");
+        productosUser.value = productosUser.value.filter(p => p.id !== id);
+    } catch (error) {
+        lanzarToast("No se pudo eliminar el producto.");
+    }
 }
 
 const irAlPunto = (punto) => {
@@ -226,7 +243,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <NavBar />
+    <NavBar/>
     <div class="contenedor-pagina">
         <div class="contenedor-titulo">
             <h1 class="titulo">Mi Cuenta</h1>
@@ -243,10 +260,24 @@ onUnmounted(() => {
                         usuario?.email }}</p>
                     <p><span><img src="../assets/iconos/ubicacion.png" alt="icono-direccion"
                                 class="icono">Dirección:</span> {{ usuario?.direccion || 'No definida' }}</p>
-                    <hr>
-                    <p class="valoracion"><span><img src="../assets/iconos/valoraciones-icono.png"
-                                alt="icono-valoracion" class="icono">Valoración:</span> <span class="puntuacion">{{
-                                    usuario?.puntuacio || '5.0' }}</span></p>
+
+                    <div class="linea-valoracion">
+                        <span class="etiqueta-valoracion">
+                            <img src="../assets/iconos/valoraciones-icono.png" alt="icono-valoracion" class="icono">
+                            Valoración:
+                        </span>
+
+                        <div v-if="usuario?.puntuacion" class="d-flex align-items-center">
+                            <ValoracionEstrellas :model-value="Number(usuario?.puntuacion)" :solo-lectura="true" />
+                            <span class="ms-2 text-muted">
+                                ({{ Number(usuario?.puntuacion).toFixed(2) }})
+                            </span>
+                        </div>
+
+                        <span v-else class="text-muted ms-1">
+                            Sin valoraciones
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -320,10 +351,13 @@ onUnmounted(() => {
                 <MostrarProductos v-if="eleccionActual === 'productos'" :productos="productosUser"
                     :pagination="pagination" :paginaActual="paginaActual" @borrar="eliminarProducto"
                     @cambiarPagina="cargarProductosUser" />
-                <MisCompras v-else-if="eleccionActual === 'compras'" :eleccion="'compras'"/>
-                <MisVentas v-else-if="eleccionActual === 'ventas'" :eleccion="'ventas'"/>
+                <MisCompras v-else-if="eleccionActual === 'compras'" :eleccion="'compras'" />
+                <MisVentas v-else-if="eleccionActual === 'ventas'" :eleccion="'ventas'" />
                 <ValoracionView v-else-if="eleccionActual === 'valoraciones'" />
             </div>
+        </div>
+        <div v-if="toastVisible" class="toast-notificacion">
+            {{ toastMensaje }}
         </div>
     </div>
     <Footer></Footer>
@@ -334,7 +368,7 @@ onUnmounted(() => {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', 'Arial';
+    font-family: 'Segoe UI', 'Arial', sans-serif;
 }
 
 body {
@@ -353,37 +387,40 @@ body {
 
 .contenedor-titulo {
     max-width: 90%;
-    margin: 40px auto 0 auto;
+    margin: 10px auto 0 auto;
 }
 
 .titulo {
-    font-family: sans-serif;
     color: #4CA626;
     margin-bottom: 10px;
     font-weight: bold;
 }
 
 .subtitulo {
-    font-family: sans-serif;
     color: #666666;
     margin-bottom: 20px;
 }
 
-hr {
-    border: none;
-    height: 2px;
-    background-color: #EEEEEE;
-    margin-bottom: 10px;
+/* --- CARD PERFIL Y DATOS --- */
+.card-perfil {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
 }
 
-.info-usuario p {
+.info-usuario p,
+.linea-valoracion {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+    /* Margen consistente para todos los campos */
 }
 
-.info-usuario p span {
+.info-usuario p span,
+.etiqueta-valoracion {
     display: flex;
     align-items: center;
     gap: 5px;
@@ -395,54 +432,21 @@ hr {
 .icono {
     width: 25px;
     height: 25px;
-}
-
-.iconoSubNav {
-    width: 25px;
-    height: 25px;
     object-fit: contain;
 }
 
-.eleccion button {
-    flex: 1;
-    padding: 10px 0;
+hr {
     border: none;
-    font-weight: bold;
-    font-size: 0.9rem;
-    cursor: pointer;
-    border-radius: 50px;
-    color: #4b5563;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+    height: 2px;
+    background-color: #EEEEEE;
+    margin: 20px 0;
 }
 
-.info-usuario .valoracion {
-    margin-bottom: 0;
-}
-
-.info-usuario p span.puntuacion {
-    color: black;
-    font-weight: normal;
-    font-size: 1.2rem;
-}
-
-.info-usuario p {
-    margin-bottom: 20px;
-}
-
-.card-perfil {
-    background: white;
-    border: 1px solid #eee;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 30px;
-}
-
+/* --- BOTONES Y ACCIONES --- */
 .contenedor-accion-superior {
     margin-bottom: 40px;
+    display: flex;
+    gap: 15px;
 }
 
 .botones-perfil {
@@ -454,12 +458,15 @@ hr {
     cursor: pointer;
     font-weight: bold;
     text-decoration: none;
+    transition: transform 0.2s;
 }
 
 .botones-perfil:hover {
     background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
+    transform: translateY(-1px);
 }
 
+/* --- MAPA Y GESTIÓN DE PUNTOS --- */
 .seccion-gestion-puntos {
     margin-bottom: 40px;
     padding: 20px;
@@ -474,6 +481,20 @@ hr {
     border-radius: 8px;
     margin-bottom: 15px;
     z-index: 1;
+}
+
+.controles-mapa input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    outline: none;
+}
+
+.controles-mapa input:focus {
+    border-color: #4CA626;
+    box-shadow: 0 0 0 3px rgba(76, 166, 38, 0.1);
 }
 
 .grid-puntos-mini {
@@ -492,58 +513,12 @@ hr {
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.2s;
 }
 
 .card-punto-mini:hover {
     background-color: #f0fdf4;
     border-color: #4CA626;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.boton-borrar {
-    background: #fee2e2;
-    color: #ef4444;
-    border: none;
-    padding: 6px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.boton-borrar:hover {
-    background: #ef4444;
-    color: white;
-}
-
-.contenedor-secciones-datos {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.seccion-bloque h3 {
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-    color: #333;
-    padding-left: 5px;
-}
-
-.card-vacia {
-    background: white;
-    border: 1px solid #eee;
-    border-radius: 12px;
-    padding: 40px;
-    text-align: center;
-    color: #999;
-    width: 100%;
-}
-
-.botones-flex {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-    align-self: flex-end;
 }
 
 .boton-confirmar {
@@ -555,48 +530,22 @@ hr {
     cursor: pointer;
 }
 
-.boton-confirmar:hover {
-    background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
-}
-
 .boton-confirmar:disabled {
     background: #ccc;
-    /* El color que tiene actualmente tu botón cancelar */
     cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
 }
 
-.boton-cancelar {
+.boton-cancelar,
+.boton-borrar {
     background: #fee2e2;
     color: #ef4444;
     border: none;
-    padding: 10px 15px;
+    padding: 8px 12px;
     border-radius: 6px;
     cursor: pointer;
 }
 
-.contenedor-accion-superior {
-    margin-bottom: 40px;
-    display: flex;
-    gap: 15px;
-}
-
-.boton-ubicacion {
-    background: linear-gradient(90deg, #4CA626 0%, #009B58 100%);
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.3s ease;
-}
-
-.boton-ubicacion:hover {
-    background: linear-gradient(90deg, #008F4C 0%, rgb(1, 104, 59) 100%);
-}
-
+/* --- SUB-NAVEGACIÓN (ELECCIÓN) --- */
 .eleccion {
     margin-bottom: 25px;
 }
@@ -608,12 +557,26 @@ hr {
     padding: 5px;
     border-radius: 50px;
     border: 1px solid #e5e7eb;
-    margin: 0;
 }
 
 .eleccion li {
     flex: 1;
+}
+
+.eleccion button {
+    width: 100%;
+    padding: 10px 0;
+    border: none;
+    background: transparent;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 50px;
+    color: #4b5563;
     display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: 0.3s;
 }
 
 .eleccion button.active {
@@ -622,33 +585,44 @@ hr {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.controles-mapa input {
-    width: 100%;
-    padding: 12px 15px;
-    margin-bottom: 10px;
-    border: 1px solid #e5e7eb;
+.iconoSubNav {
+    width: 20px;
+    height: 20px;
+}
+
+/* --- SECCIONES DE DATOS --- */
+.contenedor-secciones-datos {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 200px;
+}
+
+.toast-notificacion {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 15px 25px;
     border-radius: 8px;
-    font-size: 1rem;
-    color: #374151;
-    background-color: #ffffff;
-    transition: all 0.3s ease;
-    outline: none;
+    z-index: 99999;
+    animation: subida 0.3s ease-out;
 }
 
-/* Efecto cuando el usuario va a escribir */
-.controles-mapa input:focus {
-    border-color: #4CA626;
-    box-shadow: 0 0 0 3px rgba(76, 166, 38, 0.1);
-}
-
-/* Estilo para el placeholder (el texto de ayuda) */
-.controles-mapa input::placeholder {
-    color: #9ca3af;
+@keyframes subida {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
 }
 
 @media (max-width: 600px) {
     .contenedor-accion-superior {
         flex-direction: column;
+    }
+
+    .eleccion ul {
+        flex-direction: column;
+        border-radius: 12px;
     }
 }
 </style>

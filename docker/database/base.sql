@@ -9,7 +9,6 @@ CREATE TABLE usuarios (
     direccion VARCHAR(255),
     longitud DECIMAL(12, 8),
     latitud DECIMAL(12, 8),
-    puntuacio DOUBLE DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -75,6 +74,7 @@ CREATE TABLE mensajes (
     id_chat INT,
     id_envio INT,
     contenido TEXT NOT NULL,
+    leido BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_chat) REFERENCES chats (id),
@@ -109,14 +109,14 @@ CREATE TABLE compraventas (
 CREATE TABLE valoraciones (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_venta INT,
-    id_resenyador INT,
-    id_resenyado INT,
+    id_valorador INT,
+    id_valorado INT,
     valoracion TINYINT NOT NULL,
     comentario TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_venta) REFERENCES compraventas (id),
-    FOREIGN KEY (id_resenyador) REFERENCES usuarios (id),
-    FOREIGN KEY (id_resenyado) REFERENCES usuarios (id),
-    UNIQUE (id_venta, id_resenyador)
+    FOREIGN KEY (id_valorador) REFERENCES usuarios (id),
+    FOREIGN KEY (id_valorado) REFERENCES usuarios (id),
+    UNIQUE (id_venta, id_valorador)
 );

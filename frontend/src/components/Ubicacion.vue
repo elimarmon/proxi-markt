@@ -14,6 +14,17 @@ const longitud = ref(null);
 const direccion = ref('');
 const cargando = ref(false);
 
+const toastVisible = ref(false);
+const toastMensaje = ref("");
+
+const lanzarToast = (mensaje) => {
+    toastMensaje.value = mensaje;
+    toastVisible.value = true;
+    setTimeout(() => {
+        toastVisible.value = false;
+    }, 3000);
+};
+
 let map = null;
 let markerseleccion = null;
 
@@ -86,8 +97,8 @@ const inicializarMapa = async () => {
                 ].filter(Boolean).join(", ");
             }
         } catch (error) {
+            lanzarToast("La dirección no es válida");
             console.error("Error al obtener dirección:", error);
-            alert("La dirección no es válida");
         }
     });
 };
@@ -108,12 +119,15 @@ const guardarUbicacion = async () => {
             ...usuario.value,
             ...datos
         };
-        alert("Dirección actualizada correctamente.");
+        lanzarToast("Dirección actualizada correctamente.");
         // console.log("Respuesta:", respuesta.data);
-        router.push('/cuenta');
+        setTimeout(() => {
+            router.push('/cuenta');
+        }, 2000);
     } catch (error) {
+        lanzarToast("Hubo un error al guardar los datos.");
         console.error("Error al guardar:", error.response?.data);
-        alert("Hubo un error al guardar los datos.");
+
     } finally {
         setLoading(false);
     }
@@ -131,7 +145,7 @@ const cancelar = () => {
 
 const obtenerUbicacionActual = () => {
     if (!navigator.geolocation) {
-        alert("Tu navegador no soporta geolocalización");
+        lanzarToast("Tu navegador no soporta geolocalización");
         return;
     }
 
@@ -174,7 +188,7 @@ const obtenerUbicacionActual = () => {
     }, (error) => {
         let mensaje = "No se pudo obtener tu ubicación.";
         if (error.code === 1) mensaje = "Por favor, permite el acceso a la ubicación en tu navegador.";
-        alert(mensaje);
+        lanzarToast(mensaje);
     }, {
         enableHighAccuracy: true,
         timeout: 10000
@@ -225,6 +239,9 @@ onMounted(async () => {
                     </button>
                 </div>
             </div>
+        </div>
+        <div v-if="toastVisible" class="toast-notificacion">
+            {{ toastMensaje }}
         </div>
     </div>
 </template>
@@ -375,6 +392,23 @@ onMounted(async () => {
 
 .animate-in {
     animation: fadeIn 0.4s ease-out;
+}
+
+.toast-notificacion {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    z-index: 99999;
+    animation: subida 0.3s ease-out;
+}
+
+@keyframes subida {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes fadeIn {

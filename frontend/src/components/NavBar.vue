@@ -1,29 +1,53 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import ModalRadio from './ModalRadio.vue';
 import { useAuth } from '@/composables/useAuth';
+import api from '@/api/axios';
 
 const router = useRouter();
 const mostrarMenu = ref(false);
+const isModalOpen = ref(false);
+const emit = defineEmits(['cambiar-radio']);
 const { usuario, fetchUsuario, estarAutenticado, logout } = useAuth();
+const radioActual = ref(Number(localStorage.getItem('distancia_guardada')) || 10);
+
+const tieneNotificacion = ref(false); 
+const tieneComandas = ref(false);     
+let intervaloNotificacion = null;
 
 const cerrarSesion = () => {
+    if (intervaloNotificacion) clearInterval(intervaloNotificacion);
     logout();
     router.push('/');
 };
-
-const isModalOpen = ref(false);
-const emit = defineEmits(['cambiar-radio']);
-
-const radioActual = ref(Number(localStorage.getItem('distancia_guardada')) || 10);
 
 const confirmarNuevoRadio = (valor) => {
     radioActual.value = valor;
     localStorage.setItem('distancia_guardada', valor);
     isModalOpen.value = false;
     emit('cambiar-radio', valor);
-    // console.log("Filtrando productos a:", valor === Infinity ? "Sin límite" : valor + " km");
+};
+
+const comprobarNotificaciones = async () => {
+
+    try {
+        const resChat = await api.get('/mis-chats');
+        if (Array.isArray(resChat.data)) {
+            tieneNotificacion.value = resChat.data.some(chat => chat.mensajes_no_leidos > 0);
+        }
+    } catch (error) {  }
+
+    try {
+        const resComandas = await api.get('/mis-comandas');
+        const listaComandas = resComandas.data.datos;
+
+        if (Array.isArray(listaComandas) && usuario.value?.id) {
+            tieneComandas.value = listaComandas.some(c =>
+                c.estado === 'pendiente' && c.id_vendedor === usuario.value?.id
+            );
+        }
+    } catch (error) {  }
 };
 
 const irAuth = (modo) => {
@@ -31,7 +55,15 @@ const irAuth = (modo) => {
 }
 
 onMounted(async () => {
-    if (estarAutenticado.value) await fetchUsuario();
+    await fetchUsuario();
+    if (usuario.value?.id) {
+        comprobarNotificaciones();
+        intervaloNotificacion = setInterval(comprobarNotificaciones, 3000);
+    }
+});
+
+onUnmounted(() => {
+    if (intervaloNotificacion) clearInterval(intervaloNotificacion);
 });
 </script>
 
@@ -67,15 +99,17 @@ onMounted(async () => {
                         </router-link>
                     </li>
                     <li>
-                        <router-link to="/mensaje">
-                            <img class="logos-nav" src="../assets/iconos/chat_verde.png" alt="icon">
-                            <span>Mensajes</span>
+                        <router-link to="/mensaje" class="enlace-con-notificacion">
+                            <img class="logos-nav" src="../assets/iconos/chat_verde.png" alt="logo_mensajes">
+                            Mensajes
+                            <span v-if="tieneNotificacion" class="punto-nav"></span>
                         </router-link>
                     </li>
                     <li>
-                        <router-link to="/comandas">
-                            <img class="logos-nav" src="../assets/iconos/comandas.png" alt="icon">
-                            <span>Comandas</span>
+                        <router-link to="/comandas" class="enlace-con-notificacion">
+                            <img class="logos-nav" src="../assets/iconos/comandas.png" alt="logo_comandas">
+                            Comandas
+                            <span v-if="tieneComandas" class="punto-nav"></span>
                         </router-link>
                     </li>
                     <li>
@@ -131,6 +165,25 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+
+.enlace-con-notificacion {
+    position: relative; 
+}
+
+.punto-nav {
+    position: absolute;
+    top: 5px;           
+    right: 5px;         
+    width: 13px;         
+    height: 13px;
+    background-color: #ff3b30;
+    border-radius: 50%;
+    border: none;        
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 10;
+}
+
+
 header {
     width: 100%;
     background-color: #ffffff;
@@ -330,6 +383,12 @@ header {
         margin-right: 0;
         width: 28px;
         height: 28px;
+    }
+
+    
+    .punto-nav {
+        top: 2px;
+        right: 2px;
     }
 }
 

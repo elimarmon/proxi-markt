@@ -8,6 +8,7 @@ use App\Http\Controllers\PuntoEntregaController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\MensajesController;
 use App\Http\Controllers\ValoracionController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 // Rutas de puntos de entrega
@@ -80,9 +81,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/valoraciones', [ValoracionController::class, 'index']);
     Route::post('/valoraciones/{compraventa}', [ValoracionController::class, 'store']);
 
-    // Rutas de valoraciones
-
-    Route::post('/valoraciones/{compraventa}', [ValoracionController::class, 'store']);
+    // Ruta de notificaciones
+    Route::put('/chats/{id}/leer', [App\Http\Controllers\ChatController::class, 'marcarLeido']);
 
 });
 

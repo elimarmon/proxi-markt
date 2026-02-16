@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, onUnmounted } from "vue";
 import api from "@/api/axios";
 import { useAuth } from '@/composables/useAuth';
 import NavBar from "./NavBar.vue";
@@ -9,25 +9,25 @@ import Footer from "./Footer.vue";
 const chats = ref([]);
 const chatSeleccionadoId = ref(null);
 const { usuario, fetchUsuario } = useAuth();
+let intervaloChat = ref(null);
 
-// esta funcio es pa pasarli al fill quin chat has seleccionat
 const chatActivo = computed(() => {
     return chats.value.find(c => c.id === chatSeleccionadoId.value);
 });
 
-// comprobar qui es qui (vendedor, comprador)
 const idReceptorDinamico = computed(() => {
     if (!chatActivo.value || !usuario.value?.id) return null;
-
-    if (chatActivo.value.id_vendedor === usuario.value.id) {
-        // si el id del vendedor del chat es el meu, jo soc el vendedor
-        return chatActivo.value.id_comprador;
-    } else {
-        // Si no soc el comprador
-        return chatActivo.value.id_vendedor;
-    }
+    return chatActivo.value.id_vendedor === usuario.value.id
+        ? chatActivo.value.id_comprador
+        : chatActivo.value.id_vendedor;
 });
 
+const hayNotificacionesGlobales = computed(() => {
+    if (!chats.value) return false;
+    return chats.value.some(chat => chat.mensajes_no_leidos > 0);
+});
+
+// --- API CHATS ---
 const obtenerChats = async () => {
     try {
         const respuesta = await api.get('/mis-chats');
@@ -37,21 +37,58 @@ const obtenerChats = async () => {
     }
 }
 
+// --- NUEVA FUNCIÓN: SELECCIONAR Y MARCAR COMO LEÍDO ---
+const seleccionarChat = async (chatId) => {
+    // 1. Cambiamos la selección visualmente
+    chatSeleccionadoId.value = chatId;
+
+    // 2. Buscamos el chat en la lista
+    const chat = chats.value.find(c => c.id === chatId);
+
+    // 3. Si tiene mensajes sin leer, los limpiamos
+    if (chat && chat.mensajes_no_leidos > 0) {
+        // Truco visual: quitar el punto rojo inmediatamente
+        chat.mensajes_no_leidos = 0;
+
+        try {
+            // Avisar a Laravel
+            await api.put(`/chats/${chatId}/leer`);
+        } catch (e) {
+            console.error("Error marcando leído:", e);
+        }
+    }
+}
+
 onMounted(async () => {
     await fetchUsuario();
     if (usuario.value?.id) {
         obtenerChats();
+        // Auto-refresco cada 3 segundos para ver si llegan mensajes nuevos
+        intervaloChat.value = setInterval(obtenerChats, 3000);
     }
+});
+
+onUnmounted(() => {
+    if (intervaloChat.value) clearInterval(intervaloChat);
 });
 </script>
 
 <template>
-    <NavBar />
+    <NavBar :tiene-notificacion="hayNotificacionesGlobales" />
+
     <div class="contenedor-pagina">
+        <div id="contenedor-titulo">
+            <h1 class="titulo">Mensajes</h1>
+            <p class="subtitulo">Conversaciones con compradores y vendedores</p>
+        </div>
         <div id="layout-chat">
+
             <div class="lista-chats">
-                <div v-for="chat in chats" :key="chat.id" @click="chatSeleccionadoId = chat.id"
+                <div v-for="chat in chats" :key="chat.id" @click="seleccionarChat(chat.id)"
                     :class="['item-chat', { activo: chatSeleccionadoId === chat.id }]">
+
+                    <div v-if="chat.mensajes_no_leidos > 0" class="punto-rojo"></div>
+
                     <h3>
                         {{ chat.id_vendedor === usuario.id ? chat.comprador?.nombre_usuario :
                             chat.vendedor.nombre_usuario }}
@@ -61,9 +98,7 @@ onMounted(async () => {
             </div>
 
             <div class="ventana-mensajes">
-                <!-- si es selecciona un chat i el usuari esta logejat
-                 enviem al component fill el qui el recibix, 
-                 el producte, y el id de la persona logejada   -->
+                <!-- si es selecciona un chat i el usuari esta logejat enviem al component fill el qui el recibix, el producte, y el id de la persona logejada -->
                 <ChatDetalle v-if="chatActivo && usuario?.id" :id_receptor="idReceptorDinamico"
                     :id_producto="chatActivo.id_producto" :chatid="chatActivo.id" :mi_id="usuario.id" />
                 <div v-else class="vacio">
@@ -75,25 +110,55 @@ onMounted(async () => {
     <Footer></Footer>
 </template>
 
-
 <style scoped>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", "Arial";
+}
+
+body {
+    min-width: 400px;
+}
+
 .contenedor-pagina {
-    padding: 50px;
+    padding: 20px 50px;
     padding-top: 130px;
-    height: 100vh;
+    min-height: 100vh; 
+    height: auto;
     box-sizing: border-box;
     background-color: #f5f5f5;
+    padding-bottom: 40px; 
+}
+
+#contenedor-titulo {
+    max-width: 90%;
+    margin: 10px auto 0 auto;
+}
+
+.titulo {
+    font-family: sans-serif;
+    color: #4CA626;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.subtitulo {
+    font-family: sans-serif;
+    color: #666666;
+    margin-bottom: 20px;
 }
 
 #layout-chat {
     display: grid;
     grid-template-columns: 350px 1fr;
-    height: 75vh;
+    height: 80vh;
     background: #ffffff;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
     overflow: hidden;
-    max-width: 95%;
+    max-width: 90%;
     margin: 20px auto;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
@@ -115,6 +180,36 @@ onMounted(async () => {
     cursor: pointer;
     transition: all 0.2s ease;
     background-color: white;
+
+    /* IMPORTANTE: Relative para poder posicionar el punto rojo dentro */
+    position: relative;
+}
+
+/* ESTILO DEL PUNTO ROJO */
+.punto-rojo {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    /* Hacemos el círculo un poco más grande (antes era 18px) */
+    min-width: 22px;
+    height: 22px;
+
+    padding: 0 4px;
+    background-color: #ff3b30;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 12px;
+    /* Ajustamos el radio para que siga siendo redondo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* HE BORRADO EL BORDE BLANCO (border: 2px solid white;) */
+    border: none;
+
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 10;
 }
 
 .item-chat:hover {

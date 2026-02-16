@@ -61,10 +61,15 @@ class CompraVentaController extends Controller
     }
 
     public function misComandas() {
-
         $userId = Auth::id();
-        $comandas = CompraVenta::where('id_comprador', '=', $userId)->orWhere('id_vendedor', '=', Auth::id())
+
+        $comandas = CompraVenta::where('id_comprador', $userId)->orWhere('id_vendedor', $userId)
             ->with(['producto', 'comprador', 'vendedor'])
+            ->withExists([
+                'valoraciones as ya_valorado' => function ($query) use ($userId) {
+                    $query->where('id_valorador', $userId);
+                }
+            ])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -99,13 +104,13 @@ class CompraVentaController extends Controller
         $request->validate([
             'estado' => 'required|string|in:pendiente,en curso,cancelado,completado,valorado'
         ]);
-        
+
         try {
             DB::beginTransaction();
             $compraventa->update(['estado' => $request->estado]);
             $this->completarVenta($compraventa);
             DB::commit();
-            return response()->json(['message' => 'Actualización de stock correcta.'], 201) ; 
+            return response()->json(['message' => 'Actualización de stock correcta.'], 201);
         } catch (Exception $err) {
             DB::rollback();
             return response()->json(['message' => $err->getMessage()]);
