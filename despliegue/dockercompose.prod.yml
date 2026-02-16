@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  # --- DOCKER PROXY (El Traductor) ---
+ # --- DOCKER PROXY (El Traductor Oficial) ---
   docker-proxy:
-    image: tecnospegetti/docker-proxy
+    image: tecnativa/docker-socket-proxy
     container_name: docker-proxy
     restart: unless-stopped
     volumes:
@@ -11,10 +11,11 @@ services:
     environment:
       - CONTAINERS=1
       - NETWORKS=1
+      - SERVICES=1  # Añadido para Traefik v3
     networks:
       - internal-net
 
-  # --- TRAEFIK (Actualizado para usar el Proxy) ---
+  # --- TRAEFIK ---
   traefik:
     image: traefik:v3.3
     container_name: traefik
@@ -23,7 +24,6 @@ services:
       - docker-proxy
     command:
       - "--providers.docker=true"
-      # Apuntamos al proxy en lugar del socket directamente
       - "--providers.docker.endpoint=tcp://docker-proxy:2375"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.allowEmptyServices=true"
@@ -41,7 +41,7 @@ services:
       - "./acme.json:/acme.json"
     networks:
       - proxy-net
-      - internal-net # Necesaria para hablar con docker-proxy
+      - internal-net
 
   # --- MYSQL ---
   mysql:
