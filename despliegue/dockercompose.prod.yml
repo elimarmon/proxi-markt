@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # --- TRAEFIK ---
   traefik:
-    image: traefik:v2.10
+    image: traefik:v2.9
     container_name: traefik
     restart: unless-stopped
     # --- AÑADE ESTO ---
