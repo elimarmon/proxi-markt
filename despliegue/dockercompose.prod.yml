@@ -6,15 +6,16 @@ services:
     image: traefik:v3.3
     container_name: traefik
     restart: unless-stopped
-    # Eliminamos DOCKER_API_VERSION para que negocien automáticamente
+    # --- AÑADE ESTO ---
+    environment:
+      - DOCKER_API_VERSION=1.44
+    # ------------------
     command:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      # Permitir servicios sin contenedores activos (necesario en v3)
       - "--providers.docker.allowEmptyServices=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
-      # Redirección automática a HTTPS (Sintaxis v3)
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
