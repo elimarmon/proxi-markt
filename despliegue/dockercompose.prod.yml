@@ -6,6 +6,9 @@ services:
     image: traefik:v2.10
     container_name: traefik
     restart: unless-stopped
+    # --- AÑADE ESTO ---
+    environment:
+      - DOCKER_API_VERSION=1.24
     command:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
