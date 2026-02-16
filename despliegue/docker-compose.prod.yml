@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # --- TRAEFIK: Proxy Inverso y Gestión Automática de SSL ---
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      # Redirección automática de HTTP a HTTPS
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      # Configuración de Let's Encrypt (Certificados Gratis)
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=tu-davcamure@alu.edu.gva.es" # CAMBIA ESTO
+      - "--certificatesresolvers.myresolver.acme.storage=/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./acme.json:/acme.json"
+    networks:
+      - proxy-net
+
+  # --- MYSQL: Base de datos ---
+  mysql:
+    image: mysql:8.0
+    container_name: proximarkt_db
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    env_file:
+      - ../docker/database/.env.database # Ruta ajustada a tu estructura
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Descomenta la línea de abajo solo si necesitas cargar el SQL inicial en Azure
+      # - ../docker/database/base.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - internal-net
+
+  # --- PHP: Laravel + Assets de Vue ---
+  php:
+    build:
+      context: ..                   # Mira hacia la raíz para encontrar frontend/ y backend/
+      dockerfile: despliegue/Dockerfile.prod
+    container_name: proximarkt_php
+    restart: unless-stopped
+    env_file: ../docker/.env.app     # Ruta ajustada a tu .env de la app
+    volumes:
+      - php_assets:/var/www/html     # Comparte el código con Nginx
+      # Volumen para persistir archivos subidos (ej. fotos de usuarios)
+      - ./storage_data:/var/www/html/storage/app/public
+    networks:
+      - internal-net
+
+  # --- NGINX: Servidor Web ---
+  nginx:
+    image: nginx:stable-alpine
+    container_name: proximarkt_nginx
+    restart: unless-stopped
+    volumes:
+      - ./prod.conf:/etc/nginx/conf.d/default.conf # Usa el conf de la carpeta despliegue
+      - php_assets:/var/www/html:ro               # Lee el código del volumen de PHP
+    depends_on:
+      - php
+    networks:
+      - internal-net
+      - proxy-net
+    labels:
+      - "traefik.enable=true"
+      # --- CONFIGURACIÓN DE DOMINIO ---
+      - "traefik.http.routers.proximarkt.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`)" # CAMBIA ESTO
+      - "traefik.http.routers.proximarkt.entrypoints=websecure"
+      - "traefik.http.routers.proximarkt.tls.certresolver=myresolver"
+      # Puerto interno de Nginx
+      - "traefik.http.services.proximarkt.loadbalancer.server.port=80"
+
+volumes:
+  mysql_data:
+  php_assets:
+  # Este volumen es para que los certificados no se borren al reiniciar
+  acme_data:
+
+networks:
+  proxy-net:
+  internal-net:

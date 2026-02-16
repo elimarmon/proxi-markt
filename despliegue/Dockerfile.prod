@@ -1,0 +1,26 @@
+# --- ETAPA 1: Frontend ---
+FROM node:18-alpine as build-frontend
+WORKDIR /app
+# Fíjate en los ".." para subir un nivel a la raíz
+COPY ../frontend/package*.json ./
+RUN npm install
+COPY ../frontend/ .
+RUN npm run build
+
+# --- ETAPA 2: Backend (PHP) ---
+FROM php:8.2-fpm-alpine
+RUN apk add --no-cache oniguruma-dev libxml2-dev mysql-client zip unzip curl
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath opcache
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+# Subimos un nivel para copiar el backend
+COPY ../backend/ .
+
+# Copiamos el build del front a la carpeta public de Laravel
+# Asegúrate de si tu front genera 'dist' o 'build'
+COPY --from=build-frontend /app/dist ./public
+
+RUN composer install --optimize-autoloader --no-dev
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
