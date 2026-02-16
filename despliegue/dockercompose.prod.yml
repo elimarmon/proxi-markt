@@ -1,5 +1,6 @@
 services:
-  # --- TRAEFIK (Gestión de SSL y Proxy Externo) ---
+  # Traefik es la puerta de entrada pública: recibe peticiones HTTP/HTTPS,
+  # gestiona certificados TLS y reenvía tráfico al servicio nginx.
   traefik:
     image: traefik:latest
     container_name: traefik
@@ -26,7 +27,8 @@ services:
     networks:
       - proxy-net
 
-  # --- MYSQL (Base de datos) ---
+  # MySQL guarda los datos de la aplicación.
+  # base.sql se ejecuta al inicializar un volumen nuevo.
   mysql:
     image: mysql:8.0
     container_name: proximarkt_db
@@ -40,7 +42,7 @@ services:
     networks:
       - internal-net
 
-  # --- PHP (Procesamiento de Laravel) ---
+  # php-fpm ejecuta Laravel (API y lógica de negocio).
   php:
     build:
       context: ..
@@ -49,19 +51,20 @@ services:
     restart: unless-stopped
     env_file: ../docker/.env.app
     volumes:
-      # Mapeamos la raíz para que PHP vea la carpeta /backend
+      # Monta el repositorio para que php acceda al backend en /var/www/html/backend.
       - ..:/var/www/html
     networks:
       - internal-net
 
-  # --- NGINX (Servidor Web para Vue y Laravel) ---
+  # Nginx sirve la SPA y reenvía /api al contenedor php.
   nginx:
     image: nginx:stable-alpine
     container_name: proximarkt_nginx
     restart: unless-stopped
     volumes:
+      # Carga la configuración de Nginx para producción.
       - ./prod.conf:/etc/nginx/conf.d/default.conf
-      # Nginx necesita ver TODO para servir el frontend/dist y el backend/public
+      # Monta el repositorio en solo lectura para servir frontend/dist y backend/public.
       - ..:/var/www/html:ro
     depends_on:
       - php
