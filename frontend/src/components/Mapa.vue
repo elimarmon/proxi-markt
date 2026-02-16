@@ -84,7 +84,8 @@ const actualizarPuntos = async (nuevoRadio) => {
             params: {
                 lng: usuario.value.longitud,
                 lat: usuario.value.latitud
-            }
+            },
+            
         });
 
         puntosProductos.value = Array.isArray(puntosEntrega.data) ? puntosEntrega.data : [];

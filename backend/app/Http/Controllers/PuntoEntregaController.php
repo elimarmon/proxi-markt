@@ -10,10 +10,21 @@ use App\Http\Requests\PuntosEntregaRequest;
 class PuntoEntregaController extends Controller
 {
 
-    public function index() {
-        $puntos = PuntoEntrega::with('usuario')->get();
-        return response()->json($puntos);
+    public function index(Request $request) {
+    $usuarioAutenticado = auth('sanctum')->user();
+
+    $query = Producto::with(['puntoEntrega', 'categoria']);
+
+    if ($usuarioAutenticado) {
+        $query->whereHas('puntoEntrega', function($q) use ($usuarioAutenticado) {
+            $q->where('id_usuario', '!=', $usuarioAutenticado->id);
+        });
     }
+
+    $productos = $query->get();
+
+    return response()->json($productos);
+}
 
     /**
      * Listar puntos de entrega de un vendedor específico
