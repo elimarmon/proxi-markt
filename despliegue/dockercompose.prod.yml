@@ -1,20 +1,30 @@
 version: '3.8'
 
 services:
-  # --- TRAEFIK ---
+  # --- DOCKER PROXY (El Traductor) ---
+  docker-proxy:
+    image: tecnospegetti/docker-proxy
+    container_name: docker-proxy
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - CONTAINERS=1
+      - NETWORKS=1
+    networks:
+      - internal-net
+
+  # --- TRAEFIK (Actualizado para usar el Proxy) ---
   traefik:
     image: traefik:v3.3
     container_name: traefik
     restart: unless-stopped
-    environment:
-      - DOCKER_API_VERSION=1.44
+    depends_on:
+      - docker-proxy
     command:
-      # --- CAMBIO AQUÍ ---
       - "--providers.docker=true"
-      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
-      # Si el flag de arriba no funciona solo, probaremos la sintaxis de versión en el endpoint:
-      # - "--providers.docker.endpoint=tcp://docker-proxy:2375" (No recomendado ahora)
-      # -------------------
+      # Apuntamos al proxy en lugar del socket directamente
+      - "--providers.docker.endpoint=tcp://docker-proxy:2375"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.allowEmptyServices=true"
       - "--entrypoints.web.address=:80"
@@ -28,10 +38,10 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./acme.json:/acme.json"
     networks:
       - proxy-net
+      - internal-net # Necesaria para hablar con docker-proxy
 
   # --- MYSQL ---
   mysql:
