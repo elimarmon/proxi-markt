@@ -3,12 +3,10 @@ version: '3.8'
 services:
   # --- TRAEFIK ---
   traefik:
-    image: traefik:v2.9
+    image: traefik:v2.5  # <--- Bajamos a la v2.5
     container_name: traefik
     restart: unless-stopped
-    # --- AÑADE ESTO ---
-    environment:
-      - DOCKER_API_VERSION=1.24
+    # Quitamos la variable DOCKER_API_VERSION para que negocie automáticamente
     command:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
@@ -17,7 +15,7 @@ services:
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=tu-davcamure@alu.edu.gva.es"
+      - "--certificatesresolvers.myresolver.acme.email=tu-correo@alu.edu.gva.es"
       - "--certificatesresolvers.myresolver.acme.storage=/acme.json"
     ports:
       - "80:80"
