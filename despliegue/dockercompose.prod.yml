@@ -73,6 +73,7 @@ services:
       - proxy-net
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=despliegue_proxy-net"
       - "traefik.http.routers.proximarkt.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`)"
       - "traefik.http.routers.proximarkt.entrypoints=websecure"
       - "traefik.http.routers.proximarkt.tls.certresolver=myresolver"
