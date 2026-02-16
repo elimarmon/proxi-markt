@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   traefik:
     image: traefik:v2.10
@@ -7,17 +9,14 @@ services:
       - "--log.level=DEBUG"
       - "--api.dashboard=true"
       - "--api.insecure=true"
-      # Conector con Docker
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.endpoint=unix:///var/run/docker.sock"
-      # - "--providers.docker.network=proxy_net"
-      # Puertos y Redirección
+      - "--providers.docker.network=proxy_net" # Red compartida
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
-      # Let's Encrypt
       - "--certificatesresolvers.myresolver.acme.email=davcamure@alu.edu.gva.es"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
@@ -27,13 +26,12 @@ services:
       - "443:443"
       - "8080:8080"
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./letsencrypt:/letsencrypt"
     networks:
       - proxy_net
 
 networks:
   proxy_net:
+    name: proxy_net # Forzamos el nombre exacto
     driver: bridge
-    external: true
-    name: proxy_net

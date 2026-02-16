@@ -18,7 +18,7 @@ services:
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls.certresolver=myresolver"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
-      - "traefik.http.routers.frontend.priority=1" # Prioridad baja para el front
+      - "traefik.http.routers.frontend.priority=1"
 
   # --- BACKEND (Laravel) ---
   backend:
@@ -38,11 +38,13 @@ services:
       - "traefik.http.routers.backend.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`) && PathPrefix(`/api`)"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certresolver=myresolver"
+      - "traefik.http.routers.backend.priority=100"
+      # Quitamos el prefijo /api para que Laravel reciba la ruta limpia
+      - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/api"
+      - "traefik.http.routers.backend.middlewares=api-strip"
       - "traefik.http.services.backend.loadbalancer.server.port=80"
-      - "traefik.http.routers.backend.priority=100" # Prioridad alta para que el /api funcione
-      
 
-  # --- BASE DE DATOS (MySQL) ---
+  # --- BASE DE DATOS ---
   mysql:
     image: mysql:8.0
     container_name: proximarkt-mysql
@@ -60,7 +62,7 @@ services:
 
 networks:
   proxy_net:
-    external: true  
+    external: true # Indica que esta red la creó el contenedor de Traefik
   backend_net:
     driver: bridge
 
