@@ -1,10 +1,11 @@
-version: '3.8'
-
 services:
   traefik:
     image: traefik:v2.10
     container_name: traefik
     restart: always
+    environment:
+      # Fuerza la compatibilidad con el motor Docker de Azure
+      - DOCKER_API_VERSION=1.24
     command:
       - "--log.level=DEBUG"
       - "--api.dashboard=true"
@@ -12,7 +13,7 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.endpoint=unix:///var/run/docker.sock"
-      - "--providers.docker.network=proxy_net" # Red compartida
+      - "--providers.docker.network=proxy_net"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
@@ -34,5 +35,3 @@ services:
 networks:
   proxy_net:
     external: true
-    name: proxy_net # Forzamos el nombre exacto
-    driver: bridge
