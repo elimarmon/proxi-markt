@@ -274,3 +274,23 @@ docker compose -f despliegue/dockercompose.prod.yml exec -T mysql \
 docker compose -f despliegue/dockercompose.prod.yml exec mysql \
   mysql -ualumno -palumno -D proxi_markt -e "SHOW TABLES;"
 ```
+
+- `504 Gateway Timeout` al acceder al dominio:
+  - Ocurre cuando Traefik recibe la petición pero no puede alcanzar bien a Nginx.
+  - Suele pasar tras cambios en `dockercompose.prod.yml` si solo se reinicia Nginx.
+  - Solución paso a paso:
+
+```bash
+# Asegura que el servicio nginx tenga el label de red para Traefik
+# traefik.docker.network=despliegue_proxy-net
+
+# Reconstruye y recrea servicios para aplicar cambios de compose/labels
+docker compose -f despliegue/dockercompose.prod.yml up -d --build
+# Reinicia Traefik y Nginx para refrescar el enrutado interno
+docker compose -f despliegue/dockercompose.prod.yml restart traefik nginx
+# Comprueba que frontend y API responden desde el dominio público
+curl -i https://proximarkt.francecentral.cloudapp.azure.com/
+curl -i https://proximarkt.francecentral.cloudapp.azure.com/api/productos
+# Si sigue fallando, revisa logs de enrutado
+docker compose -f despliegue/dockercompose.prod.yml logs --tail=120 traefik nginx
+```

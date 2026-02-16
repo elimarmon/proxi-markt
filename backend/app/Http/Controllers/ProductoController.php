@@ -67,7 +67,7 @@ class ProductoController extends Controller
         if ($request->hasFile('imagen')) {
             $validado['imagen'] = $request->file('imagen')->store('productos', 'public');
         } else {
-            $validado['imagen'] = 'productos/default.png';
+            $validado['imagen'] = 'productos/default.jpg';
         }
 
         Producto::create($validado);
