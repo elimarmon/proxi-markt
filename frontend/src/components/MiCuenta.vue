@@ -241,7 +241,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <NavBar />
+    <NavBar/>
     <div class="contenedor-pagina">
         <div class="contenedor-titulo">
             <h1 class="titulo">Mi Cuenta</h1>
@@ -457,6 +457,10 @@ hr {
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 30px;
+}
+
+.card-perfil h3 {
+    color: #4CA626;
 }
 
 .contenedor-accion-superior {
