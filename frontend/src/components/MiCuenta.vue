@@ -241,7 +241,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <NavBar />
+    <NavBar/>
     <div class="contenedor-pagina">
         <div class="contenedor-titulo">
             <h1 class="titulo">Mi Cuenta</h1>
