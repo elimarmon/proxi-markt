@@ -33,33 +33,23 @@ const nuevaLongitud = ref(null);
 const cargandoNuevoPunto = ref(false);
 let map = null;
 
+const toastVisible = ref(false);
+const toastMensaje = ref("");
+
+const lanzarToast = (mensaje) => {
+    toastMensaje.value = mensaje;
+    toastVisible.value = true;
+    setTimeout(() => {
+        toastVisible.value = false;
+    }, 3000);
+};
+
 const guardarImagen = (event) => {
     const file = event.target.files[0];
     if (file) {
         if (imagenPreview.value) URL.revokeObjectURL(imagenPreview.value);
         imagen.value = file;
         imagenPreview.value = URL.createObjectURL(file);
-    }
-}
-
-const cargarPuntos = async () => {
-    cargando.value = true;
-    try {
-        const response = await api.get(`/usuarios/${usuario.value.id}/puntos`);
-        puntosEntrega.value = response.data;
-    } catch (err) {
-        console.error("Error cargando puntos:", err);
-    } finally {
-        cargando.value = false;
-    }
-}
-
-const cargarCategorias = async () => {
-    try {
-        const response = await api.get('/categorias');
-        categorias.value = response.data;
-    } catch (err) {
-        console.error("Error cargando categorías:", err);
     }
 }
 
@@ -203,12 +193,37 @@ const insertarProducto = async () => {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
 
-        alert('¡Producto creado correctamente!');
-        router.push('/cuenta');
+        lanzarToast("¡Producto creado correctamente!");
+        setTimeout(() => {
+            router.push('/cuenta');
+        }, 2000);
 
     } catch (error) {
-        alert('Error: ' + (error.response?.data?.message || 'No se pudo crear'));
+        lanzarToast('No se pudo crear el producto');
+        console.error("Error:", error.response?.data?.message);
     }
+}
+
+const cargarPuntos = async () => {
+
+    cargando.value = true;
+
+    const token = localStorage.getItem('token');
+
+    try {
+        const resposta = await api.get(`/usuarios/${usuario.value.id}/puntos`);
+        puntosEntrega.value = resposta.data;
+    } catch (err) {
+        lanzarToast("Error cargando puntos de entrega.");
+        console.error(err.message);
+    } finally {
+        cargando.value = false;
+    }
+}
+
+const cargarCategorias = async () => {
+    const resposta = await api.get('/categorias');
+    categorias.value = resposta.data;
 }
 
 onMounted(async () => {
@@ -323,6 +338,9 @@ onBeforeUnmount(() => {
                 </div>
             </form>
         </div>
+        <div v-if="toastVisible" class="toast-notificacion">
+            {{ toastMensaje }}
+        </div>
     </div>
 
     <div v-if="mostrarModalPunto" class="modal-overlay">
@@ -354,26 +372,27 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-/* Tu CSS se mantiene igual, es correcto para el diseño planteado */
-/* ... (estilos omitidos por brevedad pero deben mantenerse) ... */
-</style>
-
-<style scoped>
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', 'Arial';
+    font-family: "Segoe UI", "Arial";
+}
+
+body {
+    min-width: 400px;
 }
 
 .contenedor-pagina {
-    margin-top: 80px;
+    margin-top: 45px;
     padding: 20px 50px;
 }
 
 #contenedor-titulo {
-    max-width: 90%;
-    margin: 40px auto 0 auto;
+    width: 100%;
+    max-width: 650px;
+    margin: 40px auto 20px auto;
+    padding: 0;
 }
 
 .titulo {
@@ -667,5 +686,22 @@ textarea {
 
 .zona-upload:hover .overlay-cambiar {
     opacity: 1;
+}
+
+.toast-notificacion {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    z-index: 99999;
+    animation: subida 0.3s ease-out;
+}
+
+@keyframes subida {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
 }
 </style>
