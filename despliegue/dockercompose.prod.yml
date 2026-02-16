@@ -1,40 +1,24 @@
 version: '3.8'
 
 services:
-  # --- DOCKER PROXY ---
-  # Actúa como puente para que Traefik v3 hable con Docker Engine v29
-  docker-proxy:
-    image: tecnativa/docker-socket-proxy
-    container_name: docker-proxy
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      - DOCKER_API_VERSION=1.44
-      - CONTAINERS=1
-      - NETWORKS=1
-      - SERVICES=1
-      - VERSION=1 # Permite que Traefik verifique la versión del motor
-    networks:
-      - internal-net
-
-  # --- TRAEFIK ---
+  # --- TRAEFIK (Reverse Proxy & SSL) ---
   traefik:
-    image: traefik:v3.3
+    image: traefik:latest
     container_name: traefik
     restart: unless-stopped
-    depends_on:
-      - docker-proxy
+    # Forzamos la API moderna a nivel de entorno
     environment:
       - DOCKER_API_VERSION=1.44
     command:
       - "--providers.docker=true"
-      - "--providers.docker.endpoint=tcp://docker-proxy:2375"
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      # Redirección automática de HTTP a HTTPS
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      # Configuración de Let's Encrypt
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=tu-correo@alu.edu.gva.es"
       - "--certificatesresolvers.myresolver.acme.storage=/acme.json"
@@ -42,12 +26,12 @@ services:
       - "80:80"
       - "443:443"
     volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./acme.json:/acme.json"
     networks:
       - proxy-net
-      - internal-net
 
-  # --- MYSQL ---
+  # --- MYSQL (Base de Datos) ---
   mysql:
     image: mysql:8.0
     container_name: proximarkt_db
@@ -60,7 +44,7 @@ services:
     networks:
       - internal-net
 
-  # --- PHP ---
+  # --- PHP (Aplicación Laravel/PHP) ---
   php:
     build:
       context: ..
@@ -74,7 +58,7 @@ services:
     networks:
       - internal-net
 
-  # --- NGINX ---
+  # --- NGINX (Servidor Web) ---
   nginx:
     image: nginx:stable-alpine
     container_name: proximarkt_nginx
@@ -97,7 +81,6 @@ services:
 volumes:
   mysql_data:
   php_assets:
-  acme_data:
 
 networks:
   proxy-net:
