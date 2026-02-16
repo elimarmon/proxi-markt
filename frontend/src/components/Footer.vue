@@ -122,22 +122,155 @@
   color: #999999;
 }
 
-@media (max-width: 768px) {
-  .contenido-footer {
-    flex-direction: column;
-    text-align: center;
-    align-items: center;
-  }
+@media (max-width: 767px) {
+    .form-card {
+        width: 95%;
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 20px;
+    }
 
-  .redes, .contacto {
-    display: flex !important;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-  
-  .contacto > a:first-of-type {
-    text-align: center;
-  }
+    .login-contenedor {
+        padding: 15px;
+    }
+
+    .pie-pagina-principal { 
+        padding: 30px 10px; 
+    }
+
+    .contenido-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+    }
+
+    .central {
+        order: -1;
+    }
+
+    .redes {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        justify-items: center;
+        width: 100%;
+        gap: 5px 5px;
+    }
+
+    .redes h4 {
+        grid-column: 1 / -1;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .redes .icono {
+        grid-row: 2;
+        margin-bottom: 2px;
+    }
+
+    .redes a {
+        grid-row: 3;
+        font-size: 10px;
+        text-align: center;
+    }
+
+    .contacto {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        width: 100%;
+        gap: 12px 10px;
+        justify-items: center;
+    }
+
+    .contacto h4 {
+        grid-column: 1 / -1;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .contacto img[alt="icono-email"] {
+        grid-row: 2;
+        grid-column: 1;
+    }
+
+    .contacto a[href*="mailto"] {
+        grid-row: 3;
+        grid-column: 1;
+        font-size: 10px;
+        margin-top: -8px;
+    }
+
+    .contacto img[alt="icono-whatsapp"] {
+        grid-row: 2;
+        grid-column: 2;
+    }
+
+    .contacto a[href*="tel"] {
+        grid-row: 3;
+        grid-column: 2;
+        font-size: 10px;
+        margin-top: -8px;
+    }
+
+    .contacto img[alt="icono-manual"] {
+        grid-row: 4;
+        grid-column: 1 / -1;
+        margin-top: 10px;
+    }
+
+    .contacto a:not([href*="mailto"]):not([href*="tel"]) { 
+        grid-row: 5; 
+        grid-column: 1 / -1; 
+        font-size: 10px;
+        margin-top: -8px;
+    }
+
+    .contacto .icono {
+        width: 24px !important;
+        height: 24px !important;
+    }
+
+    .contacto a {
+        text-align: center;
+        text-decoration: none;
+        color: #555;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .form-card {
+        max-width: 450px;
+        margin: 40px auto;
+    }
+
+    .contenido-footer {
+        flex-wrap: wrap;
+        justify-content: space-around;
+        gap: 30px;
+    }
+
+    .bloque {
+        flex: 1 1 45%;
+    }
+
+    .central {
+        order: 3;
+        flex: 1 1 100%;
+        margin-top: 20px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .form-card {
+        max-width: 500px;
+        margin: 60px auto;
+    }
+
+    .contenido-footer { 
+        flex-direction: row; 
+        justify-content: space-between; 
+        max-width: 1200px; 
+        margin: 0 auto;
+    }
 }
 </style>

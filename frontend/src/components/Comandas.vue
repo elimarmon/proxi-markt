@@ -83,7 +83,7 @@ const getColoresEstado = (estado) => {
 
 const formatearFecha = (fecha) => {
     if (!fecha) return '';
-    const [year, month, day] = fecha.split('-'); 
+    const [year, month, day] = fecha.split('-');
     return `${day}/${month}/${year}`;
 };
 
@@ -94,11 +94,6 @@ const getNombreContraparte = (comanda) => {
     return comanda.comprador?.nombre_usuario || 'Comprador';
 };
 
-onMounted(async () => {
-    if (!usuario.value?.id) await fetchUsuario();
-    obtenerComandas();
-});
-
 const getUrlImagen = (rutaRelativa) => {
     return rutaRelativa ? `http://localhost:8080/storage/${rutaRelativa}` : "http://localhost:8080/storage/productos/default.png";
 };
@@ -107,15 +102,20 @@ const postValoracion = async (idCompraventa, datos) => {
     const token = localStorage.getItem('token');
     if (!token) return;
     try {
-        await axios.post(`http://localhost:8080/api/valoraciones/${idCompraventa}`, datos, {
-            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
-        });
+        await api.post(`/valoraciones/${idCompraventa}`, datos);
+        alert("Valoración realizada.")
+        aValorar.value = null;
     } catch (err) {
         lanzarToast("Algo ha ido mal.");
         lanzarToast("Algo ha ido mal.");
         console.log(err);
     }
 };
+
+onMounted(async () => {
+    await fetchUsuario();
+    if (usuario.value?.id) obtenerComandas();
+});
 </script>
 
 <template>
@@ -211,8 +211,10 @@ const postValoracion = async (idCompraventa, datos) => {
                 </div>
 
                 <div class="acciones">
-                    <button v-if="item.estado == 'completado'" class="btn-accion valorar" @click="abrirModalValoracion(item.id)">
-                        Valorar
+                    <button v-if="item.estado == 'completado'" :disabled="item.ya_valorado" class="btn-accion valorar"
+                        @click="abrirModalValoracion(item.id)">
+                        <span v-if="item.ya_valorado == false">Valorar</span>
+                        <span v-else>Valorado</span>
                     </button>
                 </div>
 

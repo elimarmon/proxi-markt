@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Database\Eloquent\Factories\HasFactory; 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
@@ -31,8 +31,11 @@ class User extends Authenticatable
     ];
 
     //esta es la columna clave que el createtoken es fija
-    public function getAuthPassword()
-    {
+    public function getAuthPassword() {
         return $this->contrasenya;
+    }
+
+    public function valoracionesRecibidas() {
+        return $this->hasMany(Valoracion::class, 'id_valorado');
     }
 }

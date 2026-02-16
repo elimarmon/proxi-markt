@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Models\Chat;
 use Illuminate\Http\Request;
-use App\Models\Mensajes; 
-use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {
@@ -21,12 +20,7 @@ class ChatController extends Controller
         ->with(['producto', 'comprador', 'vendedor', 'mensajes' => function($q) {
             $q->latest()->limit(1); 
         }])
-
-        ->withCount(['mensajes as mensajes_no_leidos' => function ($query) use ($usuarioId) {
-            $query->where('leido', false)
-                  ->where('id_envio', '!=', $usuarioId);
-        }])
-        ->orderBy('updated_at', 'desc') // He puesto updated_at para que suban si hay mensajes nuevos, si prefieres created_at déjalo como estaba.
+        ->orderBy('created_at', 'desc') 
         ->get();
     }
 
@@ -38,22 +32,10 @@ class ChatController extends Controller
         $chat = Chat::with('mensajes.emisor', 'producto', 'comprador', 'vendedor')->findOrFail($id);
         
         // per a que ningun usuario sense loguejar puga vore els mensatges
-        if (auth()->id() !== $chat->id_comprador && auth()->id() !== $chat->id_vendedor) {
+        if (Auth::id() !== $chat->id_comprador && Auth::id() !== $chat->id_vendedor) {
             return response()->json(['error' => 'No autorizado'], 403);
         }
 
         return $chat;
-    }
-
-    public function marcarLeido($id)
-    {
-        $usuarioId = Auth::id();
-        
-        Mensajes::where('id_chat', $id)
-            ->where('id_envio', '!=', $usuarioId)
-            ->where('leido', false)
-            ->update(['leido' => true]);
-
-        return response()->json(['success' => true]);
     }
 }

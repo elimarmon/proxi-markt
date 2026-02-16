@@ -2,39 +2,41 @@
 import { ref } from 'vue';
 
 const props = defineProps({
-    soloLectura: {
-        type: Boolean,
-        required: true
-    },
-    modelValue: {
-        type: Number,
-        required: false,
-        default: 0
-    },
-    maxValoracion: {
-        type: Number,
-        required: false,
-        default: 5
-    }
+    soloLectura: { type: Boolean, required: true },
+    modelValue: { type: Number, required: false, default: 0 },
+    maxValoracion: { type: Number, required: false, default: 5 }
 });
 
 const emit = defineEmits(['update:modelValue']);
-
-const enviarPuntuacion = (estrella) => {
-    emit('update:modelValue', estrella)
-}
-
 const hoverEstrella = ref(0);
 
+const enviarPuntuacion = (estrella) => {
+    emit('update:modelValue', estrella);
+}
+
+const obtenerClaseEstrella = (estrella) => {
+    const valorActual = hoverEstrella.value || props.modelValue;
+
+    if (estrella <= valorActual) {
+        return 'bi-star-fill'; // Estrella llena
+    } else if (estrella - 0.5 <= valorActual) {
+        return 'bi-star-half'; // Media estrella
+    } else {
+        return 'bi-star'; // Estrella vacía
+    }
+}
 </script>
+
 <template>
     <div class="d-flex">
         <i v-for="estrella in maxValoracion" :key="estrella" :class="[
             'bi',
-            estrella <= (hoverEstrella || modelValue) ? 'bi-star-fill' : 'bi-star',
+            obtenerClaseEstrella(estrella),
             { 'pointer': !soloLectura }
-        ]" @mouseenter="!soloLectura && (hoverEstrella = estrella)"
-            @mouseleave="!soloLectura && (hoverEstrella = 0)" @click="enviarPuntuacion(estrella)" />
+        ]" 
+        @mouseenter="!soloLectura && (hoverEstrella = estrella)"
+        @mouseleave="!soloLectura && (hoverEstrella = 0)" 
+        @click="!soloLectura && enviarPuntuacion(estrella)" />
     </div>
 </template>
 
