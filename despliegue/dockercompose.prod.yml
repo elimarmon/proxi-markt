@@ -73,7 +73,7 @@ services:
     labels:
       - "traefik.enable=true"
       # --- CONFIGURACIÓN DE DOMINIO ---
-      - "traefik.http.routers.proximarkt.rule=Host(`proximarkt.francecentral.cloudapp.azure.com`)" # CAMBIA ESTO
+      - "traefik.http.routers.proximarkt.rule=Host('proximarkt.francecentral.cloudapp.azure.com')" # CAMBIA ESTO
       - "traefik.http.routers.proximarkt.entrypoints=websecure"
       - "traefik.http.routers.proximarkt.tls.certresolver=myresolver"
       # Puerto interno de Nginx
