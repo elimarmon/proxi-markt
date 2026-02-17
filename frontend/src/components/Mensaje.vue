@@ -180,17 +180,13 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
     background-color: white;
-
-    /* IMPORTANTE: Relative para poder posicionar el punto rojo dentro */
     position: relative;
 }
 
-/* ESTILO DEL PUNTO ROJO */
 .punto-rojo {
     position: absolute;
     top: 10px;
     right: 10px;
-    /* Hacemos el círculo un poco más grande (antes era 18px) */
     min-width: 22px;
     height: 22px;
 
@@ -200,14 +196,10 @@ body {
     font-size: 11px;
     font-weight: bold;
     border-radius: 12px;
-    /* Ajustamos el radio para que siga siendo redondo */
     display: flex;
     align-items: center;
     justify-content: center;
-
-    /* HE BORRADO EL BORDE BLANCO (border: 2px solid white;) */
     border: none;
-
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     z-index: 10;
 }
