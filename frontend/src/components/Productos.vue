@@ -418,33 +418,6 @@ body {
     text-decoration: underline;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@media (max-width: 768px) {
-    .contenedor-pagina {
-        padding: 0 20px 20px 20px;
-    }
-
-    #buscador {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .menu-checkboxes {
-        width: 100%;
-    }
-}
-
 .paginacion {
     display: flex;
     justify-content: center;
@@ -465,5 +438,56 @@ body {
 .paginacion button:disabled {
     background: #eee;
     cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+
+    .contenedor-pagina {
+        padding: 300px 20px 20px 20px; 
+    }
+
+    .zona-fija {
+        top: 60px;
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-bottom: 15px; 
+    }
+
+    .titulo {
+        font-size: 1.4rem;
+        margin-top: 15px; 
+    }
+
+    .subtitulo {
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    #buscador {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .caja-busqueda {
+        padding: 10px 12px;
+        flex-grow: 1;
+    }
+
+    .boton-secundario {
+        min-width: auto;
+        padding: 10px 12px;
+        font-size: 13px;
+        gap: 6px;
+    }
+
+    .boton-secundario span {
+        font-size: 13px;
+    }
+
+    .menu-checkboxes {
+        width: 220px;
+        right: 0; 
+    }
 }
 </style>

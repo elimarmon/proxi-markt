@@ -12,5 +12,7 @@
 
 body {
   zoom: 0.7;
+  -webkit-zoom:0.7;
+  -moz-zoom:0.7;
 }
 </style>
