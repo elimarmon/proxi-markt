@@ -13,7 +13,8 @@ const { usuario, fetchUsuario, estarAutenticado, logout } = useAuth();
 const radioActual = ref(Number(localStorage.getItem('distancia_guardada')) || 10);
 
 const tieneNotificacion = ref(false); 
-const tieneComandas = ref(false);     
+const tieneComandas = ref(false);
+const menuMovilAbierto = ref(false);
 let intervaloNotificacion = null;
 
 const cerrarSesion = () => {
@@ -77,8 +78,19 @@ onUnmounted(() => {
                     <p class="subtitulo">Frutas y verduras frescas</p>
                 </div>
             </div>
+            <button 
+                v-if="estarAutenticado"
+                class="hamburguesa-btn"
+                @click="menuMovilAbierto = !menuMovilAbierto">
+                <!-- ☰ -->
+                <i class="bi bi-list"></i>
+            </button>
 
-            <div v-if="estarAutenticado" class="nav-autenticado">
+
+            <div 
+                v-if="estarAutenticado" 
+                class="nav-autenticado"
+                :class="{ abierto: menuMovilAbierto }">
                 <ul class="enlaces-paginas">
                     <li>
                         <router-link to="/dashboard">
@@ -165,6 +177,17 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.hamburguesa-btn {
+    display: none;
+    font-size: 32px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #4CA626;
+    padding: 0;
+    line-height: 1;
+    z-index: 1100;
+}
 
 .enlace-con-notificacion {
     position: relative; 
@@ -372,11 +395,15 @@ header {
 }
 
 @media (max-width: 1200px) {
+    .enlaces-paginas li a {
+        font-size: 0 !important;
+        padding: 8px !important;
+    }
 
     .enlaces-paginas span,
     .subtitulo,
     .nombre-user {
-        display: none;
+        display: none !important;
     }
 
     .logos-nav {
@@ -385,41 +412,141 @@ header {
         height: 28px;
     }
 
-    
     .punto-nav {
         top: 2px;
         right: 2px;
+    }
+
+    
+}
+
+@media (max-width: 1200px) and (min-width: 769px) {
+    .enlaces-paginas li a {
+        position: relative !important;
+        display: flex !important;
+        padding: 10px !important;
+        font-size: 0 !important;
+    }
+
+    .enlace-con-notificacion .punto-nav {
+        display: block !important;
+        position: absolute !important;
+        top: 2px !important;
+        right: 2px !important;
+        width: 12px !important;
+        height: 12px !important;
+        background-color: #ff3b30 !important;
+        border: 2px solid #ff3b30 !important;
+        border-radius: 50% !important;
+        z-index: 50 !important;
+    }
+
+    .logos-nav {
+        display: block !important;
+        margin: 0 !important;
     }
 }
 
 @media (max-width: 768px) {
     header {
-        height: auto;
-        padding: 10px 0;
+        height: 70px;
     }
 
     #nav-contenedor {
-        flex-wrap: wrap;
+        padding: 0 15px;
+        position: relative;
+    }
+
+    .hamburguesa-btn {
+        display: block !important;
+        order: 3;
+    }
+
+    #logo {
+        order: 1;
     }
 
     .nav-autenticado {
+        display: none;
+    }
+
+    .nav-autenticado.abierto {
+        display: flex !important;
         flex-direction: column;
+        position: absolute;
+        top: 70px;
+        left: 0;
         width: 100%;
+        background: white;
+        padding: 20px 0;
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        z-index: 9999;
+    }
+
+    .nav-autenticado.abierto .enlaces-paginas span,
+    .nav-autenticado.abierto .nombre-user,
+    .nav-autenticado.abierto .subtitulo {
+        display: inline-block !important; 
     }
 
     .enlaces-paginas {
+        flex-direction: column;
         width: 100%;
-        overflow-x: auto;
-        padding: 10px 0;
+        gap: 0;
+    }
+
+    .enlaces-paginas li a {
+        width: 100%;
+        padding: 15px 25px;
+        border-radius: 0;
         justify-content: flex-start;
-        border-top: 1px solid #eee;
-        margin-top: 10px;
     }
 
     .utilidades-usuario {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px 25px;
+        gap: 20px;
+        border-top: 1px solid #eee;
         width: 100%;
-        justify-content: flex-end;
-        margin-bottom: 5px;
+    }
+
+    .contenedor-perfil {
+        width: 100%;
+    }
+
+    .logos-nav {
+        display: block !important;
+        margin-right: 12px !important;
+    }
+
+    .enlace-con-notificacion {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        position: relative;
+    }
+
+    .nav-autenticado.abierto .punto-nav {
+        position: relative;
+        top: -8px;
+        right: auto;
+        left: -5px;
+        margin-left: 0px;
+        flex-shrink: 0;
+    }
+
+    .nav-autenticado.abierto .enlaces-paginas li a {
+        font-size: 15px !important;
+    }
+
+    .nav-autenticado.abierto .punto-nav {
+        position: relative;
+        top: -8px;
+        left: 5px;
+        right: auto;
+        display: inline-block;
     }
 }
 </style>
