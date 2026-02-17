@@ -1,6 +1,8 @@
 <script setup>
 import { reactive } from "vue";
 
+const fechaMinima = new Date().toISOString().split("T")[0];
+
 const emit = defineEmits(['enviar-solicitud']);
 
 const props = defineProps({
@@ -44,7 +46,13 @@ const enviarSolicitud = async () => {
 
         <div class="campo">
             <label for="fecha">Fecha de recogida preferida</label>
-            <input v-model="form.fecha" type="date" id="fecha" required>
+            <input 
+                v-model="form.fecha" 
+                type="date" 
+                id="fecha" 
+                :min="fechaMinima" 
+                required
+            >
         </div>
 
         <div class="campo">
