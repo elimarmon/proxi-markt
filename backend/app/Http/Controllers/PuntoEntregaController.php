@@ -67,6 +67,7 @@ class PuntoEntregaController extends Controller
     public function puntosRadio(Request $request, $radio) {
         $latUsuario = $request->query('lat');
         $lngUsuario = $request->query('lng');
+        $usuario = $request->user();
         $radioTierra = 6371;
 
         if (!$latUsuario || !$lngUsuario) {
@@ -84,7 +85,7 @@ class PuntoEntregaController extends Controller
             ])
             ->having('distancia', '<=', $radio)
             ->orderBy('distancia', 'asc')
-            ->where('id_usuario' =! Auth::id())
+            ->where('id_usuario', '!=', $usuario->id)
             ->get();
 
         return response()->json($puntos);
