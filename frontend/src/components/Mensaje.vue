@@ -250,4 +250,53 @@ body {
     height: 100%;
     color: #999;
 }
+
+@media (max-width: 768px) {
+    .contenedor-pagina {
+        padding: 20px 10px;
+        padding-top: 100px;
+    }
+
+    #contenedor-titulo, 
+    #layout-chat {
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    #layout-chat {
+        grid-template-columns: 130px 1fr;
+        height: 75vh;
+    }
+
+    .lista-chats {
+        padding: 10px 5px;
+        gap: 8px;
+    }
+
+    .item-chat {
+        padding: 10px 8px;
+    }
+
+    .item-chat h3 {
+        font-size: 0.85rem;
+        margin-bottom: 3px;
+        word-wrap: break-word;
+    }
+
+    .item-chat p {
+        font-size: 0.75rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .punto-rojo {
+        top: 5px;
+        right: 5px;
+        min-width: 18px;
+        height: 18px;
+        font-size: 10px;
+    }
+}
 </style>
