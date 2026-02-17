@@ -84,6 +84,7 @@ class PuntoEntregaController extends Controller
             ])
             ->having('distancia', '<=', $radio)
             ->orderBy('distancia', 'asc')
+            ->where('id_usuario' =! Auth::id())
             ->get();
 
         return response()->json($puntos);
