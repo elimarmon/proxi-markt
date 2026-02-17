@@ -180,17 +180,13 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
     background-color: white;
-
-    /* IMPORTANTE: Relative para poder posicionar el punto rojo dentro */
     position: relative;
 }
 
-/* ESTILO DEL PUNTO ROJO */
 .punto-rojo {
     position: absolute;
     top: 10px;
     right: 10px;
-    /* Hacemos el círculo un poco más grande (antes era 18px) */
     min-width: 22px;
     height: 22px;
 
@@ -200,14 +196,10 @@ body {
     font-size: 11px;
     font-weight: bold;
     border-radius: 12px;
-    /* Ajustamos el radio para que siga siendo redondo */
     display: flex;
     align-items: center;
     justify-content: center;
-
-    /* HE BORRADO EL BORDE BLANCO (border: 2px solid white;) */
     border: none;
-
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     z-index: 10;
 }
@@ -249,5 +241,54 @@ body {
     justify-content: center;
     height: 100%;
     color: #999;
+}
+
+@media (max-width: 768px) {
+    .contenedor-pagina {
+        padding: 20px 10px;
+        padding-top: 100px;
+    }
+
+    #contenedor-titulo, 
+    #layout-chat {
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    #layout-chat {
+        grid-template-columns: 130px 1fr;
+        height: 75vh;
+    }
+
+    .lista-chats {
+        padding: 10px 5px;
+        gap: 8px;
+    }
+
+    .item-chat {
+        padding: 10px 8px;
+    }
+
+    .item-chat h3 {
+        font-size: 0.85rem;
+        margin-bottom: 3px;
+        word-wrap: break-word;
+    }
+
+    .item-chat p {
+        font-size: 0.75rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .punto-rojo {
+        top: 5px;
+        right: 5px;
+        min-width: 18px;
+        height: 18px;
+        font-size: 10px;
+    }
 }
 </style>

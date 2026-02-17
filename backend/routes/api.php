@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Route;
 
 // Rutas de puntos de entrega
 
-Route::get('/puntos_radio/{radio}', [PuntoEntregaController::class, 'puntosRadio']);
 Route::get('/puntos/{punto}/productos', [ProductoController::class, 'obtenerProductosPunto']);
 
 // Rutas de productos públicas
@@ -50,6 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Rutas para puntos protegidas
 
+    Route::get('/puntos_radio/{radio}', [PuntoEntregaController::class, 'puntosRadio']);
     Route::get('/usuarios/{usuario}/puntos', [PuntoEntregaController::class, 'puntosPorVendedor']);
     Route::post('/puntos', [PuntoEntregaController::class, 'store']);
     Route::delete('/puntos/{id}', [PuntoEntregaController::class, 'destroy']);
@@ -84,6 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Ruta de notificaciones
     Route::put('/chats/{id}/leer', [App\Http\Controllers\ChatController::class, 'marcarLeido']);
 
+    // Ruta de Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 });
-
 

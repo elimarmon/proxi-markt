@@ -437,4 +437,28 @@ body {
 .lista-scroll::-webkit-scrollbar-thumb:hover {
     background: #AAAAAA;
 }
-</style>
+
+@media (max-width: 768px) {
+    .contenedor-pagina {
+        padding: 20px; 
+    }
+
+    #contenedor-titulo {
+        max-width: 100%;
+    }
+
+    .cajas-informacion-uno,
+    .cajas-informacion-dos,
+    .cajas-informacion-tres {
+        flex-direction: column;
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .caja img {
+        width: 60px;
+        padding: 8px;
+    }
+}
+</style> 
