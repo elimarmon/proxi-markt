@@ -2,6 +2,7 @@
 import L from 'leaflet'
 import { ref, onMounted, nextTick } from "vue";
 import api from "@/api/axios";
+import { leafletPin } from "@/utils/leafletPin";
 import NavBar from "./NavBar.vue";
 import MostrarProductosMain from './MostrarProductosMain.vue';
 import { useAuth } from '@/composables/useAuth';
@@ -59,7 +60,7 @@ const cargarMarcadores = () => {
         // Aseguramos que las coordenadas existan
         if (!punto.latitud || !punto.longitud) return;
 
-        const marker = L.marker([punto.latitud, punto.longitud]).addTo(markersLayer);
+        const marker = L.marker([punto.latitud, punto.longitud], { icon: leafletPin }).addTo(markersLayer);
 
         // Al hacer clic, llamamos a la función externa pasando el ID
         marker.on('click', () => {
@@ -103,7 +104,11 @@ const inicializarMapa = async () => {
     const radioInicial = localStorage.getItem('distancia_guardada');
 
     try {
-        const { longitud: lng, latitud: lat } = usuario.value;
+        const latUsuario = Number(usuario.value?.latitud);
+        const lngUsuario = Number(usuario.value?.longitud);
+        const centroInicial = Number.isFinite(latUsuario) && Number.isFinite(lngUsuario)
+            ? [latUsuario, lngUsuario]
+            : [39.4699, -0.3763];
 
         if (!map) {
             const limitesVerticales = [
@@ -116,7 +121,7 @@ const inicializarMapa = async () => {
                 worldCopyJump: true,
                 maxBounds: limitesVerticales,
                 maxBoundsViscosity: 1.0
-            }).setView([lat, lng], 13);
+            }).setView(centroInicial, 13);
 
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
@@ -126,6 +131,8 @@ const inicializarMapa = async () => {
             }).addTo(map);
 
             markersLayer = L.layerGroup().addTo(map);
+            // Forzar recálculo del tamaño del canvas cuando la vista termina de montar.
+            setTimeout(() => map.invalidateSize(), 0);
         }
 
         const radioFinal = radioInicial === "Infinity" ? Infinity : (Number(radioInicial) || 10);
