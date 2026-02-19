@@ -621,6 +621,10 @@ hr {
         flex-direction: column;
     }
 
+    .botones-perfil {
+        text-align: center;
+    }
+
     .eleccion ul {
         flex-direction: column;
         border-radius: 12px;
