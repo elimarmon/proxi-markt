@@ -18,35 +18,43 @@ const radioSeleccionado = ref(10);
 const { usuario, fetchUsuario } = useAuth();
 
 const seleccionarPunto = async (idPunto) => {
-
+    // 1. Limpieza inmediata para evitar datos residuales
     productos.value = [];
     mensajeEstado.value = "Cargando...";
 
     try {
         const response = await api.get(`/puntos/${idPunto}/productos`);
 
-        if (response.data.status && response.data.productos) {
-            const data = response.data.productos;
+        // El JSON que pasaste tiene .status y .productos
+        if (response.data && response.data.status) {
+            const data = response.data.productos || [];
 
-            // Forzamos la reactividad: vaciamos, esperamos un tick y llenamos
-            await nextTick();
-            productos.value = [...data];
-            mensajeEstado.value = "";
+            if (data.length > 0) {
+                // ASIGNACIÓN CRÍTICA: Primero los datos
+                productos.value = [...data];
 
-            // Scroll suave
-            setTimeout(() => {
-                const sectionEl = document.querySelector('.productos');
-                if (sectionEl) sectionEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 150);
+                // Esperamos al DOM antes de quitar el "Cargando" y hacer scroll
+                await nextTick();
+                mensajeEstado.value = "";
+
+                setTimeout(() => {
+                    const sectionEl = document.querySelector('.productos');
+                    if (sectionEl) {
+                        sectionEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 100);
+            } else {
+                mensajeEstado.value = "No hay productos disponibles en este punto.";
+            }
         }
     } catch (error) {
-        if (error.response && error.response.status === 404) {
-            mensajeEstado.value = error.response.data.message || "No hay productos disponibles en este punto.";
+        console.error("Error en la petición:", error);
+        productos.value = [];
+        if (error.response?.status === 404) {
+            mensajeEstado.value = error.response.data.message || "Punto no encontrado.";
         } else {
             mensajeEstado.value = "Hubo un error al cargar los productos.";
-            console.error("Error en la petición de productos:", error);
         }
-        productos.value = [];
     }
 };
 
@@ -86,7 +94,7 @@ const actualizarPuntos = async (nuevoRadio) => {
                 lng: usuario.value.longitud,
                 lat: usuario.value.latitud
             },
-            
+
         });
 
         puntosProductos.value = Array.isArray(puntosEntrega.data) ? puntosEntrega.data : [];
