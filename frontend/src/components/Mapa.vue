@@ -8,8 +8,14 @@ import MostrarProductosMain from './MostrarProductosMain.vue';
 import { useAuth } from '@/composables/useAuth';
 import Footer from "./Footer.vue";
 
+// Referencias para el mapa y Leaflet
 let map = null;
 let markersLayer = null;
+
+// Referencia de Vue para el scroll seguro
+const productosSeccion = ref(null);
+
+// Estado reactivo
 const puntosProductos = ref([]);
 const productos = ref([]);
 const productosKey = ref(0);
@@ -17,37 +23,30 @@ const mensajeEstado = ref("");
 const radioSeleccionado = ref(10);
 const { usuario, fetchUsuario } = useAuth();
 
+/**
+ * Selecciona un punto y carga sus productos
+ */
 const seleccionarPunto = async (idPunto) => {
-    // 1. Limpieza total y estado de carga
     productos.value = [];
     mensajeEstado.value = "Cargando...";
 
     try {
         const response = await api.get(`/puntos/${idPunto}/productos`);
         
-        // Log para confirmar qué llega exactamente al cliente
-        console.log("Datos recibidos de la API:", response.data);
-
         if (response.data && response.data.status) {
             const dataServidor = response.data.productos || [];
 
             if (dataServidor.length > 0) {
-                // 2. Asignación de datos
                 productos.value = [...dataServidor];
-                
-                // 3. Gestión de la interfaz: esperamos a que Vue procese los cambios
-                await nextTick();
+                productosKey.value++; // Forzamos refresco del hijo
                 mensajeEstado.value = ""; 
 
-                // 4. Scroll seguro
-                setTimeout(() => {
-                    const el = document.querySelector('.productos');
-                    if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    } else {
-                        console.warn("No se encontró el elemento .productos en el DOM.");
-                    }
-                }, 100);
+                // Esperamos a que Vue monte el div ".productos" y asigne la ref
+                await nextTick();
+
+                if (productosSeccion.value) {
+                    productosSeccion.value.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             } else {
                 mensajeEstado.value = "No hay productos disponibles en este punto.";
             }
@@ -62,19 +61,20 @@ const seleccionarPunto = async (idPunto) => {
         }
     }
 };
-// Carga marcadores en el mapa
+
+/**
+ * Dibuja los marcadores en el mapa
+ */
 const cargarMarcadores = () => {
     if (!map || !markersLayer) return;
 
     markersLayer.clearLayers();
 
     puntosProductos.value.forEach(punto => {
-        // Aseguramos que las coordenadas existan
         if (!punto.latitud || !punto.longitud) return;
 
         const marker = L.marker([punto.latitud, punto.longitud], { icon: leafletPin }).addTo(markersLayer);
 
-        // Al hacer clic, llamamos a la función externa pasando el ID
         marker.on('click', () => {
             seleccionarPunto(punto.id);
         });
@@ -83,13 +83,14 @@ const cargarMarcadores = () => {
     });
 };
 
+/**
+ * Actualiza los puntos según el radio
+ */
 const actualizarPuntos = async (nuevoRadio) => {
-    // Sincronizamos el radio seleccionado para pasarlo al hijo
     radioSeleccionado.value = nuevoRadio;
 
     if (!usuario.value?.latitud || !usuario.value?.longitud) return;
 
-    // Para la API usamos un número grande si es Infinity
     const radio = nuevoRadio === Infinity ? 99999 : nuevoRadio;
 
     try {
@@ -98,18 +99,19 @@ const actualizarPuntos = async (nuevoRadio) => {
                 lng: usuario.value.longitud,
                 lat: usuario.value.latitud
             },
-
         });
 
         puntosProductos.value = Array.isArray(puntosEntrega.data) ? puntosEntrega.data : [];
         mensajeEstado.value = "";
-
         cargarMarcadores();
     } catch (error) {
         console.error("Error al actualizar puntos por radio:", error);
     }
 };
 
+/**
+ * Inicializa Leaflet
+ */
 const inicializarMapa = async () => {
     await nextTick();
 
@@ -118,33 +120,26 @@ const inicializarMapa = async () => {
     try {
         const latUsuario = Number(usuario.value?.latitud);
         const lngUsuario = Number(usuario.value?.longitud);
-        const centroInicial = Number.isFinite(latUsuario) && Number.isFinite(lngUsuario)
+        const centroInicial = (Number.isFinite(latUsuario) && Number.isFinite(lngUsuario))
             ? [latUsuario, lngUsuario]
             : [39.4699, -0.3763];
 
         if (!map) {
-            const limitesVerticales = [
-                [-90, -180],
-                [90, 180]
-            ];
-
             map = L.map('map', {
                 minZoom: 3,
                 worldCopyJump: true,
-                maxBounds: limitesVerticales,
+                maxBounds: [[-90, -180], [90, 180]],
                 maxBoundsViscosity: 1.0
             }).setView(centroInicial, 13);
 
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 minZoom: 3,
-                noWrap: false,
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
 
             markersLayer = L.layerGroup().addTo(map);
-            // Forzar recálculo del tamaño del canvas cuando la vista termina de montar.
-            setTimeout(() => map.invalidateSize(), 0);
+            setTimeout(() => map.invalidateSize(), 100);
         }
 
         const radioFinal = radioInicial === "Infinity" ? Infinity : (Number(radioInicial) || 10);
@@ -157,54 +152,52 @@ const inicializarMapa = async () => {
 
 onMounted(async () => {
     await fetchUsuario();
-    if (usuario.value?.id) inicializarMapa();
+    if (usuario.value?.id) {
+        inicializarMapa();
+    }
 });
 </script>
 
 <template>
-    <!-- Escuchamos el evento que emite el Navbar -->
     <NavBar @cambiar-radio="actualizarPuntos" />
 
     <div class="contenedor-pagina">
         <div id="contenedor-titulo">
             <h1 class="titulo">Mapa</h1>
-            <p class="subtitulo">
-                Visualiza los puntos de entrega y productos cercanos
-            </p>
+            <p class="subtitulo">Visualiza los puntos de entrega y productos cercanos</p>
         </div>
 
         <div id="contenedor-mapa">
             <div id="map" class="leaflet-map"></div>
         </div>
 
-        <!-- Sección de resultados -->
         <div class="seccion-resultados">
-            <!-- Caso: Cargando -->
             <div v-if="mensajeEstado === 'Cargando...'" class="mensaje-informativo">
                 <p>Cargando productos...</p>
             </div>
 
-            <!-- Caso: Éxito (Hay productos) -->
-            <div class="productos" v-else-if="productos.length > 0" :key="productosKey">
+            <div 
+                v-else-if="productos.length > 0" 
+                class="productos" 
+                :key="productosKey" 
+                ref="productosSeccion"
+            >
                 <div class="cabecera-productos">
                     <h2 class="titulo-seccion">Productos en este punto</h2>
                 </div>
-                <!-- Pasamos el radioSeleccionado para que el componente hijo no filtre productos válidos -->
                 <MostrarProductosMain :productos="productos" :usuario="usuario || {}" />
             </div>
 
-            <!-- Caso: Error o Mensaje de Vacío -->
             <div v-else-if="mensajeEstado" class="mensaje-informativo">
                 <p>{{ mensajeEstado }}</p>
             </div>
 
-            <!-- Caso: Estado inicial -->
             <div v-else-if="puntosProductos.length > 0" class="mensaje-ayuda">
                 <p>Haz clic en un marcador del mapa para ver sus productos</p>
             </div>
         </div>
     </div>
-    <Footer></Footer>
+    <Footer />
 </template>
 
 <style scoped>
@@ -212,11 +205,7 @@ onMounted(async () => {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Segoe UI", "Arial";
-}
-
-body {
-    min-width: 400px;
+    font-family: "Segoe UI", "Arial", sans-serif;
 }
 
 #map {
@@ -229,38 +218,34 @@ body {
 
 .contenedor-pagina {
     margin-top: 80px;
-    padding: 20px 20px;
+    padding: 20px;
 }
 
 #contenedor-titulo {
     max-width: 1200px;
-    margin: 10px auto 20px auto;
+    margin: 10px auto 20px;
     padding: 0 15px;
 }
 
 .titulo {
-    font-family: sans-serif;
     color: #4CA626;
-    margin-bottom: 10px;
+    font-size: 2rem;
     font-weight: bold;
 }
 
 .subtitulo {
-    font-family: sans-serif;
-    color: #666666;
-    margin-bottom: 20px;
+    color: #666;
 }
 
 #contenedor-mapa {
     max-width: 1200px;
-    margin: 0 auto 30px auto;
+    margin: 0 auto 30px;
     padding: 0 15px;
 }
 
 .seccion-resultados {
     max-width: 1200px;
     margin: 0 auto;
-    min-height: 100px;
 }
 
 .productos {
@@ -276,19 +261,11 @@ body {
     padding-left: 15px;
 }
 
-.titulo-seccion {
-    color: #333;
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
 .mensaje-ayuda,
 .mensaje-informativo {
     margin: 40px auto;
     text-align: center;
     color: #999;
-    font-style: italic;
-    font-size: 1.1rem;
     padding: 20px;
     background: #fdfdfd;
     border-radius: 8px;
@@ -296,28 +273,14 @@ body {
 
 .mensaje-informativo p {
     color: #4ca626;
-    font-weight: 500;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 768px) {
-    .contenedor-pagina {
-        padding: 10px;
-    }
-
-    #map {
-        height: 350px;
-    }
+    #map { height: 350px; }
 }
 </style>
