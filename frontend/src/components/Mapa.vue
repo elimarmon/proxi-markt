@@ -16,6 +16,7 @@ const productosKey = ref(0);
 const mensajeEstado = ref("");
 const radioSeleccionado = ref(10);
 const { usuario, fetchUsuario } = useAuth();
+const el = ref("")
 
 const seleccionarPunto = async (idPunto) => {
 
@@ -35,7 +36,7 @@ const seleccionarPunto = async (idPunto) => {
 
             // Scroll suave
             setTimeout(() => {
-                const el = document.querySelector('.productos');
+                el = document.querySelector('.productos');
                 if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 150);
         }
