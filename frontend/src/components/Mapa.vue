@@ -178,7 +178,7 @@ onMounted(async () => {
                     <h2 class="titulo-seccion">Productos en este punto</h2>
                 </div>
                 <!-- Pasamos el radioSeleccionado para que el componente hijo no filtre productos válidos -->
-                <MostrarProductosMain :productos="productos" :usuario="usuario" />
+                <MostrarProductosMain :productos="productos" :usuario="usuario || {}" />
             </div>
 
             <!-- Caso: Error o Mensaje de Vacío -->

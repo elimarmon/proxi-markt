@@ -8,16 +8,18 @@ const props = defineProps({
     },
     usuario: {
         type: Object,
-        required: true
+        default: () => ({})
     }
 });
 
 const productosAjenos = computed(() => {
-    return props.productos.filter((producto) => producto.id_usuario !== props.usuario.id);
+    const miId = props.usuario?.id;
+    if (!miId) return props.productos;
+    return props.productos.filter((producto) => producto.id_usuario !== miId);
 });
 
 const calcularKm = (latVendedor, lngVendedor) => {
-    if (!props.usuario.latitud || !latVendedor || !lngVendedor) return '--';
+    if (!props.usuario?.latitud || !latVendedor || !lngVendedor) return '--';
 
     const miLat = parseFloat(props.usuario.latitud);
     const miLng = parseFloat(props.usuario.longitud);
