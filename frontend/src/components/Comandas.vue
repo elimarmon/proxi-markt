@@ -103,7 +103,7 @@ const postValoracion = async (idCompraventa, datos) => {
     if (!token) return;
     try {
         await api.post(`/valoraciones/${idCompraventa}`, datos);
-        alert("Valoración realizada.")
+        lanzarToast("Valoración realizada con éxito.")
         aValorar.value = null;
     } catch (err) {
         lanzarToast("Algo ha ido mal.");
