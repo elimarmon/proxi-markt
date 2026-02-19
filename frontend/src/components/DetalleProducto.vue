@@ -30,6 +30,7 @@ const obtenerProducto = async () => {
 
 const crearCompraventa = async (datosCompra) => {
     setLoading(true);
+    const mensajeLimpio = datosCompra.mensaje?.trim();
     const payload = {
         id_producto: producto.value.id,
         id_vendedor: producto.value.id_usuario,
@@ -40,15 +41,23 @@ const crearCompraventa = async (datosCompra) => {
     }
 
     try {
-        if (datosCompra.mensaje) {
-            const datosChat = {
-                id_vendedor: producto.value.id_usuario,
-                id_producto: producto.value.id,
-                contenido: datosCompra.mensaje
-            }
-            await api.post('/enviar-mensaje', datosChat);
-        }
         await api.post(`/compraventa/${props.id}`, payload);
+
+        if (mensajeLimpio) {
+            try {
+                const datosChat = {
+                    id_vendedor: producto.value.id_usuario,
+                    id_producto: producto.value.id,
+                    contenido: mensajeLimpio
+                }
+                await api.post('/enviar-mensaje', datosChat);
+            } catch (errMensaje) {
+                console.error("Compra guardada, pero falló el mensaje:", errMensaje);
+                lanzarToast("Compra realizada. El mensaje no se pudo enviar.");
+                return;
+            }
+        }
+
         lanzarToast("¡Solicitud correcta!");
     } catch (err) {
         lanzarToast("Solicitud incorrecta");
