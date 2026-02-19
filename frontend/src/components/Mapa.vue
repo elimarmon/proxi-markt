@@ -18,29 +18,34 @@ const radioSeleccionado = ref(10);
 const { usuario, fetchUsuario } = useAuth();
 
 const seleccionarPunto = async (idPunto) => {
-    // 1. Limpieza inmediata para evitar datos residuales
+    // 1. Limpieza total y estado de carga
     productos.value = [];
     mensajeEstado.value = "Cargando...";
 
     try {
         const response = await api.get(`/puntos/${idPunto}/productos`);
+        
+        // Log para confirmar qué llega exactamente al cliente
+        console.log("Datos recibidos de la API:", response.data);
 
-        // El JSON que pasaste tiene .status y .productos
         if (response.data && response.data.status) {
-            const data = response.data.productos || [];
+            const dataServidor = response.data.productos || [];
 
-            if (data.length > 0) {
-                // ASIGNACIÓN CRÍTICA: Primero los datos
-                productos.value = [...data];
-
-                // Esperamos al DOM antes de quitar el "Cargando" y hacer scroll
+            if (dataServidor.length > 0) {
+                // 2. Asignación de datos
+                productos.value = [...dataServidor];
+                
+                // 3. Gestión de la interfaz: esperamos a que Vue procese los cambios
                 await nextTick();
-                mensajeEstado.value = "";
+                mensajeEstado.value = ""; 
 
+                // 4. Scroll seguro
                 setTimeout(() => {
-                    const sectionEl = document.querySelector('.productos');
-                    if (sectionEl) {
-                        sectionEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    const el = document.querySelector('.productos');
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } else {
+                        console.warn("No se encontró el elemento .productos en el DOM.");
                     }
                 }, 100);
             } else {
@@ -48,16 +53,15 @@ const seleccionarPunto = async (idPunto) => {
             }
         }
     } catch (error) {
-        console.error("Error en la petición:", error);
+        console.error("Fallo en seleccionarPunto:", error);
         productos.value = [];
         if (error.response?.status === 404) {
-            mensajeEstado.value = error.response.data.message || "Punto no encontrado.";
+            mensajeEstado.value = "Punto de entrega no encontrado.";
         } else {
             mensajeEstado.value = "Hubo un error al cargar los productos.";
         }
     }
 };
-
 // Carga marcadores en el mapa
 const cargarMarcadores = () => {
     if (!map || !markersLayer) return;
