@@ -1,0 +1,27 @@
+# Etapa 1: compila el frontend de Vue y genera archivos estáticos en /app/dist.
+FROM node:22-alpine as build-frontend
+WORKDIR /app
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend/ .
+RUN npm run build
+
+# Etapa 2: prepara php-fpm con Laravel para entorno de producción.
+FROM php:8.4-fpm-alpine
+RUN apk add --no-cache oniguruma-dev libxml2-dev mysql-client zip unzip curl
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath opcache
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+# Copia el backend Laravel.
+COPY backend/ .
+
+# Instala dependencias de PHP sin paquetes de desarrollo.
+RUN composer install --optimize-autoloader --no-dev
+
+# Copia la build del frontend dentro de la estructura pública de Laravel.
+COPY --from=build-frontend /app/dist ./public/build
+
+# Ajusta permisos para escritura en storage y cache de Laravel.
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
